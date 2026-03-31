@@ -1,12 +1,11 @@
 package org.proyectobdmotos;
 
-/**
- * Hello world!
- *
- */
+import org.proyectobdmotos.database.DatabaseConnection;
+
 public class App {
 
-  public static void main(String[] args) {
-    System.out.println("Hello World!");
-  }
+    public static void main(String[] args) {
+        DatabaseConnection.runMigrations();
+        System.out.println("Base de datos lista.");
+    }
 }

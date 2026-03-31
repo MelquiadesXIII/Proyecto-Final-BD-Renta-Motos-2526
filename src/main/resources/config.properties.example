@@ -1,0 +1,5 @@
+# Copia este archivo como config.properties y rellena con tus datos locales
+# config.properties NO se sube al repositorio
+db.url=jdbc:postgresql://localhost:5432/renta_motos
+db.user=postgres
+db.password=tu_password_aqui

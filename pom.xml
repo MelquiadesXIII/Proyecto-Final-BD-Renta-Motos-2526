@@ -35,6 +35,18 @@
       <artifactId>postgresql</artifactId>
       <version>42.7.10</version>
     </dependency>
+
+    <!-- Flyway para migraciones de base de datos -->
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-core</artifactId>
+      <version>10.10.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-database-postgresql</artifactId>
+      <version>10.10.0</version>
+    </dependency>
     
     <dependency>
       <groupId>junit</groupId>
@@ -55,6 +67,16 @@
         </configuration>
       </plugin>
       
+      <!-- Plugin para ejecutar la app con mvn exec:java -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.6.3</version>
+        <configuration>
+          <mainClass>${main.class}</mainClass>
+        </configuration>
+      </plugin>
+
       <!-- Plugin crucial para ejecutar JavaFX -->
       <plugin>
         <groupId>org.openjfx</groupId>
