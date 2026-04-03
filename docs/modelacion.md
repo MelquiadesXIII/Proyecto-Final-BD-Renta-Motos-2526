@@ -132,6 +132,14 @@ CLIENTE-CONTRATO (un cliente puede tener muchos contratos y un contrato le perte
 
 MOTO-CONTRATO (una moto puede tener varios contratos en dias distintos)
 
+FORMA_PAGO-CONTRATO (un contrato tiene una forma de pago, pero una forma de pago puede estar en distintos contratos)
+
+COLOR-MOTO (una moto tiene un solo color, pero un color puede estar en muchas motos)
+
+SITUACION-MOTO (una moto tiene una sola situacion, pero una situacion puede estar en muchas motos)
+
+SEXO-CLIENTE (un cliente solo tiene un sexo, un sexo puede estar en varios clientes)
+
 # 1FN
 
 CONTRATO(<u>fecha_inicio</u>, <u>matricula_moto</u>, nombre_cliente, primer_apellido, segundo_apellido, ci_cliente, edad, id_sexo, nombre_sexo, numero_contacto, id_municipio, nombre_municipio, id_modelo, id_situacion, nombre_situacion, id_color, nombre_color, cant_km_recorridos, id_marca, nombre_modelo, nombre_marca, fecha_fin, id_forma_pago, nombre_forma_pago, dias_prorroga, seguro_adicional, tarifa_normal, tarifa_prorroga, fecha_entrega)
