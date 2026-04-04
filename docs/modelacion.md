@@ -62,6 +62,8 @@
 - tarifa_normal (Valor global de la empresa)
 - tarifa_prorroga (Valor global de la empresa)
 - fecha_entrega
+- cant_km_salida
+- cant_km_llegada
 
 ---
 
