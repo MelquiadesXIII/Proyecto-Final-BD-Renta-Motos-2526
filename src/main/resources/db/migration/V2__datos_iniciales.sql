@@ -1,10 +1,4 @@
 -- Datos iniciales de nomencladores
-INSERT INTO sexo (nombre_sexo) VALUES ('masculino'), ('femenino');
-
-INSERT INTO situacion (nombre_situacion) VALUES ('disponible'), ('alquilada'), ('taller');
-
-INSERT INTO forma_pago (nombre_forma_pago) VALUES ('efectivo'), ('cheque'), ('credito');
-
 INSERT INTO municipio (nombre_municipio) VALUES
     ('Playa'), ('Plaza de la Revolución'), ('Centro Habana'), ('La Habana Vieja'),
     ('Regla'), ('La Habana del Este'), ('Guanabacoa'), ('San Miguel del Padrón'),
