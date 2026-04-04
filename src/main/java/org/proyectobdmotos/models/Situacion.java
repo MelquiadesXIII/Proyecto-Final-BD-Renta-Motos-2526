@@ -16,9 +16,18 @@ public enum Situacion {
   }
 
   public static Situacion fromValor(String valor) {
-    for (Situacion s : values()) {
-      if (s.valor.equalsIgnoreCase(valor)) return s;
+    Situacion situation = null;
+    int i = 0;
+    Situacion[] valores = values();
+    while (i < valores.length && situation == null) {
+      if (valores[i].valor.equalsIgnoreCase(valor))
+        situation = valores[i];
+      i++;
     }
-    throw new IllegalArgumentException("Situación inválida: " + valor);
+
+    if (situation == null) throw new IllegalArgumentException(
+      "Situación inválida: " + valor
+    );
+    return situation;
   }
 }

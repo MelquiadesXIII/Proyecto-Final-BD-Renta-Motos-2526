@@ -15,9 +15,18 @@ public enum Sexo {
   }
 
   public static Sexo fromValor(String valor) {
-    for (Sexo s : values()) {
-      if (s.valor.equalsIgnoreCase(valor)) return s;
+    Sexo sex = null;
+    int i = 0;
+    Sexo[] valores = values();
+    while (i < valores.length && sex == null) {
+        if (valores[i].valor.equalsIgnoreCase(valor))
+            sex = valores[i];
+      i++;
     }
-    throw new IllegalArgumentException("Sexo inválido: " + valor);
+
+    if (sex == null) throw new IllegalArgumentException(
+      "Sexo inválido: " + valor
+    );
+    return sex;
   }
 }

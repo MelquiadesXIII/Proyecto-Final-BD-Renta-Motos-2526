@@ -16,9 +16,18 @@ public enum FormaPago {
   }
 
   public static FormaPago fromValor(String valor) {
-    for (FormaPago fp : values()) {
-      if (fp.valor.equalsIgnoreCase(valor)) return fp;
+    FormaPago form = null;
+    int i = 0;
+    FormaPago[] valores = values();
+    while (i < valores.length && form == null) {
+        if (valores[i].valor.equalsIgnoreCase(valor))
+        form = valores[i];
+      i++;
     }
-    throw new IllegalArgumentException("Forma de pago inválida: " + valor);
+
+    if (form == null) throw new IllegalArgumentException(
+      "Forma de pago inválida: " + valor
+    );
+    return form;
   }
 }
