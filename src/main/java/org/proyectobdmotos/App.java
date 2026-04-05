@@ -1,25 +1,33 @@
 package org.proyectobdmotos;
 
-import java.sql.SQLException;
-
-import org.proyectobdmotos.controller.Agencia;
 import org.proyectobdmotos.database.DatabaseConnection;
+import org.proyectobdmotos.ui.FxApp;
 
+import javafx.application.Application;
+
+/**
+ * App: punto de entrada principal.
+ * 1. Ejecuta migraciones de base de datos
+ * 2. Lanza la aplicación JavaFX
+ */
 public class App {
 
     public static void main(String[] args) {
-    
-    try {
-      DatabaseConnection.runMigrations();
-      System.out.println("Base de datos lista.");
+        System.out.println("=== Sistema de Renta de Motos ===\n");
 
-      Agencia agencia = new Agencia(DatabaseConnection.getInstance());
-      agencia.cargarDatos();
-      System.out.println("Datos cargados en memoria.");
-      
-    } catch (SQLException e) {
-        e.printStackTrace();
-        System.err.println(e.getMessage() + "Error al inicializar la base de datos ");
+        // 1. Ejecutar migraciones de base de datos
+        System.out.println("[App] Ejecutando migraciones de base de datos...");
+        try {
+            DatabaseConnection.runMigrations();
+            System.out.println("[App] ✓ Base de datos lista\n");
+        } catch (Exception e) {
+            System.err.println("[App] ❌ Error en migraciones: " + e.getMessage());
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+        // 2. Lanzar aplicación JavaFX
+        System.out.println("[App] Lanzando interfaz gráfica...\n");
+        Application.launch(FxApp.class, args);
     }
-  }
 }

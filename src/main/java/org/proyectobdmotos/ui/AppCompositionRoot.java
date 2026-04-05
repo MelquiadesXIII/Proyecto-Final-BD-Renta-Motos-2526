@@ -1,0 +1,124 @@
+package org.proyectobdmotos.ui;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+
+import org.proyectobdmotos.dao.ClienteDAO;
+import org.proyectobdmotos.dao.ContratoDAO;
+import org.proyectobdmotos.dao.MotoDAO;
+import org.proyectobdmotos.database.DatabaseConnection;
+import org.proyectobdmotos.services.AgenciaService;
+import org.proyectobdmotos.services.ClienteService;
+import org.proyectobdmotos.services.ContratoService;
+import org.proyectobdmotos.services.MotoService;
+import org.proyectobdmotos.stores.AgenciaStore;
+import org.proyectobdmotos.stores.ReferenceDataStore;
+import org.proyectobdmotos.ui.navigation.ScreenLoader;
+
+/**
+ * Composition Root: construye y conecta el grafo completo de dependencias.
+ * Esta es la única clase responsable de crear e inyectar dependencias.
+ */
+public final class AppCompositionRoot {
+
+    // Capa de infraestructura
+    private final Connection connection;
+
+    // Capa de acceso a datos
+    private final ClienteDAO clienteDAO;
+    private final MotoDAO motoDAO;
+    private final ContratoDAO contratoDAO;
+
+    // Capa de servicios
+    private final ClienteService clienteService;
+    private final MotoService motoService;
+    private final ContratoService contratoService;
+    private final AgenciaService agenciaService;
+
+    // Capa de estado observable (Stores)
+    private final AgenciaStore agenciaStore;
+    private final ReferenceDataStore referenceDataStore;
+
+    // Navegación UI
+    private final ScreenLoader screenLoader;
+
+    public AppCompositionRoot() throws SQLException {
+        System.out.println("[CompositionRoot] Iniciando construcción del grafo de dependencias...");
+
+        // 1. Connection
+        System.out.println("[CompositionRoot] ✓ Creando Connection");
+        this.connection = DatabaseConnection.getInstance();
+
+        // 2. DAOs
+        System.out.println("[CompositionRoot] ✓ Creando DAOs (ClienteDAO, MotoDAO, ContratoDAO)");
+        this.clienteDAO = new ClienteDAO(connection);
+        this.motoDAO = new MotoDAO(connection);
+        this.contratoDAO = new ContratoDAO(connection);
+
+        // 3. Services
+        System.out.println("[CompositionRoot] ✓ Creando Services (ClienteService, MotoService, ContratoService)");
+        this.clienteService = new ClienteService(clienteDAO);
+        this.motoService = new MotoService(motoDAO);
+        this.contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
+
+        System.out.println("[CompositionRoot] ✓ Creando AgenciaService (fachada)");
+        this.agenciaService = new AgenciaService(clienteService, motoService, contratoService);
+
+        // 4. Stores
+        System.out.println("[CompositionRoot] ✓ Creando Stores (AgenciaStore, ReferenceDataStore)");
+        this.agenciaStore = new AgenciaStore();
+        this.referenceDataStore = new ReferenceDataStore();
+
+        // 5. ScreenLoader
+        System.out.println("[CompositionRoot] ✓ Creando ScreenLoader");
+        this.screenLoader = new ScreenLoader(this);
+
+        System.out.println("[CompositionRoot] ✅ Grafo de dependencias completo\n");
+    }
+
+    // Getters para acceso controlado desde ScreenLoader y otros componentes
+
+    public Connection getConnection() {
+        return connection;
+    }
+
+    public ClienteDAO getClienteDAO() {
+        return clienteDAO;
+    }
+
+    public MotoDAO getMotoDAO() {
+        return motoDAO;
+    }
+
+    public ContratoDAO getContratoDAO() {
+        return contratoDAO;
+    }
+
+    public ClienteService getClienteService() {
+        return clienteService;
+    }
+
+    public MotoService getMotoService() {
+        return motoService;
+    }
+
+    public ContratoService getContratoService() {
+        return contratoService;
+    }
+
+    public AgenciaService getAgenciaService() {
+        return agenciaService;
+    }
+
+    public AgenciaStore getAgenciaStore() {
+        return agenciaStore;
+    }
+
+    public ReferenceDataStore getReferenceDataStore() {
+        return referenceDataStore;
+    }
+
+    public ScreenLoader getScreenLoader() {
+        return screenLoader;
+    }
+}
