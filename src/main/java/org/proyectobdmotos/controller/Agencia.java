@@ -80,10 +80,8 @@ public class Agencia {
   public ContratoDAO getContratoDAO() {
     return contratoDAO;
   }
-  public Connection getConnection() {
-    return connection;
-  }
 
+  //Metodos
   public void cargarDatos() {
 
   }
