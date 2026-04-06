@@ -2,11 +2,13 @@ package org.proyectobdmotos.dao;
 
 import java.sql.Connection;
 
-public class ContratoDAO {
+import org.proyectobdmotos.models.Contrato;
+import org.proyectobdmotos.models.ContratoID;
 
-    private final Connection connection;
+public class ContratoDAO extends AbstractGenericDAO<Contrato, ContratoID> implements IContratoDAO{
+
 
     public ContratoDAO(Connection connection) {
-        this.connection = connection;
+        super(connection);
     }
 }

@@ -2,13 +2,12 @@ package org.proyectobdmotos.dao;
 
 import java.sql.Connection;
 
-public class MotoDAO {
+import org.proyectobdmotos.models.Moto;
 
-  private final Connection connection;
+public class MotoDAO extends AbstractGenericDAO<Moto, String> implements IMotoDAO{
+
 
   public MotoDAO(Connection connection) {
-      this.connection = connection;
+      super(connection);
   }
-  
-  
 }

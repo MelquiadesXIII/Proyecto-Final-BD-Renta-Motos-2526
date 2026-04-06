@@ -2,11 +2,11 @@ package org.proyectobdmotos.dao;
 
 import java.sql.Connection;
 
-public class ClienteDAO {
+import org.proyectobdmotos.models.Cliente;
 
-    private final Connection connection;
+public class ClienteDAO extends AbstractGenericDAO<Cliente, String> implements IClienteDAO{
 
     public ClienteDAO(Connection connection) {
-        this.connection = connection;
+        super(connection);
     }
 }
