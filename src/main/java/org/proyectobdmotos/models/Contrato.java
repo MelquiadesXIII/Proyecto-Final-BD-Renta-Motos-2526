@@ -6,8 +6,7 @@ import java.time.LocalDate;
 
 public class Contrato {
 
-    private LocalDate fechaInicio; //llave primaria
-    private String matriculaMoto; //Llave primaria
+    private final ContratoID contratoID;
     private LocalDate fechaFin;
     private String ciCliente;
     private FormaPago formaPago;
@@ -26,24 +25,12 @@ public class Contrato {
         setDiasProrroga(diasProrroga);
         setFechaEntrega(fechaEntrega);
         setFechaFin(fechaFin);
-        setFechaInicio(fechaInicio);
         setFormaPago(formaPago);
-        setMatriculaMoto(matriculaMoto);
         setSeguroAdicional(seguroAdicional);
+
+        contratoID = new ContratoID(fechaInicio, matriculaMoto);
     }
 
-    public LocalDate getFechaInicio() {
-        return fechaInicio;
-    }
-    public void setFechaInicio(LocalDate fechaInicio) {
-        this.fechaInicio = fechaInicio;
-    }
-    public String getMatriculaMoto() {
-        return matriculaMoto;
-    }
-    public void setMatriculaMoto(String matriculaMoto) {
-        this.matriculaMoto = matriculaMoto;
-    }
     public LocalDate getFechaFin() {
         return fechaFin;
     }
@@ -103,5 +90,9 @@ public class Contrato {
     }
     public void setCantKmLlegada(double cantKmLlegada) {
         this.cantKmLlegada = cantKmLlegada;
+    }
+
+    public ContratoID getContratoID() {
+        return contratoID;
     }
 }
