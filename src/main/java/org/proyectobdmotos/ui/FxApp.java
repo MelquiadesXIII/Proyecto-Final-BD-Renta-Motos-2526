@@ -13,6 +13,7 @@ import javafx.stage.Stage;
  */
 public class FxApp extends Application {
 
+    @SuppressWarnings("unused")
     private AppCompositionRoot compositionRoot;
 
     @Override
@@ -54,10 +55,11 @@ public class FxApp extends Application {
         vbox.setSpacing(20);
         
         javafx.scene.control.Label label = new javafx.scene.control.Label(
-            "Sistema de Renta de Motos\n\n" +
-            "Composition Root inicializado correctamente.\n" +
-            "Esperando diseño de pantallas FXML..."
-        );
+            """
+            Sistema de Renta de Motos
+            
+            Composition Root inicializado correctamente.
+            Esperando dise\u00f1o de pantallas FXML...""");
         label.setStyle("-fx-font-size: 16px; -fx-text-alignment: center;");
         
         vbox.getChildren().add(label);
