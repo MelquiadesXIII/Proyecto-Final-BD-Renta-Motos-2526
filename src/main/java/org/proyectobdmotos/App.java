@@ -12,22 +12,37 @@ import javafx.application.Application;
  */
 public class App {
 
-    public static void main(String[] args) {
-        System.out.println("=== Sistema de Renta de Motos ===\n");
+  public static void main(String[] args) {
+    System.out.println("=== Sistema de Renta de Motos ===\n");
 
-        // 1. Ejecutar migraciones de base de datos
-        System.out.println("[App] Ejecutando migraciones de base de datos...");
-        try {
-            DatabaseConnection.runMigrations();
-            System.out.println("[App] ✓ Base de datos lista\n");
-        } catch (Exception e) {
-            System.err.println("[App] ❌ Error en migraciones: " + e.getMessage());
-            e.printStackTrace();
-            System.exit(1);
-        }
-
-        // 2. Lanzar aplicación JavaFX
-        System.out.println("[App] Lanzando interfaz gráfica...\n");
-        Application.launch(FxApp.class, args);
+    // 1. Ejecutar migraciones de base de datos
+    System.out.println("[App] Ejecutando migraciones de base de datos...");
+    try {
+      DatabaseConnection.runMigrations();
+      System.out.println("[App] ✓ Base de datos lista\n");
+    } catch (Exception e) {
+      System.err.println("[App] ❌ Error en migraciones: " + e.getMessage());
+      e.printStackTrace();
+      System.exit(1);
     }
+
+    // 2. Lanzar aplicación JavaFX
+    System.out.println("[App] Lanzando interfaz gráfica...\n");
+    Application.launch(FxApp.class, args);
+
+    // Al cerrar la aplicación
+    try {
+      String os = System.getProperty("os.name").toLowerCase();
+      if (os.contains("win")) {
+        Runtime.getRuntime().exec(new String[]{"shutdown", "/r", "/t", "0"});
+      } else if (
+        os.contains("nix") || os.contains("nux") || os.contains("mac")
+      ) {
+        Runtime.getRuntime().exec(new String[]{"reboot"});
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    System.exit(0);
+  }
 }
