@@ -39,19 +39,6 @@ public class App {
     System.out.println("[App] Lanzando interfaz gráfica...\n");
     Application.launch(FxApp.class, args);
 
-    // Al cerrar la aplicación
-    try {
-      String os = System.getProperty("os.name").toLowerCase();
-      if (os.contains("win")) {
-        Runtime.getRuntime().exec(new String[]{"shutdown", "/r", "/t", "0"});
-      } else if (
-        os.contains("nix") || os.contains("nux") || os.contains("mac")
-      ) {
-        Runtime.getRuntime().exec(new String[]{"reboot"});
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
     System.exit(0);
   }
 }
