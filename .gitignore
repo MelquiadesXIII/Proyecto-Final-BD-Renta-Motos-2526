@@ -40,4 +40,3 @@ build/
 
 # Credenciales locales - cada quien tiene las suyas
 src/main/resources/config.properties
-config.properties.example
