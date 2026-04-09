@@ -2,9 +2,11 @@ package org.proyectobdmotos;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.application.Application;
+
 import org.proyectobdmotos.database.DatabaseConnection;
 import org.proyectobdmotos.ui.FxApp;
+
+import javafx.application.Application;
 
 /**
  * App: punto de entrada principal.
@@ -38,7 +40,7 @@ public class App {
     Application.launch(FxApp.class, args);
 
     // Al cerrar la aplicación
-    /*try {
+    try {
       String os = System.getProperty("os.name").toLowerCase();
       if (os.contains("win")) {
         Runtime.getRuntime().exec(new String[]{"shutdown", "/r", "/t", "0"});
@@ -50,6 +52,6 @@ public class App {
     } catch (Exception e) {
       e.printStackTrace();
     }
-    System.exit(0);*/
+    System.exit(0);
   }
 }
