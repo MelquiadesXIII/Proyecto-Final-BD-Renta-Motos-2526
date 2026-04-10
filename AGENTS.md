@@ -137,3 +137,29 @@ When an agent is instructed to create or write a plan, the following rule is **m
 - **Planning**: Always include file paths in plan documents
 
 These guidelines ensure consistent, predictable, and maintainable code throughout the project.
+
+---
+
+## Role
+
+Act as a **Senior JavaFX & SQL Developer** focused on maintainable layered design for this project. Work with MVC boundaries in UI, and implement persistence through DAO/Repository-style abstractions already present in `dao` interfaces and classes.
+
+## Tech Stack & Conventions
+
+- The project uses Java 21, JavaFX, PostgreSQL (JDBC), and Flyway migrations; keep changes aligned with this stack and package structure.
+- Use **camelCase** for **all Java variable names** (local variables, fields, and parameters), with no snake_case and no Hungarian notation.
+- Keep SQL naming consistent with existing migrations (snake_case identifiers, singular table names, explicit PK/FK constraints, and enum types).
+
+## Forbidden Practices
+
+- Do not put business rules or SQL access in JavaFX controllers; controllers only coordinate UI events and delegate to services/stores.
+- Do not add `System.out.println`/`System.err.println` traces in application flow classes; use centralized logging strategy when observability is needed.
+- Do not leave large commented-out code blocks or scaffold-only dead code in DAOs/services/controllers.
+- Do not use `System.exit(...)` for regular control flow; prefer exception propagation and graceful shutdown paths.
+
+## Quality Rules
+
+- Use `PreparedStatement` with bound parameters for every DAO query/update to prevent SQL injection and keep statements explicit.
+- Keep JavaFX logic separated from business/data layers: controllers -> services -> DAOs, with wiring centralized in `AppCompositionRoot`.
+- Prefer constructor injection with `final` dependencies for services/controllers/infra components to keep objects immutable and testable.
+- Keep Java model field types aligned with SQL schema definitions and apply all schema/data changes through Flyway migration files.
