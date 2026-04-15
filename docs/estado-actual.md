@@ -1,17 +1,17 @@
 # Guía de estado actual del proyecto y próximos pasos
 
-Fecha de corte: **15/04/2026**
+Fecha de corte: **15/04/2026** (actualizado post-implementación DAO/Services)
 
 ## 1) Resumen ejecutivo
 
-El proyecto tiene una **base técnica sólida** (arquitectura por capas, conexión a PostgreSQL, migraciones Flyway, modelos principales y composition root), pero está en fase de **esqueleto funcional**:
+El proyecto avanza sólidamente: **capa de persistencia (DAO) y servicios están operativos** con SQL real, validaciones de negocio y reportes base. La arquitectura por capas funciona correctamente con inyección de dependencias via interfaces.
 
-- La **BD ya está modelada y versionada** con migraciones.
-- La **app JavaFX arranca**, pero usa una pantalla placeholder.
-- La capa **DAO/Service/Controller está cableada**, pero aún sin casos de uso implementados.
-- Las pruebas actuales solo validan humo básico (no reglas de negocio ni integración).
+- La **BD está modelada**, versionada y **V3 migración agrega km a contrato**.
+- La capa **DAO/Service es 100% funcional**: CRUD completo + métodos específicos + validaciones.
+- La **app JavaFX arranca**, pero aún usa pantalla placeholder (siguiente fase).
+- Las pruebas actuales solo validan humo básico (no hay tests de DAOs/servicios aún).
 
-Estado global sugerido: **40% estructura / 15% funcionalidad de negocio**.
+Estado global sugerido: **65% estructura / 25% funcionalidad de negocio / 10% UI**.
 
 ---
 
@@ -44,144 +44,319 @@ Estado global sugerido: **40% estructura / 15% funcionalidad de negocio**.
 - Modelos de dominio principales existentes (`Cliente`, `Moto`, `Contrato`, enums, etc.) bajo [src/main/java/org/proyectobdmotos/models/](../src/main/java/org/proyectobdmotos/models/).
 - Mapeo enum BD ↔ Java contemplado con `fromValor(...)` en enums (por ejemplo `Situacion`).
 
+### 2.5 Persistencia (DAO) ✅ **NUEVA**
+
+- **GenericDAO** (interfaz pública) define contrato CRUD base en [src/main/java/org/proyectobdmotos/dao/GenericDAO.java](../src/main/java/org/proyectobdmotos/dao/GenericDAO.java).
+- **AbstractGenericDAO** implementa template method con 5 operaciones CRUD comunes en [src/main/java/org/proyectobdmotos/dao/AbstractGenericDAO.java](../src/main/java/org/proyectobdmotos/dao/AbstractGenericDAO.java):
+  - `insertar(T)`, `actualizar(T)`, `eliminar(ID)`, `buscarPorId(ID)`, `listarTodos()`
+  - Usa `Logger` para tracing, single-return en métodos, boolean flags en loops (AGENTS.md compliance).
+  
+- **ClienteDAO** funcional en [src/main/java/org/proyectobdmotos/dao/ClienteDAO.java](../src/main/java/org/proyectobdmotos/dao/ClienteDAO.java):
+  - CRUD completo de clientes con prepared statements.
+  - `listarClientesPorMunicipio()` — reporte con agregación (COUNT contratos).
+  - `obtenerClientesIncumplidores()` — listado de clientes con entrega tardía.
+  - `eliminarConCascada(ci)` — transacción que elimina cliente y sus contratos.
+
+- **MotoDAO** funcional en [src/main/java/org/proyectobdmotos/dao/MotoDAO.java](../src/main/java/org/proyectobdmotos/dao/MotoDAO.java):
+  - CRUD completo de motos.
+  - `estaDisponible(matricula)` — verifica estado antes de alquilar.
+  - `cambiarEstado(matricula, situacion)` — actualiza situación (usado al crear/finalizar contrato).
+  - `listarMotosConKilometraje()` — reporte con JOIN a marca/modelo.
+  - `listarSituacionMotos()` — reporte de estado actual de cada moto.
+
+- **ContratoDAO** funcional en [src/main/java/org/proyectobdmotos/dao/ContratoDAO.java](../src/main/java/org/proyectobdmotos/dao/ContratoDAO.java):
+  - CRUD completo con PK compuesta (`ContratoID`: fecha_inicio + matricula_moto).
+  - `listarContratosCompletos()` — consulta con JOINs a cliente/moto.
+  - Manejo de fechas (`LocalDate` ↔ `java.sql.Date`).
+  - Preparado para `cant_km_salida` y `cant_km_llegada` (columnas agregadas en V3).
+
+- Interfaces específicas con métodos de negocio en:
+  - [src/main/java/org/proyectobdmotos/dao/IClienteDAO.java](../src/main/java/org/proyectobdmotos/dao/IClienteDAO.java)
+  - [src/main/java/org/proyectobdmotos/dao/IMotoDAO.java](../src/main/java/org/proyectobdmotos/dao/IMotoDAO.java)
+  - [src/main/java/org/proyectobdmotos/dao/IContratoDAO.java](../src/main/java/org/proyectobdmotos/dao/IContratoDAO.java)
+
+### 2.6 Servicios (Lógica de negocio) ✅ **NUEVA**
+
+- **ClienteService** en [src/main/java/org/proyectobdmotos/services/ClienteService.java](../src/main/java/org/proyectobdmotos/services/ClienteService.java):
+  - Delega CRUD al DAO, expone métodos de negocio: `crearCliente`, `actualizarCliente`, `eliminarCliente`, `eliminarClienteConCascada`.
+  - Métodos de consulta: `buscarPorCi`, `listarTodos`, `listarClientesPorMunicipio`, `obtenerClientesIncumplidores`.
+  - Inyecta `IClienteDAO` (interfaz, no DAO concreto).
+
+- **MotoService** en [src/main/java/org/proyectobdmotos/services/MotoService.java](../src/main/java/org/proyectobdmotos/services/MotoService.java):
+  - Métodos: `crearMoto`, `actualizarMoto`, `eliminarMoto`, `cambiarEstado`, `estaDisponible`.
+  - Métodos de reporte: `listarMotosConKilometraje`, `listarSituacionMotos`.
+  - Inyecta `IMotoDAO` (interfaz).
+
+- **ContratoService** en [src/main/java/org/proyectobdmotos/services/ContratoService.java](../src/main/java/org/proyectobdmotos/services/ContratoService.java):
+  - Orquesta contratos involucrando cliente + moto.
+  - `crearContrato(contrato)` — valida que cliente exista y moto esté disponible antes de persistir.
+  - `finalizarContrato(contrato)` — actualiza contrato y devuelve moto a estado DISPONIBLE.
+  - Métodos de consulta: `buscarPorId`, `listarTodos`, `listarContratosCompletos`.
+  - Inyecta `IContratoDAO`, `IClienteDAO`, `IMotoDAO` (todas interfaces).
+
+- **AgenciaService** (fachada) en [src/main/java/org/proyectobdmotos/services/AgenciaService.java](../src/main/java/org/proyectobdmotos/services/AgenciaService.java):
+  - Punto de entrada único para todo el negocio (clientes, motos, contratos).
+  - Inyecta los tres servicios principales.
+
+### 2.7 DTOs para reportes ✅ **NUEVA**
+
+- **ClienteDTO** en [src/main/java/org/proyectobdmotos/dto/ClienteDTO.java](../src/main/java/org/proyectobdmotos/dto/ClienteDTO.java):
+  - Campos: `ci`, `nombreCompleto`, `municipio`, `cantidadAlquileres`.
+  - Usado por `ClienteDAO.listarClientesPorMunicipio()`.
+
+- **MotoDTO** en [src/main/java/org/proyectobdmotos/dto/MotoDTO.java](../src/main/java/org/proyectobdmotos/dto/MotoDTO.java):
+  - Campos: `matricula`, `marca`, `modelo`, `kmRecorridos`.
+  - Usado por `MotoDAO.listarMotosConKilometraje()`.
+
+- **SituacionMotoDTO** en [src/main/java/org/proyectobdmotos/dto/SituacionMotoDTO.java](../src/main/java/org/proyectobdmotos/dto/SituacionMotoDTO.java):
+  - Campos: `matricula`, `marca`, `situacion`, `fechaFinContrato` (nullable).
+  - Usado por `MotoDAO.listarSituacionMotos()`.
+
+### 2.8 Base de datos (migraciones)
+
+- **V3__agregar_km_contrato.sql** agregada en [src/main/resources/db/migration/V3__agregar_km_contrato.sql](../src/main/resources/db/migration/V3__agregar_km_contrato.sql):
+  - Agrega columnas `cant_km_salida` y `cant_km_llegada` a tabla `contrato` (registran km del odómetro al alquilar/devolver).
+
 ---
 
 ## 3) Qué está incompleto o pendiente crítico
 
-### 3.1 UI
+### 3.1 UI (Interfaz gráfica)
 
-- No existen FXML en `src/main/resources`.
+- No existen FXML en `src/main/resources/fxml/`.
 - `FxApp` muestra placeholder en lugar de pantalla real en [src/main/java/org/proyectobdmotos/ui/FxApp.java](../src/main/java/org/proyectobdmotos/ui/FxApp.java).
-- Controladores (`ClienteController`, `MotoController`, `ContratoController`) sin handlers `@FXML`.
+- Controladores (`ClienteController`, `MotoController`, `ContratoController`) sin handlers `@FXML` ni lógica de UI.
+- No hay navegación entre pantallas.
 
-### 3.2 Persistencia (DAO)
+**Impacto:** Usuarios no pueden ver/interactuar con datos. DAOs/Services estan completos pero UI es un placeholder.
 
-- Interfaces y métodos CRUD están comentados/no expuestos en:
-  - [src/main/java/org/proyectobdmotos/dao/GenericDAO.java](../src/main/java/org/proyectobdmotos/dao/GenericDAO.java)
-  - [src/main/java/org/proyectobdmotos/dao/AbstractGenericDAO.java](../src/main/java/org/proyectobdmotos/dao/AbstractGenericDAO.java)
-- `ClienteDAO`, `MotoDAO`, `ContratoDAO` son cascarones sin SQL real:
-  - [src/main/java/org/proyectobdmotos/dao/ClienteDAO.java](../src/main/java/org/proyectobdmotos/dao/ClienteDAO.java)
-  - [src/main/java/org/proyectobdmotos/dao/MotoDAO.java](../src/main/java/org/proyectobdmotos/dao/MotoDAO.java)
-  - [src/main/java/org/proyectobdmotos/dao/ContratoDAO.java](../src/main/java/org/proyectobdmotos/dao/ContratoDAO.java)
+### 3.2 Casos de uso en la UI
 
-### 3.3 Servicios (lógica de negocio)
+- Pantalla de ABM Cliente (crear, listar, actualizar, eliminar).
+- Pantalla de ABM Moto (crear, listar, actualizar, eliminar).
+- Pantalla de creación de Contrato (picker cliente + moto, cálculo de fechas).
+- Pantalla de listado de Contratos activos.
+- Pantalla de "Finalizar contrato" (registrar entrega).
 
-- `ClienteService` y `MotoService` solo encapsulan el DAO.
-- `ContratoService` no implementa casos clave (crear/finalizar contrato, validaciones de negocio).
+### 3.3 Reportes y vistas de negocio
 
-### 3.4 Calidad y pruebas
+- Reporte "Clientes por municipio con estadísticas" — DAO listo, UI no existe.
+- Reporte "Motos con kilometraje" — DAO listo, UI no existe.
+- Reporte "Estado de motos" — DAO listo, UI no existe.
+- Reporte "Clientes incumplidores" — DAO listo, UI no existe.
+- Reporte "Ingresos por mes" — DAO no tiene la consulta SQL aún, UI no existe.
 
-- Única prueba tipo plantilla en [src/test/java/org/proyectobdmotos/AppTest.java](../src/test/java/org/proyectobdmotos/AppTest.java).
-- No hay pruebas de:
-  - DAOs contra PostgreSQL.
-  - Servicios con reglas de negocio.
-  - Integración de flujo principal (crear contrato y actualizar estado).
+### 3.4 Lógica de cálculo de importes
 
-### 3.5 Observaciones técnicas a revisar
+- `ContratoService` no calcula tarifa total (tarifa normal × días + tarifa prórroga × días prórroga ± seguro).
+- No hay persistencia de importe total en `contrato`.
+- No hay métodos para calcular multa por entrega tardía.
 
-- Uso de `System.out.println`/`System.exit(...)` en flujo principal y UI, en conflicto con lineamientos del proyecto.
-- Algunas inconsistencias de naming/tipos en modelos (por ejemplo `nombreCLiente`, IDs de catálogo como `String` cuando en BD son `INT`).
+### 3.5 Calidad y pruebas
 
----
+- Única prueba tipo plantilla en [src/test/java/org/proyectobdmotos/AppTest.java](../src/test/java/org/proyectobdmotos/AppTest.java) (solo compila, no valida nada).
+- No hay pruebas unitarias de:
+  - DAOs (verificar SQL correcto, mapeos).
+  - Servicios (reglas de validación: cliente existe, moto disponible, etc.).
+  - Integración (flujo crear → listar → finalizar contrato).
 
-## 4) Qué implementar primero (orden recomendado)
+### 3.6 Observaciones técnicas a revisar
 
-## Fase 1 — Hacer operativa la capa DAO (prioridad máxima)
-
-Objetivo: tener CRUD y consultas base funcionando con `PreparedStatement`.
-
-Archivos objetivo:
-
-- [src/main/java/org/proyectobdmotos/dao/GenericDAO.java](../src/main/java/org/proyectobdmotos/dao/GenericDAO.java)
-- [src/main/java/org/proyectobdmotos/dao/AbstractGenericDAO.java](../src/main/java/org/proyectobdmotos/dao/AbstractGenericDAO.java)
-- [src/main/java/org/proyectobdmotos/dao/ClienteDAO.java](../src/main/java/org/proyectobdmotos/dao/ClienteDAO.java)
-- [src/main/java/org/proyectobdmotos/dao/MotoDAO.java](../src/main/java/org/proyectobdmotos/dao/MotoDAO.java)
-- [src/main/java/org/proyectobdmotos/dao/ContratoDAO.java](../src/main/java/org/proyectobdmotos/dao/ContratoDAO.java)
-- [src/main/java/org/proyectobdmotos/dao/IClienteDAO.java](../src/main/java/org/proyectobdmotos/dao/IClienteDAO.java)
-- [src/main/java/org/proyectobdmotos/dao/IMotoDAO.java](../src/main/java/org/proyectobdmotos/dao/IMotoDAO.java)
-- [src/main/java/org/proyectobdmotos/dao/IContratoDAO.java](../src/main/java/org/proyectobdmotos/dao/IContratoDAO.java)
-
-Entregable mínimo:
-
-- CRUD funcional para Cliente/Moto/Contrato.
-- Consultas específicas iniciales de cada DAO.
-
-## Fase 2 — Casos de uso de negocio en services
-
-Objetivo: mover reglas a servicios y dejar controladores delgados.
-
-Archivos objetivo:
-
-- [src/main/java/org/proyectobdmotos/services/ClienteService.java](../src/main/java/org/proyectobdmotos/services/ClienteService.java)
-- [src/main/java/org/proyectobdmotos/services/MotoService.java](../src/main/java/org/proyectobdmotos/services/MotoService.java)
-- [src/main/java/org/proyectobdmotos/services/ContratoService.java](../src/main/java/org/proyectobdmotos/services/ContratoService.java)
-
-Entregable mínimo:
-
-- `crearContrato(...)` validando cliente/moto y persistiendo contrato.
-- `finalizarContrato(...)` y actualización de situación de moto.
-- Operaciones de listado para alimentar tablas UI.
-
-## Fase 3 — Primera UI funcional con JavaFX + FXML
-
-Objetivo: abandonar placeholder y tener al menos un flujo end-to-end visible.
-
-Archivos objetivo:
-
-- [src/main/java/org/proyectobdmotos/ui/FxApp.java](../src/main/java/org/proyectobdmotos/ui/FxApp.java)
-- [src/main/java/org/proyectobdmotos/ui/navigation/ScreenLoader.java](../src/main/java/org/proyectobdmotos/ui/navigation/ScreenLoader.java)
-- [src/main/java/org/proyectobdmotos/controller/ClienteController.java](../src/main/java/org/proyectobdmotos/controller/ClienteController.java)
-- [src/main/java/org/proyectobdmotos/controller/MotoController.java](../src/main/java/org/proyectobdmotos/controller/MotoController.java)
-- [src/main/java/org/proyectobdmotos/controller/ContratoController.java](../src/main/java/org/proyectobdmotos/controller/ContratoController.java)
-- (nuevos) `src/main/resources/fxml/*.fxml`
-
-Entregable mínimo:
-
-- Pantalla principal con navegación.
-- Tabla de motos y contrato básico desde UI.
-
-## Fase 4 — Pruebas y hardening
-
-Objetivo: consolidar calidad antes de escalar funcionalidades.
-
-Archivos objetivo:
-
-- [src/test/java/org/proyectobdmotos/AppTest.java](../src/test/java/org/proyectobdmotos/AppTest.java)
-- Nuevas pruebas en `src/test/java/org/proyectobdmotos/dao/` y `src/test/java/org/proyectobdmotos/services/`.
-
-Entregable mínimo:
-
-- Tests de integración DAO.
-- Tests de reglas de negocio críticas de contratos.
+- Inconsistencia de tipos: `Cliente.idMunicipio` es `String` en Java pero `INT` en BD → DAOs hacen conversión con `String.valueOf()`.
+- Igual con `Moto.idColor` e `Moto.idModelo` (String en Java, INT en BD).
+- **Opción 1:** Corregir modelos Java a `int` (ruptura controlada).
+- **Opción 2:** Mantener String pero documentar conversión explícita en DAOs.
+- Posible falta de `equals()` y `hashCode()` en `ContratoID` para usarla como clave en maps/sets.
 
 ---
 
-## 5) Backlog funcional sugerido (siguiente iteración)
+## 4) Qué implementar a continuación (prioridades)
 
-1. ABM de clientes.
-2. ABM de motos.
-3. Crear contrato y reflejar estado de moto.
-4. Finalizar contrato con cálculo de importes.
-5. Reportes (municipio, ingresos por mes, estado de motos).
+### Fase 1 — UI mínima funcional (PRÓXIMA)
+
+**Objetivo:** Pantalla principal con navegación y tablas básicas.
+
+**Archivos a crear/modificar:**
+
+- [src/main/java/org/proyectobdmotos/ui/FxApp.java](../src/main/java/org/proyectobdmotos/ui/FxApp.java) — Reemplazar placeholder con BorderPane + TabPane.
+- [src/main/java/org/proyectobdmotos/ui/navigation/ScreenLoader.java](../src/main/java/org/proyectobdmotos/ui/navigation/ScreenLoader.java) — Implementar método `load(fxmlPath)` para cargar FXML.
+- `src/main/resources/fxml/main.fxml` — (crear) Pantalla principal.
+- `src/main/resources/fxml/cliente-lista.fxml` — (crear) Tabla de clientes.
+- `src/main/resources/fxml/moto-lista.fxml` — (crear) Tabla de motos.
+- `src/main/resources/fxml/contrato-lista.fxml` — (crear) Tabla de contratos.
+
+**Entregable:**
+
+- Pantalla inicial con TabPane (Clientes | Motos | Contratos).
+- Tablas pobladas desde DAOs (sin edición aún, solo lectura).
+- No hay botones de acción (eso es fase 2).
+
+**Tiempo estimado:** 1-2 sesiones.
+
+### Fase 2 — ABM básico (Crear, Listar, Eliminar)
+
+**Objetivo:** Casos de uso más simples primero (Cliente/Moto), luego Contrato (más complejo).
+
+**Archivos:**
+
+- [src/main/java/org/proyectobdmotos/controller/ClienteController.java](../src/main/java/org/proyectobdmotos/controller/ClienteController.java) — Implementar handlers:
+  - `onCrearCliente()` → abre dialog, valida, inserta via `clienteService.crearCliente()`.
+  - `onEliminarCliente()` → confirma, elimina via `clienteService.eliminarCliente()`.
+  - `onActualizar()` → recarga tabla desde `clienteService.listarTodos()`.
+
+- [src/main/java/org/proyectobdmotos/controller/MotoController.java](../src/main/java/org/proyectobdmotos/controller/MotoController.java) — Igual que Cliente.
+
+- `src/main/resources/fxml/cliente-form.fxml` — (crear) Form dialog para insertar/editar cliente.
+- `src/main/resources/fxml/moto-form.fxml` — (crear) Form dialog para insertar/editar moto.
+
+**Entregable:**
+
+- Crear cliente desde UI → se persiste en BD.
+- Crear moto desde UI → se persiste en BD.
+- Listar refrescable con botón "Actualizar".
+- Eliminar cliente/moto con confirmación.
+
+**Tiempo estimado:** 2-3 sesiones.
+
+### Fase 3 — Crear Contrato (lógica de negocio en acción)
+
+**Objetivo:** Validar cliente + moto + reflejar estado.
+
+**Archivos:**
+
+- [src/main/java/org/proyectobdmotos/controller/ContratoController.java](../src/main/java/org/proyectobdmotos/controller/ContratoController.java):
+  - `onCrearContrato()` → form con ComboBox cliente + ComboBox moto + pickers fechas → `contratoService.crearContrato()`.
+  - Validar disponibilidad en tiempo real (deshabilitar motos no disponibles).
+
+- `src/main/resources/fxml/contrato-form.fxml` — (crear) Form dialog con validaciones.
+
+**Lógica:**
+
+- Al seleccionar moto, verificar con `motoService.estaDisponible()`.
+- Al guardar, `contratoService.crearContrato()` lanza excepción si cliente/moto inválido.
+- Trigger BD automáticamente pone moto en "alquilada".
+- UI refresca tabla de motos (antes "disponible", ahora "alquilada").
+
+**Entregable:**
+
+- Crear contrato desde UI con validaciones.
+- Verificar que moto cambió de situación en tiempo real.
+
+**Tiempo estimado:** 2 sesiones.
+
+### Fase 4 — Finalizar Contrato y Cálculo de Importes
+
+**Objetivo:** Registrar entrega y calcular totales.
+
+**Archivos:**
+
+- [src/main/java/org/proyectobdmotos/models/Contrato.java](../src/main/java/org/proyectobdmotos/models/Contrato.java) — Agregar método:
+  - `calcularImporteFinal(fechaEntrega, cantKmLlegada)` → retorna importe considerando tarifa, prórroga, seguro, multa.
+
+- [src/main/java/org/proyectobdmotos/services/ContratoService.java](../src/main/java/org/proyectobdmotos/services/ContratoService.java):
+  - `finalizarContratoConImporte(contratoId, fechaEntrega, cantKmLlegada)` → calcula, persiste, cambia moto a "disponible".
+
+- [src/main/java/org/proyectobdmotos/controller/ContratoController.java](../src/main/java/org/proyectobdmotos/controller/ContratoController.java):
+  - `onFinalizarContrato()` → form con fecha entrega + km llegada → muestra importe final → confirma.
+
+**Entregable:**
+
+- Finalizar contrato reflejado en BD.
+- Moto vuelve a "disponible".
+- Importe calculado y mostrado.
+
+**Tiempo estimado:** 1-2 sesiones.
+
+### Fase 5 — Reportes (lectura pura)
+
+**Objetivo:** Pantallas de reportes sin ABM.
+
+**Archivos:**
+
+- [src/main/java/org/proyectobdmotos/controller/ReportesController.java](../src/main/java/org/proyectobdmotos/controller/ReportesController.java) — (crear)
+- `src/main/resources/fxml/reportes-tab.fxml` — (crear) Con sub-tabs para:
+  - Clientes por municipio.
+  - Motos por km.
+  - Estado de motos.
+  - Incumplidores.
+
+**Entregable:**
+
+- Tablas de reportes pobladas desde DAOs.
+- Exportar a CSV (opcional).
+
+**Tiempo estimado:** 1 sesión.
+
+### Fase 6 — Pruebas e integración
+
+**Objetivo:** Cobertura de pruebas unitarias e integración.
+
+**Archivos:**
+
+- `src/test/java/org/proyectobdmotos/dao/ClienteDAOTest.java` — (crear) Tests de CRUD.
+- `src/test/java/org/proyectobdmotos/services/ContratoServiceTest.java` — (crear) Tests de validaciones.
+
+**Entregable:**
+
+- 70%+ de cobertura en DAOs/Services.
+- Pruebas de flujo completo (crear → listar → finalizar).
+
+**Tiempo estimado:** 1-2 sesiones.
+
 
 ---
 
-## 6) Criterios de “MVP listo”
+## 5) Backlog funcional y técnico
 
-Se puede considerar MVP cuando se cumpla todo:
+### Funcional (nuevas capacidades)
 
-- Se puede registrar cliente, moto y contrato desde UI.
-- Se lista la información principal en tablas JavaFX.
-- El estado de moto se actualiza de manera consistente al alquilar/finalizar.
-- Hay pruebas de integración mínimas para DAOs y servicios críticos.
-- No hay placeholders en la pantalla inicial.
+1. ✅ **CRUD Clientes** — Fase 2.
+2. ✅ **CRUD Motos** — Fase 2.
+3. ✅ **Crear Contrato con validaciones** — Fase 3.
+4. ✅ **Finalizar Contrato + Cálculo importes** — Fase 4.
+5. ✅ **Reportes (municipio, km, situación, incumplidores)** — Fase 5.
+6. ⏳ **Historial de reparaciones** (agregar tabla `mantenimiento`).
+7. ⏳ **Exportar reportes a PDF**.
+8. ⏳ **Búsqueda avanzada** (filtrar por rango fechas, municipio, etc.).
+
+### Técnico (deuda, refactoring, tests)
+
+1. ⏳ **Resolver inconsistencia de tipos** (String vs int en IDs de catálogos).
+2. ⏳ **Agregar `equals()` y `hashCode()` a `ContratoID`**.
+3. ⏳ **Pruebas unitarias** (DAO, Service, validaciones) — Fase 6.
+4. ⏳ **Pruebas de integración** (flujo completo cliente → contrato → finalizar).
+5. ⏳ **Validar CI formato** (11 dígitos correctos).
+6. ⏳ **Agregar campos de auditoría** (`fecha_creacion`, `fecha_modificacion` en tablas).
+7. ⏳ **Rate limiting / seguridad** en acceso a datos (no crítico en educativo).
 
 ---
 
-## 7) Nota de priorización final
+## 6) Criterios de MVP
 
-Si hay que elegir una sola línea de trabajo inmediata:
+Se considera **MVP listo** cuando:
 
-1. **Primero DAO + Services** (sin esto, la UI no tiene datos reales).
-2. Luego **UI mínima funcional**.
-3. Después **reportes y pulido**.
+- ✅ Se puede registrar cliente desde UI.
+- ✅ Se puede registrar moto desde UI.
+- ✅ Se puede crear contrato (cliente + moto + fechas) desde UI.
+- ✅ Se lista información en tablas JavaFX (clientes, motos, contratos).
+- ✅ El estado de moto se actualiza automáticamente al crear/finalizar contrato.
+- ✅ Se puede finalizar contrato y ver importe calculado.
+- ✅ Hay al menos un reporte funcional (ej: "Motos por situación").
+- ✅ Hay pruebas mínimas de integración DAOs/Services.
+- ❌ No hay placeholders en pantalla inicial.
+
+**Tiempo estimado total MVP:** 6-8 sesiones de desarrollo (1-2 semanas).
+
+---
+
+## 7) Próximo paso inmediato
+
+**Empezar Fase 1 (UI mínima):**
+
+1. Reemplazar placeholder en [FxApp.java](../src/main/java/org/proyectobdmotos/ui/FxApp.java) con `BorderPane` + `TabPane`.
+2. Crear `src/main/resources/fxml/main.fxml` (estructura básica).
+3. Implementar `ScreenLoader.load(fxmlPath)` para cargar FXML.
+4. Crear tablas de clientes, motos, contratos (lectura pura, sin edición).
+5. Ejecutar `mvn javafx:run` y verificar que se vean datos reales de la BD.
+
+**Estimado:** 1 sesión.
