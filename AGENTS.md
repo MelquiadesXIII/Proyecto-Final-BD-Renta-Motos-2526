@@ -98,7 +98,69 @@ while (shouldContinueLoop && i < list.size()) {
 
 ---
 
-## 3. Planning Requirements
+## 3. Logging Requirements
+
+All logging must use the centralized `Logger` utility class located at `org.proyectobdmotos.utils.Logger`. This is **strictly mandatory**.
+
+### Forbidden Logging Methods ❌
+
+- ~~`System.out.println(...)`~~
+- ~~`System.err.println(...)`~~
+- ~~`System.out.print(...)`~~
+- ~~`System.err.print(...)`~~
+- ~~`java.util.logging.Logger`~~
+- ~~`org.slf4j.Logger`~~
+- Any other default Java logging framework
+
+### Mandatory Logger Usage ✅
+
+Use the static methods from `org.proyectobdmotos.utils.Logger`:
+
+```java
+// Import the Logger
+import org.proyectobdmotos.utils.Logger;
+
+// Use Logger in your code
+Logger.log("Informational message");           // Green text
+Logger.logInfo("Initialization complete");     // Green text
+Logger.logError("An error occurred");           // Red text
+Logger.logWarn("This is a warning");            // Orange text
+```
+
+### Important Notes
+
+- **No instantiation required**: `Logger` is an abstract class with static methods only
+- **Automatic class detection**: The caller class is automatically detected from the StackTrace
+- **Consistent formatting**: All logs include the calling class name in orange brackets: `[ClassName] message`
+- **Color coding**: Messages are color-coded by severity level (green for info, red for errors, orange for warnings)
+
+### Example
+
+```java
+public class ClienteService {
+    public void crearCliente(Cliente cliente) {
+        Logger.log("Creating new cliente: " + cliente.getCi());
+        
+        try {
+            // service logic
+            Logger.logInfo("Cliente created successfully");
+        } catch (Exception e) {
+            Logger.logError("Failed to create cliente: " + e.getMessage());
+        }
+    }
+}
+```
+
+Output:
+```
+[ClienteService] Creating new cliente: 12345678901
+[ClienteService] Cliente created successfully
+[ClienteService] Failed to create cliente: Database error
+```
+
+---
+
+## 4. Planning Requirements
 
 When an agent is instructed to create or write a plan, the following rule is **mandatory**:
 
@@ -134,6 +196,7 @@ When an agent is instructed to create or write a plan, the following rule is **m
 
 - **One Return**: Implement single-return functions using flags and accumulators
 - **Loop Control**: Use boolean flags exclusively; `break` only in switch statements
+- **Logging**: Always use `Logger` class from `org.proyectobdmotos.utils`, never System.out/err or Java's default loggers
 - **Planning**: Always include file paths in plan documents
 
 These guidelines ensure consistent, predictable, and maintainable code throughout the project.
