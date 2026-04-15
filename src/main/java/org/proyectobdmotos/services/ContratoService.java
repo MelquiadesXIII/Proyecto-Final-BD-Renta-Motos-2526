@@ -1,8 +1,15 @@
 package org.proyectobdmotos.services;
 
-import org.proyectobdmotos.dao.ClienteDAO;
-import org.proyectobdmotos.dao.ContratoDAO;
-import org.proyectobdmotos.dao.MotoDAO;
+import java.util.List;
+import java.util.Optional;
+
+import org.proyectobdmotos.dao.IClienteDAO;
+import org.proyectobdmotos.dao.IContratoDAO;
+import org.proyectobdmotos.dao.IMotoDAO;
+import org.proyectobdmotos.models.Contrato;
+import org.proyectobdmotos.models.ContratoID;
+import org.proyectobdmotos.models.Situacion;
+import org.proyectobdmotos.utils.Logger;
 
 /**
  * ContratoService: orquesta operaciones de contratos.
@@ -13,30 +20,80 @@ import org.proyectobdmotos.dao.MotoDAO;
  */
 public class ContratoService {
 
-    private final ContratoDAO contratoDAO;
-    private final ClienteDAO clienteDAO;
-    private final MotoDAO motoDAO;
+    private final IContratoDAO contratoDAO;
+    private final IClienteDAO clienteDAO;
+    private final IMotoDAO motoDAO;
 
-    public ContratoService(ContratoDAO contratoDAO, ClienteDAO clienteDAO, MotoDAO motoDAO) {
+    public ContratoService(IContratoDAO contratoDAO, IClienteDAO clienteDAO, IMotoDAO motoDAO) {
         this.contratoDAO = contratoDAO;
         this.clienteDAO = clienteDAO;
         this.motoDAO = motoDAO;
     }
 
-    public ContratoDAO getContratoDAO() {
-        return contratoDAO;
+    /**
+     * Crea un nuevo contrato validando que el cliente exista y la moto esté disponible.
+     * El trigger de BD se encarga de poner la moto en estado 'alquilada'.
+     */
+    public void crearContrato(Contrato contrato) {
+        String ciCliente = contrato.getCiCliente();
+        String matricula = contrato.getContratoID().getMatriculaMoto();
+
+        boolean clienteExiste = clienteDAO.buscarPorId(ciCliente).isPresent();
+        boolean motoDisponible = false;
+        boolean puedeCrear = false;
+
+        if (!clienteExiste) {
+            Logger.logError("Cliente no encontrado: " + ciCliente);
+        }
+
+        if (clienteExiste) {
+            motoDisponible = motoDAO.estaDisponible(matricula);
+            if (!motoDisponible) {
+                Logger.logError("Moto no disponible: " + matricula);
+            }
+        }
+
+        if (clienteExiste && motoDisponible) {
+            puedeCrear = true;
+        }
+
+        if (puedeCrear) {
+            Logger.log("Creando contrato para cliente " + ciCliente + " con moto " + matricula);
+            contratoDAO.insertar(contrato);
+        }
+
+        if (!puedeCrear) {
+            throw new IllegalStateException("No se puede crear el contrato: validaciones fallidas");
+        }
     }
 
-    public ClienteDAO getClienteDAO() {
-        return clienteDAO;
+    /**
+     * Finaliza un contrato: registra la fecha de entrega y devuelve la moto a 'disponible'.
+     */
+    public void finalizarContrato(Contrato contrato) {
+        Logger.log("Finalizando contrato: " + contrato.getContratoID().getMatriculaMoto());
+        contratoDAO.actualizar(contrato);
+        motoDAO.cambiarEstado(
+            contrato.getContratoID().getMatriculaMoto(),
+            Situacion.DISPONIBLE
+        );
     }
 
-    public MotoDAO getMotoDAO() {
-        return motoDAO;
+    public Optional<Contrato> buscarPorId(ContratoID id) {
+        return contratoDAO.buscarPorId(id);
     }
 
-    // TODO: Agregar métodos de negocio como:
-    // - crearContrato(clienteId, motoId, fechas...) → valida cliente, verifica disponibilidad moto, crea contrato
-    // - finalizarContrato(contratoId) → actualiza estado contrato y moto
+    public List<Contrato> listarTodos() {
+        return contratoDAO.listarTodos();
+    }
+
+    public List<Contrato> listarContratosCompletos() {
+        return contratoDAO.listarContratosCompletos();
+    }
+
+    public void eliminarContrato(ContratoID id) {
+        Logger.log("Eliminando contrato: " + id.getMatriculaMoto() + " / " + id.getFechaInicio());
+        contratoDAO.eliminar(id);
+    }
 }
 
