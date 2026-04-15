@@ -2,6 +2,8 @@ package org.proyectobdmotos.ui;
 
 import java.sql.SQLException;
 
+import org.proyectobdmotos.utils.Logger;
+
 import javafx.application.Application;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -18,19 +20,19 @@ public class FxApp extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        System.out.println("\n[FxApp] Iniciando aplicación JavaFX...\n");
+        Logger.log("Iniciando aplicación JavaFX...\n");
 
         // Construir el grafo de dependencias
         try {
             compositionRoot = new AppCompositionRoot();
         } catch (SQLException e) {
-            System.err.println("[FxApp] ❌ Error al conectar a la base de datos: " + e.getMessage());
+            Logger.logError("❌ Error al conectar a la base de datos: " + e.getMessage());
             throw new RuntimeException("No se pudo inicializar la aplicación", e);
         }
 
         // Cargar pantalla inicial (placeholder: aquí se cargará una pantalla real cuando exista FXML)
         // Por ahora, mostramos una ventana vacía para verificar que todo funciona
-        System.out.println("[FxApp] Configurando ventana principal...");
+        Logger.log("Configurando ventana principal...");
         
         // TODO: Reemplazar con carga de pantalla real cuando exista un FXML
         // Parent root = compositionRoot.getScreenLoader().load("/fxml/main.fxml");
@@ -42,7 +44,7 @@ public class FxApp extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        System.out.println("[FxApp] ✅ Aplicación iniciada correctamente\n");
+        Logger.logInfo("✅ Aplicación iniciada correctamente\n");
     }
 
     /**
@@ -68,7 +70,7 @@ public class FxApp extends Application {
 
     @Override
     public void stop() {
-        System.out.println("\n[FxApp] Cerrando aplicación...");
+        Logger.log("\nCerrando aplicación...");
         // Aquí se pueden cerrar recursos si es necesario (Connection, etc.)
     }
 }

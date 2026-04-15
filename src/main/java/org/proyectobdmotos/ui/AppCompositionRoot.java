@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import org.proyectobdmotos.dao.ClienteDAO;
+import org.proyectobdmotos.utils.Logger;
 import org.proyectobdmotos.dao.ContratoDAO;
 import org.proyectobdmotos.dao.MotoDAO;
 import org.proyectobdmotos.database.DatabaseConnection;
@@ -43,37 +44,37 @@ public final class AppCompositionRoot {
     private final ScreenLoader screenLoader;
 
     public AppCompositionRoot() throws SQLException {
-        System.out.println("[CompositionRoot] Iniciando construcción del grafo de dependencias...");
+        Logger.log("Iniciando construcción del grafo de dependencias...");
 
         // 1. Connection
-        System.out.println("[CompositionRoot] ✓ Creando Connection");
+        Logger.log("✓ Creando Connection");
         this.connection = DatabaseConnection.getInstance();
 
         // 2. DAOs
-        System.out.println("[CompositionRoot] ✓ Creando DAOs (ClienteDAO, MotoDAO, ContratoDAO)");
+        Logger.log("✓ Creando DAOs (ClienteDAO, MotoDAO, ContratoDAO)");
         this.clienteDAO = new ClienteDAO(connection);
         this.motoDAO = new MotoDAO(connection);
         this.contratoDAO = new ContratoDAO(connection);
 
         // 3. Services
-        System.out.println("[CompositionRoot] ✓ Creando Services (ClienteService, MotoService, ContratoService)");
+        Logger.log("✓ Creando Services (ClienteService, MotoService, ContratoService)");
         this.clienteService = new ClienteService(clienteDAO);
         this.motoService = new MotoService(motoDAO);
         this.contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
 
-        System.out.println("[CompositionRoot] ✓ Creando AgenciaService (fachada)");
+        Logger.log("✓ Creando AgenciaService (fachada)");
         this.agenciaService = new AgenciaService(clienteService, motoService, contratoService);
 
         // 4. Stores
-        System.out.println("[CompositionRoot] ✓ Creando Stores (AgenciaStore, ReferenceDataStore)");
+        Logger.log("✓ Creando Stores (AgenciaStore, ReferenceDataStore)");
         this.agenciaStore = new AgenciaStore();
         this.referenceDataStore = new ReferenceDataStore();
 
         // 5. ScreenLoader
-        System.out.println("[CompositionRoot] ✓ Creando ScreenLoader");
+        Logger.log("✓ Creando ScreenLoader");
         this.screenLoader = new ScreenLoader(this);
 
-        System.out.println("[CompositionRoot] ✅ Grafo de dependencias completo\n");
+        Logger.logInfo("✅ Grafo de dependencias completo\n");
     }
 
     // Getters para acceso controlado desde ScreenLoader y otros componentes

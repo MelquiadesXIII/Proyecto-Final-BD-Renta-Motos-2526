@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 import org.flywaydb.core.Flyway;
+import org.proyectobdmotos.utils.Logger;
 
 public class DatabaseConnection {
 
@@ -24,7 +25,9 @@ public class DatabaseConnection {
             url      = props.getProperty("db.url");
             user     = props.getProperty("db.user");
             password = props.getProperty("db.password");
+            Logger.logInfo("✓ config.properties cargado");
         } catch (IOException e) {
+            Logger.logError("No se encontró config.properties: " + e.getMessage());
             throw new RuntimeException("No se encontró config.properties", e);
         }
     }
@@ -39,9 +42,16 @@ public class DatabaseConnection {
     }
 
     public static void runMigrations() {
-        Flyway flyway = Flyway.configure()
-                .dataSource(url, user, password)
-                .load();
-        flyway.migrate();
+        try {
+            Logger.log("Iniciando migraciones de base de datos...");
+            Flyway flyway = Flyway.configure()
+                    .dataSource(url, user, password)
+                    .load();
+            flyway.migrate();
+            Logger.logInfo("✓ Migraciones completadas\n");
+        } catch (Exception e) {
+            Logger.logError("Error durante migraciones: " + e.getMessage());
+            throw new RuntimeException("Error en migraciones Flyway", e);
+        }
     }
 }

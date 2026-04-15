@@ -3,6 +3,7 @@ package org.proyectobdmotos.ui.navigation;
 import java.io.IOException;
 
 import org.proyectobdmotos.controller.ClienteController;
+import org.proyectobdmotos.utils.Logger;
 import org.proyectobdmotos.controller.ContratoController;
 import org.proyectobdmotos.controller.MotoController;
 import org.proyectobdmotos.ui.AppCompositionRoot;
@@ -30,13 +31,13 @@ public final class ScreenLoader {
      * @throws IOException si el archivo FXML no existe o tiene errores
      */
     public Parent load(String fxmlPath) throws IOException {
-        System.out.println("[ScreenLoader] Cargando pantalla: " + fxmlPath);
+        Logger.log("Cargando pantalla: " + fxmlPath);
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
 
         // Configurar controllerFactory: permite inyectar dependencias en constructores
         loader.setControllerFactory(controllerClass -> {
-            System.out.println("[ScreenLoader]   → Creando controller: " + controllerClass.getSimpleName());
+            Logger.log("→ Creando controller: " + controllerClass.getSimpleName());
 
             // Mapeo de controllers conocidos con sus dependencias
             if (controllerClass == ClienteController.class) {
@@ -71,7 +72,7 @@ public final class ScreenLoader {
         });
 
         Parent root = loader.load();
-        System.out.println("[ScreenLoader] ✓ Pantalla cargada: " + fxmlPath + "\n");
+        Logger.logInfo("✓ Pantalla cargada: " + fxmlPath + "\n");
 
         return root;
     }
