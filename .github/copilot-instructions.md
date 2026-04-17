@@ -17,7 +17,7 @@
   - Edit `db.url`, `db.user`, `db.password` in `src/main/resources/config.properties`
   - `org.proyectobdmotos.database.DatabaseConnection` loads `config.properties` from the classpath during static init.
 - Migrations live in `src/main/resources/db/migration/` and follow `V{n}__descripcion.sql`.
-  - Team rule (see `docs/guia-base-de-datos.md`): **never modify existing migrations** (e.g. `V1`, `V2`); add a new `V3__...sql` instead.
+  - Team rule (see `docs/migraciones-flyway.md`): **never modify existing migrations** (e.g. `V1`, `V2`); add a new `V3__...sql` instead.
 
 ## High-level architecture
 - **Entrypoint:** `org.proyectobdmotos.App`
@@ -48,4 +48,4 @@
   - Trigger sets moto `situacion` to `alquilada` after inserting a `contrato`.
 - **DAO layer is JDBC-first (no ORM):**
   - DAOs extend `AbstractGenericDAO<T, ID>` and implement `I*DAO` interfaces.
-  - CRUD method contracts exist in `docs/plan-interfaces.md`; `GenericDAO`/`AbstractGenericDAO` generic ops are scaffolded/commented out—expect explicit SQL per DAO.
+  - CRUD method contracts are defined in `src/main/java/org/proyectobdmotos/dao/GenericDAO.java` and base behavior in `src/main/java/org/proyectobdmotos/dao/AbstractGenericDAO.java`; expect explicit SQL in each concrete DAO.
