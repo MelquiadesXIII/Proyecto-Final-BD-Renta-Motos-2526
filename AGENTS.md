@@ -223,6 +223,61 @@ Act as a **Senior JavaFX & SQL Developer** focused on maintainable layered desig
 ## Quality Rules
 
 - Use `PreparedStatement` with bound parameters for every DAO query/update to prevent SQL injection and keep statements explicit.
-- Keep JavaFX logic separated from business/data layers: controllers -> services -> DAOs, with wiring centralized in `AppCompositionRoot`.
 - Prefer constructor injection with `final` dependencies for services/controllers/infra components to keep objects immutable and testable.
 - Keep Java model field types aligned with SQL schema definitions and apply all schema/data changes through Flyway migration files.
+
+---
+
+## 5. Project Runtime & Architecture Rules
+
+These rules capture project-specific operational and structural constraints that agents must follow.
+
+### Build / Run / Test Commands
+
+- Build with `mvn package`.
+- Run app with `mvn compile exec:java` or `mvn javafx:run`.
+- Run tests with `mvn test`.
+- Run a single test class with `mvn -Dtest=<ClassName> test`.
+
+### Local Database Setup
+
+- Use PostgreSQL and create the local database `renta_motos` when needed.
+- Copy `src/main/resources/config.properties.example` to `src/main/resources/config.properties` for local runtime configuration.
+- Ensure `db.url`, `db.user`, and `db.password` are configured in `src/main/resources/config.properties`.
+- `org.proyectobdmotos.database.DatabaseConnection` loads `config.properties` from the classpath during static initialization.
+
+### Flyway Migration Policy
+
+- Migrations live in `src/main/resources/db/migration/` and must follow `V{n}__descripcion.sql` naming.
+- **Never modify existing migrations** already committed (for example `V1`, `V2`); create a new migration (for example `V3__...sql`).
+
+### Application Composition and Wiring
+
+- `org.proyectobdmotos.App` is the entrypoint and must run migrations before launching JavaFX.
+- `org.proyectobdmotos.ui.FxApp` is the JavaFX entry and should initialize the dependency graph through `AppCompositionRoot`.
+- `org.proyectobdmotos.ui.AppCompositionRoot` must centralize object creation and wiring for `Connection`, DAOs, services, stores, and navigation helpers.
+- Do not distribute object wiring across controllers or service classes.
+
+### FXML Navigation and Controller Injection
+
+- `org.proyectobdmotos.ui.navigation.ScreenLoader` must be used with `FXMLLoader.setControllerFactory(...)` so controllers are created via constructor injection.
+- When adding a new controller, register it in the `ScreenLoader` controller factory mapping.
+
+### Store and State Conventions
+
+- Keep UI state in store classes such as `AgenciaStore` and `ReferenceDataStore`.
+- Update JavaFX `ObservableList` instances through `setAll(...)` or store setters; do not replace list instances.
+
+### Domain and Persistence Conventions
+
+- PostgreSQL enum values are lowercase strings (for example `disponible`, `alquilada`, `taller`).
+- Java enums (for example `Sexo`, `FormaPago`, `Situacion`) must keep the DB value mapping (for example via `valor` and `fromValor(String)`).
+- `Contrato` uses a composite primary key `(fecha_inicio, matricula_moto)` represented by `org.proyectobdmotos.models.ContratoID`.
+- Keep DAO implementation JDBC-first (no ORM), with explicit SQL in concrete DAO classes and contracts aligned with existing DAO interfaces/docs.
+
+### SQL-Enforced Business Rules Awareness
+
+- Respect database triggers that enforce rental constraints.
+- Existing trigger rules include:
+  - Preventing rental when moto `situacion` is not `disponible`.
+  - Setting moto `situacion` to `alquilada` after inserting a `contrato`.
