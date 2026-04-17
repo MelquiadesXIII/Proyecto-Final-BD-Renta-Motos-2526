@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    if: github.event.pull_request.draft == false || github.event_name == 'workflow_dispatch'
+    name: Validate (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      # 1) Check principal: compilar primero siempre.
+      - name: Compile
+        run: mvn -B -ntp clean compile
+
+      # 2) Checks adicionales (escalable): agrega pasos debajo.
+      # Ejemplos futuros:
+      # - name: Unit tests
+      #   run: mvn -B -ntp test
+      # - name: Verify package
+      #   run: mvn -B -ntp verify
