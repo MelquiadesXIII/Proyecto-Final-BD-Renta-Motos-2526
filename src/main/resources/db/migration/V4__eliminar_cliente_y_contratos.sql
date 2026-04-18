@@ -1,23 +1,3 @@
-
--- Explicacion de como funciona el procedimiento de eliminar la de la tabla
--- Se le manda el CI como parametro y se busca de la lista de contratos
--- todos los contratos que tuvo el Cliente y se elimina de la BD,
--- despues se elimina el CLiente de la BD
-
-CREATE OR REPLACE PROCEDURE eliminar_cliente_y_contratos(ci CHARACTER(11))
-LANGUAGE plpgsql
-AS $$
-BEGIN
-   
-	DELETE FROM Contrato 
-		WHERE ci_cliente = ci;
-		
-    DELETE FROM Cliente 
-		WHERE ci_cliente = ci;
-		
-END;
-$$;
-
 --------- Insertar Datos Automaticamente ----------
 
 CREATE OR REPLACE PROCEDURE inicializar_datos()
@@ -376,10 +356,6 @@ $$;
 -- Ejemplo de prueba
 --CALL insertar_modelo_si_no_existe('Honda', 'CG125');
 
-
-
-
-
 -- COLOR --
 
 
@@ -408,3 +384,46 @@ $$;
 
 
 
+------------------------ Querry: Eliminar Datos -------------------------------
+-- Nota: Creare los Querry de forma separada para que 
+-- sea mas facil de usar a futuro en la interfaz
+
+
+-- Explicacion de como funciona el procedimiento de eliminar la de la tabla
+-- Se le manda el CI como parametro y se busca de la lista de contratos
+-- todos los contratos que tuvo el Cliente y se elimina de la BD,
+-- despues se elimina el CLiente de la BD
+
+CREATE OR REPLACE PROCEDURE eliminar_cliente_y_contratos(ci CHARACTER(11))
+LANGUAGE plpgsql
+AS $$
+BEGIN
+   
+	DELETE FROM Contrato 
+		WHERE ci_cliente = ci;
+		
+    DELETE FROM Cliente 
+		WHERE ci_cliente = ci;
+		
+END;
+$$;
+
+
+
+CREATE OR REPLACE PROCEDURE eliminar_contrato(fech_in DATE, ci CHARACTER(11))
+LANGUAGE plpgsql
+AS $$
+BEGIN
+
+	DELETE FROM Contrato WHERE fecha_incio = fech_in
+	AND ci_cliente = ci;
+	
+	IF FOUND THEN
+        RAISE NOTICE 'El contrato del cliente de ci: % fue eliminado.',ci;
+    ELSE
+        RAISE NOTICE 'El contrato del cliente de ci: %  no existia, por lo que
+		no hubo eliminación.',ci;
+    END IF;
+
+END;
+$$;
