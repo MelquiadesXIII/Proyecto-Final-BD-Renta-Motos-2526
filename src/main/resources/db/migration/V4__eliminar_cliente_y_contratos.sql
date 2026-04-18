@@ -258,3 +258,67 @@ $$;
 -- Ejemplo Usado
 --CALL insertar_moto_si_no_existe('F1234', 1, 3, 'disponible', 150.0);
 
+-----Contratos------
+CREATE OR REPLACE PROCEDURE insertar_contrato_si_no_existe(
+    fec_ini        DATE,
+    mat            VARCHAR(10),
+    ci_cli         CHAR(11),
+    forma          tipo_forma_pago,
+    fec_fin        DATE,
+    tarifa_norm    NUMERIC(10,2),          
+    dias_pro       INT DEFAULT 0,
+    seguro_adic    BOOLEAN DEFAULT FALSE,
+    tarifa_pro     NUMERIC(10,2) DEFAULT 0,
+    fec_ent        DATE DEFAULT NULL,
+    km_sal         NUMERIC(10,2) DEFAULT 0,
+    km_lle         NUMERIC(10,2) DEFAULT 0
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    INSERT INTO contrato (
+        fecha_inicio, matricula_moto, ci_cliente, forma_pago,
+        fecha_fin, dias_prorroga, seguro_adicional,
+        tarifa_normal, tarifa_prorroga, fecha_entrega,
+        cant_km_salida, cant_km_llegada
+    )
+    VALUES (
+        fec_ini, mat, ci_cli, forma,
+        fec_fin, dias_pro, seguro_adic,
+        tarifa_norm, tarifa_pro, fec_ent,
+        km_sal, km_lle
+    )
+    ON CONFLICT (fecha_inicio, matricula_moto) DO NOTHING;
+
+    IF FOUND THEN
+        RAISE NOTICE 'Contrato de moto la % con fecha % fue insertada correctamente.', mat, fec_ini;
+    ELSE
+        RAISE NOTICE 'El contrato de la moto % con fecha % , no se insertó porque ya existía.', mat, fec_ini;
+    END IF;
+END;
+$$;
+
+-- Ejemplo usado
+/*
+CALL insertar_contrato_si_no_existe(
+    '2026-04-20',
+    'D3456',               
+    '99010112345',
+    'efectivo',
+    '2026-04-25',
+    25.00,
+    2,
+    TRUE,
+    30.00,
+    NULL,
+    22700,                  
+    0
+);
+*/
+
+
+
+
+
+
+
