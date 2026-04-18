@@ -379,3 +379,32 @@ $$;
 
 
 
+
+-- COLOR --
+
+
+CREATE OR REPLACE PROCEDURE insertar_color_si_no_existe(
+    nom_color VARCHAR(50)
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    INSERT INTO color (nombre_color)
+    VALUES (nom_color)
+    ON CONFLICT (nombre_color) DO NOTHING;
+
+    IF FOUND THEN
+        RAISE NOTICE 'El color "%" fue insertado correctamente.', nom_color;
+    ELSE
+        RAISE NOTICE 'El color "%" no se insertó porque ya existía en la Base de Datos, .', nom_color;
+    END IF;
+END;
+$$;
+
+--EJemplo de USO
+--CALL insertar_color_si_no_existe('naranja');
+
+
+
+
+
