@@ -9,5 +9,6 @@ BEGIN
     DELETE FROM Cliente 
 		WHERE ci_cliente = ci;
 		
+		
 END;
 $$;
