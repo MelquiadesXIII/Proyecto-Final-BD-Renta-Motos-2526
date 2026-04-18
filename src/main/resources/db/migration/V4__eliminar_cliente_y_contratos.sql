@@ -316,9 +316,26 @@ CALL insertar_contrato_si_no_existe(
 );
 */
 
+------- Marca --------
+CREATE OR REPLACE PROCEDURE insertar_marca_si_no_existe(
+    nom_marca VARCHAR(100)
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    INSERT INTO marca (nombre_marca)
+    VALUES (nom_marca)
+    ON CONFLICT (nombre_marca) DO NOTHING;
 
+    IF FOUND THEN
+        RAISE NOTICE 'Marca "%" insertada correctamente.', nom_marca;
+    ELSE
+        RAISE NOTICE 'La marca "%" ya existía, no se insertó.', nom_marca;
+    END IF;
+END;
+$$;
 
-
-
+-- Ejemplo usado
+--CALL insertar_marca_si_no_existe('Honda');
 
 
