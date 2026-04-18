@@ -180,3 +180,51 @@ END;
 $$;
 
 
+------- Zona para insertar los datos uno a uno ------
+
+
+-- Explicacion de como funciona los procedimientos de insertar valores --
+
+-- Se pasan como parametros los datos de la tabla.
+-- Despues se revisa si la llave primaria o el dato que sea unico en la entidad
+-- no se encuentre registrado en la Base de Datos, de aqui pueden ocurrir 2 cosas:
+-- 1. que no este el dato y se incluta en la BD.
+-- 2. que si este y no se agregue en la BD
+-- De cualquier forma se mandara un mensaje por consola de que es lo que pasa. 
+
+-- Nota: Las validaciones se debe hacer en JAVA, los datos no deben llegar mal
+-- a este Procedimiento... sino se introduciran mal.
+
+
+-------CLientes-------
+CREATE OR REPLACE PROCEDURE insertar_cliente_si_no_existe(
+    ci           CHAR(11),
+    nom          VARCHAR(100),
+    primer_ape   VARCHAR(100),
+    segundo_ape  VARCHAR(100),
+    edad         INT,
+    sexo         tipo_sexo,
+    num_cont     VARCHAR(20),
+    id_mun       INT 
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+BEGIN
+	INSERT INTO cliente (ci_cliente, nombre_cliente, primer_apellido, segundo_apellido, edad, sexo, numero_contacto, id_municipio)
+    VALUES
+        (ci, nom, primer_ape, segundo_ape,  edad, sexo, num_cont, id_mun)
+		ON CONFLICT (ci_cliente) DO NOTHING;
+	
+	IF FOUND THEN
+        RAISE NOTICE 'El cliente % de ci: % insertado correctamente.', nom ,ci;
+    ELSE
+        RAISE NOTICE 'El cliente % de ci: % ya existía, no se insertó.', nom, ci;
+    END IF;
+END;
+$$;
+
+-- Ejemplo usado:
+--CALL insertar_cliente_si_no_existe('99112233445', 'Laura', 'Fernández', 'López', 30, 'femenino', '55598765', 2);
+
+
