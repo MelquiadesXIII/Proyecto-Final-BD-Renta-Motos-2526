@@ -228,3 +228,33 @@ $$;
 --CALL insertar_cliente_si_no_existe('99112233445', 'Laura', 'Fernández', 'López', 30, 'femenino', '55598765', 2);
 
 
+-------Motos-------
+
+
+CREATE OR REPLACE PROCEDURE insertar_moto_si_no_existe(
+    mat           VARCHAR(10),
+    id_mod        INT,
+    id_col        INT,
+    situ          tipo_situacion DEFAULT 'disponible',
+    km            NUMERIC(10,2) DEFAULT 0
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    INSERT INTO moto (matricula_moto, id_modelo, id_color, situacion, cant_km_recorridos)
+    VALUES (mat, id_mod, id_col, situ, km)
+    ON CONFLICT (matricula_moto) DO NOTHING;
+
+    IF FOUND THEN
+        RAISE NOTICE 'La Moto con matrícula %  fue insertada correctamente.', mat;
+    ELSE
+        RAISE NOTICE 'La moto con matrícula %  no se insertó porque ya existía,.', mat;
+    END IF;
+	
+END;
+$$;
+*/
+
+-- Ejemplo Usado
+--CALL insertar_moto_si_no_existe('F1234', 1, 3, 'disponible', 150.0);
+
