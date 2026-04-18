@@ -409,8 +409,8 @@ END;
 $$;
 
 
-
-CREATE OR REPLACE PROCEDURE eliminar_contrato(fech_in DATE, ci CHARACTER(11))
+-- Elimina el contrato que cumpla con esas caracteristicas
+CREATE OR REPLACE PROCEDURE eliminar_contrato(fech_in DATE, ci CHARACTER(11), matricula )
 LANGUAGE plpgsql
 AS $$
 BEGIN
@@ -425,5 +425,26 @@ BEGIN
 		no hubo eliminación.',ci;
     END IF;
 
+END;
+$$;
+
+-- Eliminar todos los contratos de un cliente en una fecha dada, por si se equivoco
+-- o algo asi
+CREATE OR REPLACE PROCEDURE eliminar_contratos_cliente_fecha(
+    fech_in DATE,
+    ci      CHAR(11)
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    DELETE FROM contrato
+    WHERE fecha_inicio = fech_in
+      AND ci_cliente = ci;
+
+    IF FOUND THEN
+        RAISE NOTICE 'Los contratos del cliente CI % , con fecha % fueron eliminados.', ci, fech_in;
+    ELSE
+        RAISE NOTICE 'El cliente CI % no tenía contratos con fecha %, no se eliminó nada.', ci, fech_in;
+    END IF;
 END;
 $$;
