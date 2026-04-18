@@ -448,3 +448,23 @@ BEGIN
     END IF;
 END;
 $$;
+
+
+-- Eliminar Moto
+CREATE OR REPLACE PROCEDURE eliminar_moto(
+    mat CHARACTER VARYING(10) 
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    DELETE FROM contrato
+    WHERE matricula_moto = mat
+
+    IF FOUND THEN
+        RAISE NOTICE 'La moto de matricula: % , fue eliminada.', mat;
+    ELSE
+        RAISE NOTICE 'La moto de matricula: % , np fue encontrada, por lo que
+		 no se elimino ninguna moto.', mat;
+    END IF;
+END;
+$$;
