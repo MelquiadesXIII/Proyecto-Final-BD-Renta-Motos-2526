@@ -339,3 +339,43 @@ $$;
 --CALL insertar_marca_si_no_existe('Honda');
 
 
+------ Modelo ------
+
+CREATE OR REPLACE PROCEDURE insertar_modelo_si_no_existe(
+    nom_marca    VARCHAR(100),
+    nom_modelo   VARCHAR(100)
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_id_marca INT;
+BEGIN
+    -- Obtener el ID de la marca
+    SELECT id_marca INTO v_id_marca
+    FROM marca
+    WHERE nombre_marca = nom_marca;
+
+    -- Validar que la marca exista
+    IF v_id_marca IS NULL THEN
+        RAISE EXCEPTION 'La marca "%" no existe. Primero insértela.', nom_marca;
+    END IF;
+
+    -- Insertar el modelo (la restricción UNIQUE es sobre id_marca + nombre_modelo)
+    INSERT INTO modelo (id_marca, nombre_modelo)
+    VALUES (v_id_marca, nom_modelo)
+    ON CONFLICT (id_marca, nombre_modelo) DO NOTHING;
+
+    IF FOUND THEN
+        RAISE NOTICE 'Modelo "%" de marca "%" insertado correctamente.', nom_modelo, nom_marca;
+    ELSE
+        RAISE NOTICE 'El modelo "%" de marca "%" ya existía, no se insertó.', nom_modelo, nom_marca;
+    END IF;
+END;
+$$;
+
+-- Ejemplo de prueba
+--CALL insertar_modelo_si_no_existe('Honda', 'CG125');
+
+
+
+
