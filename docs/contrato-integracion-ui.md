@@ -121,9 +121,12 @@ Este contrato queda como referencia estable para consumo UI. Cualquier cambio po
 | Código | Mensaje contractual esperado | Operación |
 |---|---|---|
 | `CLIENTE_NO_ENCONTRADO` | `No se puede crear el contrato: cliente no encontrado` | `ContratoService.crearContrato(...)` |
-| `MOTO_NO_ENCONTRADA` | `No se puede crear/finalizar el contrato: moto no encontrada` | `ContratoService.crearContrato(...)` y `finalizarContrato(...)` |
+| `MOTO_NO_ENCONTRADA` | `No se puede crear el contrato: moto no encontrada` | `ContratoService.crearContrato(...)` |
+| `MOTO_NO_ENCONTRADA` | `No se puede finalizar el contrato: moto no encontrada` | `ContratoService.finalizarContrato(...)` |
 | `MOTO_NO_DISPONIBLE` | `No se puede crear el contrato: moto no disponible` | `ContratoService.crearContrato(...)` |
-| `CONTRATO_NO_ENCONTRADO` | `No se puede actualizar/eliminar/finalizar el contrato: no existe` | `actualizarContrato(...)`, `eliminarContrato(...)`, `finalizarContrato(...)` |
+| `CONTRATO_NO_ENCONTRADO` | `No se puede actualizar el contrato: no existe` | `ContratoService.actualizarContrato(...)` |
+| `CONTRATO_NO_ENCONTRADO` | `No se puede eliminar el contrato: no existe` | `ContratoService.eliminarContrato(...)` |
+| `CONTRATO_NO_ENCONTRADO` | `No se puede finalizar el contrato: no existe` | `ContratoService.finalizarContrato(...)` |
 | `CONTRATO_YA_FINALIZADO` | `No se puede finalizar el contrato: ya está finalizado` | `finalizarContrato(...)` |
 | `CONTRATO_VALIDACION_FALLIDA` | `No se puede crear el contrato: validaciones fallidas` | fallback defensivo en `crearContrato(...)` |
 
