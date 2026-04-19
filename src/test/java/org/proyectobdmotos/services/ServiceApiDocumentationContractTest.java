@@ -81,9 +81,12 @@ public class ServiceApiDocumentationContractTest extends TestCase {
     public void testDocumentoDeclaraAliasesRemovidosYReemplazos() throws IOException {
         String documento = Files.readString(Path.of(DOCUMENTO_CONTRATO));
 
-        boolean declaraAliasClienteRemovido = documento.contains("| `ClienteService` | `buscarPorId(String id)` | `buscarPorCi(String ci)` |");
-        boolean declaraAliasMotoBuscarRemovido = documento.contains("| `MotoService` | `buscarPorId(String id)` | `buscarPorMatricula(String matricula)` |");
-        boolean declaraAliasMotoListarRemovido = documento.contains("| `MotoService` | `listarTodas()` | `listarTodos()` |");
+        boolean declaraPoliticaFreeze = documento.contains(
+            "No se permiten cambios de firma pública de `services` sin PR excepcional."
+        );
+        boolean declaraUsoSoloMetodosCongelados = documento.contains(
+            "La UI debe consumir únicamente los métodos listados en este documento."
+        );
         boolean noExponeAliasCliente = false;
         boolean noExponeAliasMotoBuscar = false;
         boolean noExponeAliasMotoListar = false;
@@ -106,9 +109,8 @@ public class ServiceApiDocumentationContractTest extends TestCase {
             noExponeAliasMotoListar = true;
         }
 
-        assertTrue(declaraAliasClienteRemovido);
-        assertTrue(declaraAliasMotoBuscarRemovido);
-        assertTrue(declaraAliasMotoListarRemovido);
+        assertTrue(declaraPoliticaFreeze);
+        assertTrue(declaraUsoSoloMetodosCongelados);
         assertTrue(noExponeAliasCliente);
         assertTrue(noExponeAliasMotoBuscar);
         assertTrue(noExponeAliasMotoListar);
