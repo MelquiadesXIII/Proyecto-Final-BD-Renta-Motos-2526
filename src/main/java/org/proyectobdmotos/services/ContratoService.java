@@ -9,6 +9,8 @@ import org.proyectobdmotos.dao.IMotoDAO;
 import org.proyectobdmotos.models.Contrato;
 import org.proyectobdmotos.models.ContratoID;
 import org.proyectobdmotos.models.Situacion;
+import org.proyectobdmotos.services.exceptions.BusinessErrorCode;
+import org.proyectobdmotos.services.exceptions.ValidationException;
 import org.proyectobdmotos.utils.Logger;
 
 /**
@@ -41,15 +43,24 @@ public class ContratoService {
         boolean clienteExiste = clienteDAO.buscarPorId(ciCliente).isPresent();
         boolean motoDisponible = false;
         boolean puedeCrear = false;
+        ValidationException validationException = null;
 
         if (!clienteExiste) {
             Logger.logError("Cliente no encontrado: " + ciCliente);
+            validationException = new ValidationException(
+                BusinessErrorCode.CLIENTE_NO_ENCONTRADO,
+                "No se puede crear el contrato: cliente no encontrado"
+            );
         }
 
         if (clienteExiste) {
             motoDisponible = motoDAO.estaDisponible(matricula);
             if (!motoDisponible) {
                 Logger.logError("Moto no disponible: " + matricula);
+                validationException = new ValidationException(
+                    BusinessErrorCode.MOTO_NO_DISPONIBLE,
+                    "No se puede crear el contrato: moto no disponible"
+                );
             }
         }
 
@@ -63,7 +74,13 @@ public class ContratoService {
         }
 
         if (!puedeCrear) {
-            throw new IllegalStateException("No se puede crear el contrato: validaciones fallidas");
+            if (validationException == null) {
+                validationException = new ValidationException(
+                    BusinessErrorCode.CONTRATO_VALIDACION_FALLIDA,
+                    "No se puede crear el contrato: validaciones fallidas"
+                );
+            }
+            throw validationException;
         }
     }
 
@@ -96,4 +113,3 @@ public class ContratoService {
         contratoDAO.eliminar(id);
     }
 }
-

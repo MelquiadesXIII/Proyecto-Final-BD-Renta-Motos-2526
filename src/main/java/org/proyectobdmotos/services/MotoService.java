@@ -37,7 +37,7 @@ public class MotoService {
         return motoDAO.buscarPorId(matricula);
     }
 
-    public List<Moto> listarTodas() {
+    public List<Moto> listarTodos() {
         return motoDAO.listarTodos();
     }
 
