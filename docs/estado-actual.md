@@ -2,6 +2,53 @@
 
 Fecha de corte: **15/04/2026** (actualizado post-implementación DAO/Services)
 
+## Update L1 (Freeze de lógica para UI)
+
+- Estado: **Ticket L1 completado hasta Fase 4 (freeze)**.
+- Fuente de verdad del contrato: [docs/contrato-integracion-ui.md](./contrato-integracion-ui.md).
+- Política activa: cambios en API pública de `services` solo por PR excepcional con coordinación previa con UI.
+
+### Métodos permitidos para consumo UI (freeze)
+
+#### ClienteService
+- `void crearCliente(Cliente cliente)`
+- `void actualizarCliente(Cliente cliente)`
+- `void eliminarCliente(String ci)`
+- `Optional<Cliente> buscarPorCi(String ci)`
+- `List<Cliente> listarTodos()`
+- `List<ClienteDTO> listarClientesPorMunicipio()`
+- `List<Cliente> obtenerClientesIncumplidores()`
+
+#### MotoService
+- `void crearMoto(Moto moto)`
+- `void actualizarMoto(Moto moto)`
+- `void eliminarMoto(String matricula)`
+- `Optional<Moto> buscarPorMatricula(String matricula)`
+- `List<Moto> listarTodos()`
+- `boolean estaDisponible(String matricula)`
+- `void cambiarEstado(String matricula, Situacion nuevaSituacion)`
+- `List<MotoDTO> listarMotosConKilometraje()`
+- `List<SituacionMotoDTO> listarSituacionMotos()`
+
+#### ContratoService
+- `void crearContrato(Contrato contrato)`
+- `void actualizarContrato(Contrato contrato)`
+- `void finalizarContrato(Contrato contrato)`
+- `void eliminarContrato(ContratoID id)`
+- `Optional<Contrato> buscarPorId(ContratoID id)`
+- `List<Contrato> listarTodos()`
+- `List<Contrato> listarContratosCompletos()`
+
+#### Excepciones de negocio contractuales mínimas
+- `CLIENTE_NO_ENCONTRADO`
+- `MOTO_NO_ENCONTRADA`
+- `MOTO_NO_DISPONIBLE`
+- `CONTRATO_NO_ENCONTRADO`
+- `CONTRATO_YA_FINALIZADO`
+- `CONTRATO_VALIDACION_FALLIDA`
+
+> Nota de coordinación: los controllers deben ramificar por `errorCode`, no por parsing de texto.
+
 ## 1) Resumen ejecutivo
 
 El proyecto avanza sólidamente: **capa de persistencia (DAO) y servicios están operativos** con SQL real, validaciones de negocio y reportes base. La arquitectura por capas funciona correctamente con inyección de dependencias via interfaces.
