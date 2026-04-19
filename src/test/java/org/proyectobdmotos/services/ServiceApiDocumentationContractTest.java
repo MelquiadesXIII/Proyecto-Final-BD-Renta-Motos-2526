@@ -118,6 +118,8 @@ public class ServiceApiDocumentationContractTest extends TestCase {
 
     public void testDeteccionDesalineacionFallaCuandoFirmaDocumentadaNoExisteEnApi() throws IOException {
         String documento = Files.readString(Path.of(DOCUMENTO_CONTRATO));
+        String firmaInvalida = "Optional<Moto> buscarPorPatente(String patente)";
+        String documentoConFirmaInvalida = documento + System.lineSeparator() + firmaInvalida;
 
         boolean firmaCanonicaAlineada = firmaYApiCanonicaCoinciden(
                 documento,
@@ -125,14 +127,16 @@ public class ServiceApiDocumentationContractTest extends TestCase {
                 MotoService.class,
                 "buscarPorMatricula",
                 String.class);
+        boolean firmaInvalidaSeIncluyeEnDocumento = documentoConFirmaInvalida.contains(firmaInvalida);
         boolean firmaInexistenteSeDetectaComoMismatch = firmaYApiCanonicaCoinciden(
-                documento,
-                "Optional<Moto> buscarPorPatente(String patente)",
+                documentoConFirmaInvalida,
+                firmaInvalida,
                 MotoService.class,
                 "buscarPorPatente",
                 String.class);
 
         assertTrue(firmaCanonicaAlineada);
+        assertTrue(firmaInvalidaSeIncluyeEnDocumento);
         assertFalse(firmaInexistenteSeDetectaComoMismatch);
     }
 

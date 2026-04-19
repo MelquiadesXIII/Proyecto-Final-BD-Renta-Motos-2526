@@ -41,7 +41,7 @@ public class ContratoService {
         String matricula = contrato.getContratoID().getMatriculaMoto();
 
         boolean clienteExiste = clienteDAO.buscarPorId(ciCliente).isPresent();
-        boolean motoExiste = motoDAO.buscarPorId(matricula).isPresent();
+        boolean motoExiste = false;
         boolean motoDisponible = false;
         boolean puedeCrear = false;
         ValidationException validationException = null;
@@ -52,6 +52,10 @@ public class ContratoService {
                 BusinessErrorCode.CLIENTE_NO_ENCONTRADO,
                 "No se puede crear el contrato: cliente no encontrado"
             );
+        }
+
+        if (clienteExiste) {
+            motoExiste = motoDAO.buscarPorId(matricula).isPresent();
         }
 
         if (clienteExiste && !motoExiste) {
@@ -100,7 +104,7 @@ public class ContratoService {
         String matricula = contrato.getContratoID().getMatriculaMoto();
         Optional<Contrato> contratoPersistido = contratoDAO.buscarPorId(contrato.getContratoID());
         boolean contratoExiste = contratoPersistido.isPresent();
-        boolean motoExiste = motoDAO.buscarPorId(matricula).isPresent();
+        boolean motoExiste = false;
         boolean contratoYaFinalizado = false;
         boolean puedeFinalizar = false;
         ValidationException validationException = null;
@@ -122,6 +126,10 @@ public class ContratoService {
                     "No se puede finalizar el contrato: ya está finalizado"
                 );
             }
+        }
+
+        if (contratoExiste && !contratoYaFinalizado) {
+            motoExiste = motoDAO.buscarPorId(matricula).isPresent();
         }
 
         if (contratoExiste && !contratoYaFinalizado && !motoExiste) {
