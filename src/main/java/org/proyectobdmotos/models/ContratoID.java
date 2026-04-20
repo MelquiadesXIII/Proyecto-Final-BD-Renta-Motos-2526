@@ -8,7 +8,6 @@ public class ContratoID {
     private final LocalDate fechaInicio;
     private final String matriculaMoto;
 
-    @SuppressWarnings("OverridableMethodCallInConstructor")
     public ContratoID(LocalDate fechaInicio, String matriculaMoto) {
         this.fechaInicio = fechaInicio;
         this.matriculaMoto = matriculaMoto;
