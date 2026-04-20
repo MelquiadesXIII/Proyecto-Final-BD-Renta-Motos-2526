@@ -41,9 +41,6 @@ jobs:
       - name: Compile
         run: mvn -B -ntp clean compile
 
-      # 2) Checks adicionales (escalable): agrega pasos debajo.
-      # Ejemplos futuros:
-      # - name: Unit tests
-      #   run: mvn -B -ntp test
-      # - name: Verify package
-      #   run: mvn -B -ntp verify
+      # 2) Ejecutar tests para validar PR.
+      - name: Unit tests
+        run: mvn -B -ntp test
