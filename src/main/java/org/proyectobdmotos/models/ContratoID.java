@@ -1,16 +1,17 @@
 package org.proyectobdmotos.models;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 public class ContratoID {
 
-    private LocalDate fechaInicio;
-    private String matriculaMoto;
-    
+    private final LocalDate fechaInicio;
+    private final String matriculaMoto;
+
     @SuppressWarnings("OverridableMethodCallInConstructor")
     public ContratoID(LocalDate fechaInicio, String matriculaMoto) {
-        setFechaInicio(fechaInicio);
-        setMatriculaMoto(matriculaMoto);
+        this.fechaInicio = fechaInicio;
+        this.matriculaMoto = matriculaMoto;
     }
 
     public LocalDate getFechaInicio() {
@@ -21,10 +22,30 @@ public class ContratoID {
         return matriculaMoto;
     }
 
-    public void setFechaInicio(LocalDate fechaInicio) {
-        this.fechaInicio = fechaInicio;
+    @Override
+    public boolean equals(Object o) {
+        boolean esMismaReferencia = false;
+        boolean esIgual = false;
+
+        if (this == o) {
+            esMismaReferencia = true;
+        }
+
+        if (!esMismaReferencia && o instanceof ContratoID otroContratoId) {
+            esIgual = Objects.equals(fechaInicio, otroContratoId.fechaInicio)
+                    && Objects.equals(matriculaMoto, otroContratoId.matriculaMoto);
+        }
+
+        if (esMismaReferencia) {
+            esIgual = true;
+        }
+
+        return esIgual;
     }
-    public void setMatriculaMoto(String matriculaMoto) {
-        this.matriculaMoto = matriculaMoto;
+
+    @Override
+    public int hashCode() {
+        int hash = Objects.hash(fechaInicio, matriculaMoto);
+        return hash;
     }
 }
