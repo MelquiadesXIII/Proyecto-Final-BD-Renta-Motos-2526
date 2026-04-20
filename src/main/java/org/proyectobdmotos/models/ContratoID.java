@@ -45,7 +45,6 @@ public class ContratoID {
 
     @Override
     public int hashCode() {
-        int hash = Objects.hash(fechaInicio, matriculaMoto);
-        return hash;
+        return Objects.hash(fechaInicio, matriculaMoto);
     }
 }
