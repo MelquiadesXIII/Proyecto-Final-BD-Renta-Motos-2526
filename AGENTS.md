@@ -262,6 +262,15 @@ These rules capture project-specific operational and structural constraints that
 
 - `org.proyectobdmotos.ui.navigation.ScreenLoader` must be used with `FXMLLoader.setControllerFactory(...)` so controllers are created via constructor injection.
 - When adding a new controller, register it in the `ScreenLoader` controller factory mapping.
+- **FXML Views**: Store all `.fxml` files in `src/main/resources/fxml/`.
+- **Naming Convention**: FXML files should use `kebab-case` (e.g., `cliente-lista.fxml`) and their corresponding controllers should use `PascalCase` with the `Controller` suffix (e.g., `ClienteListaController.java`).
+- **UI Error Handling**: Controllers must catch `BusinessException` (or its subclasses like `ValidationException`) and display them to the user using JavaFX `Alert` dialogs. Do not let business exceptions bubble up to the FxApp thread unhandled.
+- **View-Controller Link**: Every FXML must specify its controller class via the `fx:controller` attribute, and all interactive elements must use `fx:id` for reference in Java code.
+- **Separation of Concerns**: Controllers are forbidden from containing business logic, SQL, or direct DAO access. They must only:
+    1. Handle UI events (clicks, keypresses).
+    2. Collect and validate basic UI input.
+    3. Delegate to a `Service` or `Store`.
+    4. Update the UI based on the result.
 
 ### Store and State Conventions
 
