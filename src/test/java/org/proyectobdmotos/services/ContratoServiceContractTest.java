@@ -209,6 +209,8 @@ public class ContratoServiceContractTest extends TestCase {
         assertEquals(130.0, contratoDAO.ultimoContratoActualizado.getCantKmLlegada());
         assertEquals(100.0, contratoDAO.ultimoContratoActualizado.getCantKmSalida());
         assertEquals(3, contratoDAO.ultimoContratoActualizado.getDiasProrroga());
+        assertEquals(100.0, contratoDAO.ultimoContratoActualizado.getTarifaNormal());
+        assertEquals(50.0, contratoDAO.ultimoContratoActualizado.getTarifaProrroga());
     }
 
     public void testFinalizarContratoLanzaKmInvalidoCuandoLlegadaMenorQueSalidaPersistida() {
