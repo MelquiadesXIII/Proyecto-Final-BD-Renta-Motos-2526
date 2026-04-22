@@ -14,8 +14,11 @@ import org.proyectobdmotos.utils.Logger;
 
 public class ClienteDAO extends AbstractGenericDAO<Cliente, String> implements IClienteDAO {
 
-    public ClienteDAO(Connection connection) {
+    private final ISexoDAO sexoDAO;
+
+    public ClienteDAO(Connection connection, ISexoDAO sexoDAO) {
         super(connection);
+        this.sexoDAO = sexoDAO;
     }
 
     // ===== MÉTODOS TEMPLATE =====
@@ -23,14 +26,14 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, String> implements I
     @Override
     protected String getInsertSQL() {
         return "INSERT INTO cliente (ci_cliente, nombre_cliente, primer_apellido, "
-             + "segundo_apellido, edad, sexo, numero_contacto, id_municipio) "
-             + "VALUES (?, ?, ?, ?, ?, ?::tipo_sexo, ?, ?)";
+             + "segundo_apellido, edad, id_sexo, numero_contacto, id_municipio) "
+             + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     }
 
     @Override
     protected String getUpdateSQL() {
         return "UPDATE cliente SET nombre_cliente = ?, primer_apellido = ?, "
-             + "segundo_apellido = ?, edad = ?, sexo = ?::tipo_sexo, numero_contacto = ?, "
+             + "segundo_apellido = ?, edad = ?, id_sexo = ?, numero_contacto = ?, "
              + "id_municipio = ? WHERE ci_cliente = ?";
     }
 
@@ -41,33 +44,41 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, String> implements I
 
     @Override
     protected String getFindByIdSQL() {
-        return "SELECT * FROM cliente WHERE ci_cliente = ?";
+        return "SELECT c.*, s.nombre AS sexo_nombre "
+             + "FROM cliente c "
+             + "JOIN sexo s ON c.id_sexo = s.id_sexo "
+             + "WHERE c.ci_cliente = ?";
     }
 
     @Override
     protected String getFindAllSQL() {
-        return "SELECT * FROM cliente ORDER BY nombre_cliente, primer_apellido";
+        return "SELECT c.*, s.nombre AS sexo_nombre "
+             + "FROM cliente c "
+             + "JOIN sexo s ON c.id_sexo = s.id_sexo "
+             + "ORDER BY c.nombre_cliente, c.primer_apellido";
     }
 
     @Override
     protected void setInsertParameters(PreparedStatement ps, Cliente cliente) throws SQLException {
+        int idSexo = sexoDAO.findIdByNombre(cliente.getSexo().getValor());
         ps.setString(1, cliente.getCiCliente());
         ps.setString(2, cliente.getNombreCLiente());
         ps.setString(3, cliente.getPrimerApellido());
         ps.setString(4, cliente.getSegundoApellido());
         ps.setInt(5, cliente.getEdad());
-        ps.setString(6, cliente.getSexo().getValor());
+        ps.setInt(6, idSexo);
         ps.setString(7, cliente.getNumeroContacto());
         ps.setString(8, cliente.getIdMunicipio());
     }
 
     @Override
     protected void setUpdateParameters(PreparedStatement ps, Cliente cliente) throws SQLException {
+        int idSexo = sexoDAO.findIdByNombre(cliente.getSexo().getValor());
         ps.setString(1, cliente.getNombreCLiente());
         ps.setString(2, cliente.getPrimerApellido());
         ps.setString(3, cliente.getSegundoApellido());
         ps.setInt(4, cliente.getEdad());
-        ps.setString(5, cliente.getSexo().getValor());
+        ps.setInt(5, idSexo);
         ps.setString(6, cliente.getNumeroContacto());
         ps.setString(7, cliente.getIdMunicipio());
         ps.setString(8, cliente.getCiCliente());
@@ -86,7 +97,7 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, String> implements I
             rs.getString("primer_apellido"),
             rs.getString("segundo_apellido"),
             rs.getInt("edad"),
-            Sexo.fromValor(rs.getString("sexo")),
+            Sexo.fromValor(rs.getString("sexo_nombre")),
             rs.getString("numero_contacto"),
             String.valueOf(rs.getInt("id_municipio"))
         );
@@ -131,8 +142,9 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, String> implements I
     @Override
     public List<Cliente> obtenerClientesIncumplidores() {
         String sql = """
-            SELECT DISTINCT c.*
+            SELECT DISTINCT c.*, s.nombre AS sexo_nombre
             FROM cliente c
+            JOIN sexo s ON c.id_sexo = s.id_sexo
             JOIN contrato co ON c.ci_cliente = co.ci_cliente
             WHERE co.fecha_entrega IS NOT NULL
               AND co.fecha_entrega > co.fecha_fin
