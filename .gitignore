@@ -43,3 +43,4 @@ src/main/resources/config.properties
 config.properties.example
 .atl/
 .lian/
+src/main/resources/images/
