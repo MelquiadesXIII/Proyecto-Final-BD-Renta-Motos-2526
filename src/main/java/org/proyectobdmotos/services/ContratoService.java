@@ -105,14 +105,14 @@ public class ContratoService {
         String matricula = contrato.getContratoID().getMatriculaMoto();
         Optional<Contrato> contratoPersistido = contratoDAO.buscarPorId(contrato.getContratoID());
         boolean contratoExiste = contratoPersistido.isPresent();
-        Contrato contratoBase = null;
+        Contrato contratoBase = contratoPersistido.orElse(null);
         Contrato contratoParaFinalizar = null;
         LocalDate fechaInicioBase = null;
         LocalDate fechaFinBase = null;
         double cantKmSalidaBase = 0.0;
         boolean motoExiste = false;
         boolean contratoYaFinalizado = false;
-        boolean contratoBaseDisponible = false;
+        boolean contratoBaseDisponible = contratoBase != null;
         boolean validacionBaseOk = false;
         boolean fechaEntregaValida = false;
         boolean rangoFechasContratoValido = false;
