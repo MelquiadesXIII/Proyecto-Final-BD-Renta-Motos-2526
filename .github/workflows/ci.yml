@@ -15,7 +15,27 @@ permissions:
   contents: read
 
 jobs:
+  changes:
+    name: Detect DB-related changes
+    runs-on: ubuntu-latest
+    outputs:
+      db: ${{ steps.filter.outputs.db }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Filter changed paths
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            db:
+              - 'src/main/resources/db/migration/**'
+              - 'src/main/java/org/proyectobdmotos/database/**'
+
   validate:
+    needs: changes
     if: github.event.pull_request.draft == false || github.event_name == 'workflow_dispatch'
     name: Validate (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
@@ -44,3 +64,44 @@ jobs:
       # 2) Ejecutar tests para validar PR.
       - name: Unit tests
         run: mvn -B -ntp test
+
+  db-migrations:
+    needs: changes
+    if: needs.changes.outputs.db == 'true' || github.event_name == 'workflow_dispatch'
+    name: Validate DB migrations
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: renta_motos_ci
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d renta_motos_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Run Flyway migrations
+        run: >-
+          mvn -B -ntp
+          org.flywaydb:flyway-maven-plugin:10.10.0:migrate
+          -Dflyway.url=jdbc:postgresql://localhost:5432/renta_motos_ci
+          -Dflyway.user=postgres
+          -Dflyway.password=postgres
+          -Dflyway.locations=filesystem:src/main/resources/db/migration
