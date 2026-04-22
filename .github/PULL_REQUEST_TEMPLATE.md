@@ -1,6 +1,3 @@
-## Contexto
-Closes #<numero>
-
 ## Resumen
 - 
 
