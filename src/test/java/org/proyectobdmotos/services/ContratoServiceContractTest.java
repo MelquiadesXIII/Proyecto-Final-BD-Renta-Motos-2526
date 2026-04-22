@@ -161,6 +161,212 @@ public class ContratoServiceContractTest extends TestCase {
         assertEquals(0, motoDAO.cambiarEstadoCount);
     }
 
+    public void testFinalizarContratoValidoUsaDatosPersistidosYActualizaContrato() {
+        FakeContratoDAO contratoDAO = new FakeContratoDAO();
+        FakeClienteDAO clienteDAO = new FakeClienteDAO();
+        FakeMotoDAO motoDAO = new FakeMotoDAO();
+
+        Contrato contratoPersistido = new Contrato(
+            10.0,
+            100.0,
+            "C1",
+            0,
+            null,
+            LocalDate.of(2026, 4, 20),
+            LocalDate.of(2026, 4, 19),
+            FormaPago.EFECTIVO,
+            "M1",
+            false,
+            100.0,
+            50.0
+        );
+        contratoDAO.contrato = Optional.of(contratoPersistido);
+        motoDAO.moto = Optional.of(crearMoto("M1"));
+
+        ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
+
+        Contrato requestFinalizacion = new Contrato(
+            130.0,
+            0.0,
+            "C1",
+            0,
+            LocalDate.of(2026, 4, 23),
+            LocalDate.of(2026, 5, 10),
+            LocalDate.of(2026, 4, 19),
+            FormaPago.EFECTIVO,
+            "M1",
+            false,
+            999.0,
+            999.0
+        );
+
+        contratoService.finalizarContrato(requestFinalizacion);
+
+        assertEquals(1, contratoDAO.updateCount);
+        assertEquals(1, motoDAO.cambiarEstadoCount);
+        assertNotNull(contratoDAO.ultimoContratoActualizado);
+        assertEquals(LocalDate.of(2026, 4, 23), contratoDAO.ultimoContratoActualizado.getFechaEntrega());
+        assertEquals(130.0, contratoDAO.ultimoContratoActualizado.getCantKmLlegada());
+        assertEquals(100.0, contratoDAO.ultimoContratoActualizado.getCantKmSalida());
+        assertEquals(3, contratoDAO.ultimoContratoActualizado.getDiasProrroga());
+    }
+
+    public void testFinalizarContratoLanzaKmInvalidoCuandoLlegadaMenorQueSalidaPersistida() {
+        FakeContratoDAO contratoDAO = new FakeContratoDAO();
+        FakeClienteDAO clienteDAO = new FakeClienteDAO();
+        FakeMotoDAO motoDAO = new FakeMotoDAO();
+
+        Contrato contratoPersistido = new Contrato(
+            10.0,
+            100.0,
+            "C1",
+            0,
+            null,
+            LocalDate.of(2026, 4, 20),
+            LocalDate.of(2026, 4, 19),
+            FormaPago.EFECTIVO,
+            "M1",
+            false,
+            100.0,
+            50.0
+        );
+        contratoDAO.contrato = Optional.of(contratoPersistido);
+        motoDAO.moto = Optional.of(crearMoto("M1"));
+
+        ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
+
+        Contrato requestFinalizacion = new Contrato(
+            90.0,
+            0.0,
+            "C1",
+            0,
+            LocalDate.of(2026, 4, 23),
+            LocalDate.of(2026, 5, 10),
+            LocalDate.of(2026, 4, 19),
+            FormaPago.EFECTIVO,
+            "M1",
+            false,
+            999.0,
+            999.0
+        );
+
+        ValidationException exception = null;
+        try {
+            contratoService.finalizarContrato(requestFinalizacion);
+        } catch (ValidationException ex) {
+            exception = ex;
+        }
+
+        assertNotNull(exception);
+        assertEquals(BusinessErrorCode.CONTRATO_KM_INVALIDO, exception.getErrorCode());
+        assertEquals(0, contratoDAO.updateCount);
+        assertEquals(0, motoDAO.cambiarEstadoCount);
+    }
+
+    public void testFinalizarContratoLanzaFechaEntregaInvalidaCuandoEntregaEsAntesDelInicio() {
+        FakeContratoDAO contratoDAO = new FakeContratoDAO();
+        FakeClienteDAO clienteDAO = new FakeClienteDAO();
+        FakeMotoDAO motoDAO = new FakeMotoDAO();
+
+        Contrato contratoPersistido = new Contrato(
+            10.0,
+            100.0,
+            "C1",
+            0,
+            null,
+            LocalDate.of(2026, 4, 20),
+            LocalDate.of(2026, 4, 19),
+            FormaPago.EFECTIVO,
+            "M1",
+            false,
+            100.0,
+            50.0
+        );
+        contratoDAO.contrato = Optional.of(contratoPersistido);
+        motoDAO.moto = Optional.of(crearMoto("M1"));
+
+        ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
+
+        Contrato requestFinalizacion = new Contrato(
+            120.0,
+            0.0,
+            "C1",
+            0,
+            LocalDate.of(2026, 4, 18),
+            LocalDate.of(2026, 5, 10),
+            LocalDate.of(2026, 4, 19),
+            FormaPago.EFECTIVO,
+            "M1",
+            false,
+            999.0,
+            999.0
+        );
+
+        ValidationException exception = null;
+        try {
+            contratoService.finalizarContrato(requestFinalizacion);
+        } catch (ValidationException ex) {
+            exception = ex;
+        }
+
+        assertNotNull(exception);
+        assertEquals(BusinessErrorCode.CONTRATO_FECHA_ENTREGA_INVALIDA, exception.getErrorCode());
+        assertEquals(0, contratoDAO.updateCount);
+        assertEquals(0, motoDAO.cambiarEstadoCount);
+    }
+
+    public void testFinalizarContratoLanzaFechaInvalidaCuandoContratoPersistidoTieneFinAntesDeInicio() {
+        FakeContratoDAO contratoDAO = new FakeContratoDAO();
+        FakeClienteDAO clienteDAO = new FakeClienteDAO();
+        FakeMotoDAO motoDAO = new FakeMotoDAO();
+
+        Contrato contratoPersistido = new Contrato(
+            10.0,
+            100.0,
+            "C1",
+            0,
+            null,
+            LocalDate.of(2026, 4, 18),
+            LocalDate.of(2026, 4, 19),
+            FormaPago.EFECTIVO,
+            "M1",
+            false,
+            100.0,
+            50.0
+        );
+        contratoDAO.contrato = Optional.of(contratoPersistido);
+        motoDAO.moto = Optional.of(crearMoto("M1"));
+
+        ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
+
+        Contrato requestFinalizacion = new Contrato(
+            120.0,
+            0.0,
+            "C1",
+            0,
+            LocalDate.of(2026, 4, 21),
+            LocalDate.of(2026, 5, 10),
+            LocalDate.of(2026, 4, 19),
+            FormaPago.EFECTIVO,
+            "M1",
+            false,
+            999.0,
+            999.0
+        );
+
+        ValidationException exception = null;
+        try {
+            contratoService.finalizarContrato(requestFinalizacion);
+        } catch (ValidationException ex) {
+            exception = ex;
+        }
+
+        assertNotNull(exception);
+        assertEquals(BusinessErrorCode.CONTRATO_FECHA_ENTREGA_INVALIDA, exception.getErrorCode());
+        assertEquals(0, contratoDAO.updateCount);
+        assertEquals(0, motoDAO.cambiarEstadoCount);
+    }
+
     public void testActualizarContratoLanzaCodigoContratoNoEncontradoSinActualizar() {
         FakeContratoDAO contratoDAO = new FakeContratoDAO();
         FakeClienteDAO clienteDAO = new FakeClienteDAO();
@@ -214,7 +420,9 @@ public class ContratoServiceContractTest extends TestCase {
             LocalDate.of(2026, 4, 19),
             FormaPago.EFECTIVO,
             matricula,
-            false
+            false,
+            100.0,
+            50.0
         );
     }
 
@@ -224,6 +432,7 @@ public class ContratoServiceContractTest extends TestCase {
         private int deleteCount;
         private Optional<Contrato> contrato = Optional.empty();
         private Contrato ultimoContratoInsertado;
+        private Contrato ultimoContratoActualizado;
 
         @Override
         public void insertar(Contrato entity) {
@@ -234,6 +443,7 @@ public class ContratoServiceContractTest extends TestCase {
         @Override
         public void actualizar(Contrato entity) {
             updateCount = updateCount + 1;
+            ultimoContratoActualizado = entity;
         }
 
         @Override

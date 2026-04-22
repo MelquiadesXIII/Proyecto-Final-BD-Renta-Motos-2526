@@ -1,5 +1,7 @@
 package org.proyectobdmotos.services;
 
+import org.proyectobdmotos.models.Contrato;
+
 public class AgenciaService {
 
     private final ClienteService clienteService;
@@ -21,5 +23,9 @@ public class AgenciaService {
     }
     public ContratoService getContratoService() {
         return contratoService;
+    }
+
+    public void finalizarContrato(Contrato contrato) {
+        contratoService.finalizarContrato(contrato);
     }
 }

@@ -1,5 +1,6 @@
 package org.proyectobdmotos.services;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -104,10 +105,24 @@ public class ContratoService {
         String matricula = contrato.getContratoID().getMatriculaMoto();
         Optional<Contrato> contratoPersistido = contratoDAO.buscarPorId(contrato.getContratoID());
         boolean contratoExiste = contratoPersistido.isPresent();
+        Contrato contratoBase = null;
+        Contrato contratoParaFinalizar = null;
+        LocalDate fechaInicioBase = null;
+        LocalDate fechaFinBase = null;
+        double cantKmSalidaBase = 0.0;
         boolean motoExiste = false;
         boolean contratoYaFinalizado = false;
+        boolean contratoBaseDisponible = false;
+        boolean validacionBaseOk = false;
+        boolean fechaEntregaValida = false;
+        boolean rangoFechasContratoValido = false;
+        boolean kilometrajeValido = false;
+        boolean contratoPreparado = false;
         boolean puedeFinalizar = false;
         ValidationException validationException = null;
+        int diasProrrogaReal = 0;
+        double recargoProrroga = 0.0;
+        double importeTotalTeorico = 0.0;
 
         if (!contratoExiste) {
             Logger.logError("Contrato no encontrado: " + contrato.getContratoID().getFechaInicio() + " / " + matricula);
@@ -118,7 +133,12 @@ public class ContratoService {
         }
 
         if (contratoExiste) {
-            contratoYaFinalizado = contratoPersistido.get().getFechaEntrega() != null;
+            contratoBase = contratoPersistido.get();
+            fechaInicioBase = contratoBase.getContratoID().getFechaInicio();
+            fechaFinBase = contratoBase.getFechaFin();
+            cantKmSalidaBase = contratoBase.getCantKmSalida();
+            contratoBaseDisponible = true;
+            contratoYaFinalizado = contratoBase.getFechaEntrega() != null;
             if (contratoYaFinalizado) {
                 Logger.logError("Contrato ya finalizado: " + contrato.getContratoID().getFechaInicio() + " / " + matricula);
                 validationException = new ValidationException(
@@ -141,12 +161,75 @@ public class ContratoService {
         }
 
         if (contratoExiste && !contratoYaFinalizado && motoExiste) {
+            validacionBaseOk = true;
+        }
+
+        if (validacionBaseOk && contratoBaseDisponible) {
+            if (contrato.getFechaEntrega() != null && fechaInicioBase != null && !contrato.getFechaEntrega().isBefore(fechaInicioBase)) {
+                fechaEntregaValida = true;
+            }
+
+            if (!fechaEntregaValida) {
+                Logger.logError("Fecha de entrega inválida para contrato: "
+                    + contrato.getContratoID().getFechaInicio() + " / " + matricula);
+                validationException = new ValidationException(
+                    BusinessErrorCode.CONTRATO_FECHA_ENTREGA_INVALIDA,
+                    "No se puede finalizar el contrato: fecha de entrega inválida"
+                );
+            }
+        }
+
+        if (validacionBaseOk && fechaEntregaValida && contratoBaseDisponible) {
+            if (fechaFinBase != null && fechaInicioBase != null && !fechaFinBase.isBefore(fechaInicioBase)) {
+                rangoFechasContratoValido = true;
+            } else {
+                Logger.logError("Rango de fechas del contrato inválido para finalización: "
+                    + contrato.getContratoID().getFechaInicio() + " / " + matricula);
+                validationException = new ValidationException(
+                    BusinessErrorCode.CONTRATO_FECHA_ENTREGA_INVALIDA,
+                    "No se puede finalizar el contrato: fechas del contrato inválidas"
+                );
+            }
+        }
+
+        if (validacionBaseOk && fechaEntregaValida && rangoFechasContratoValido && contratoBaseDisponible) {
+            if (contrato.getCantKmLlegada() >= cantKmSalidaBase) {
+                kilometrajeValido = true;
+            }
+
+            if (!kilometrajeValido) {
+                Logger.logError("Kilometraje inválido para contrato: "
+                    + contrato.getContratoID().getFechaInicio() + " / " + matricula);
+                validationException = new ValidationException(
+                    BusinessErrorCode.CONTRATO_KM_INVALIDO,
+                    "No se puede finalizar el contrato: kilometraje inválido"
+                );
+            }
+        }
+
+        /* kilometrajeValido solo puede ser true si validacionBaseOk,
+        fechaEntregaValida y rangoFechasContratoValido ya fueron true*/
+        if (kilometrajeValido && contratoBase != null) {
+            contratoParaFinalizar = contratoBase;
+            contratoParaFinalizar.setFechaEntrega(contrato.getFechaEntrega());
+            contratoParaFinalizar.setCantKmLlegada(contrato.getCantKmLlegada());
+            diasProrrogaReal = contratoParaFinalizar.calcularDiasProrrogaReal();
+            contratoParaFinalizar.setDiasProrroga(diasProrrogaReal);
+            recargoProrroga = contratoParaFinalizar.calcularRecargoProrroga();
+            importeTotalTeorico = contratoParaFinalizar.calcularImporteTotalTeorico();
+            contratoPreparado = true;
+        }
+
+        if (contratoPreparado) {
             puedeFinalizar = true;
         }
 
         if (puedeFinalizar) {
-            Logger.log("Finalizando contrato: " + matricula);
-            contratoDAO.actualizar(contrato);
+            Logger.log("Finalizando contrato: " + matricula
+                + " | dias_prorroga=" + diasProrrogaReal
+                + " | recargo_prorroga=" + recargoProrroga
+                + " | total_teorico=" + importeTotalTeorico);
+            contratoDAO.actualizar(contratoParaFinalizar);
             motoDAO.cambiarEstado(matricula, Situacion.DISPONIBLE);
         }
 
