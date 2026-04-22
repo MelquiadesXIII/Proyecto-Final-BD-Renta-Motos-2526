@@ -16,21 +16,24 @@ import org.proyectobdmotos.utils.Logger;
 
 public class MotoDAO extends AbstractGenericDAO<Moto, String> implements IMotoDAO {
 
-    public MotoDAO(Connection connection) {
+    private final ISituacionDAO situacionDAO;
+
+    public MotoDAO(Connection connection, ISituacionDAO situacionDAO) {
         super(connection);
+        this.situacionDAO = situacionDAO;
     }
 
     // ===== MÉTODOS TEMPLATE =====
 
     @Override
     protected String getInsertSQL() {
-        return "INSERT INTO moto (matricula_moto, id_modelo, situacion, "
-             + "cant_km_recorridos, id_color) VALUES (?, ?, ?::tipo_situacion, ?, ?)";
+        return "INSERT INTO moto (matricula_moto, id_modelo, id_situacion, "
+             + "cant_km_recorridos, id_color) VALUES (?, ?, ?, ?, ?)";
     }
 
     @Override
     protected String getUpdateSQL() {
-        return "UPDATE moto SET id_modelo = ?, situacion = ?::tipo_situacion, "
+        return "UPDATE moto SET id_modelo = ?, id_situacion = ?, "
              + "cant_km_recorridos = ?, id_color = ? WHERE matricula_moto = ?";
     }
 
@@ -41,27 +44,35 @@ public class MotoDAO extends AbstractGenericDAO<Moto, String> implements IMotoDA
 
     @Override
     protected String getFindByIdSQL() {
-        return "SELECT * FROM moto WHERE matricula_moto = ?";
+        return "SELECT m.*, si.nombre AS situacion_nombre "
+             + "FROM moto m "
+             + "JOIN situacion si ON m.id_situacion = si.id_situacion "
+             + "WHERE m.matricula_moto = ?";
     }
 
     @Override
     protected String getFindAllSQL() {
-        return "SELECT * FROM moto ORDER BY matricula_moto";
+        return "SELECT m.*, si.nombre AS situacion_nombre "
+             + "FROM moto m "
+             + "JOIN situacion si ON m.id_situacion = si.id_situacion "
+             + "ORDER BY m.matricula_moto";
     }
 
     @Override
     protected void setInsertParameters(PreparedStatement ps, Moto moto) throws SQLException {
+        int idSituacion = situacionDAO.findIdByNombre(moto.getSituacion().getValor());
         ps.setString(1, moto.getMatriculaMoto());
         ps.setString(2, moto.getIdModelo());
-        ps.setString(3, moto.getSituacion().getValor());
+        ps.setInt(3, idSituacion);
         ps.setDouble(4, moto.getCantKmRecorridos());
         ps.setString(5, moto.getIdColor());
     }
 
     @Override
     protected void setUpdateParameters(PreparedStatement ps, Moto moto) throws SQLException {
+        int idSituacion = situacionDAO.findIdByNombre(moto.getSituacion().getValor());
         ps.setString(1, moto.getIdModelo());
-        ps.setString(2, moto.getSituacion().getValor());
+        ps.setInt(2, idSituacion);
         ps.setDouble(3, moto.getCantKmRecorridos());
         ps.setString(4, moto.getIdColor());
         ps.setString(5, moto.getMatriculaMoto());
@@ -77,7 +88,7 @@ public class MotoDAO extends AbstractGenericDAO<Moto, String> implements IMotoDA
         return new Moto(
             rs.getString("matricula_moto"),
             String.valueOf(rs.getInt("id_modelo")),
-            Situacion.fromValor(rs.getString("situacion")),
+            Situacion.fromValor(rs.getString("situacion_nombre")),
             rs.getDouble("cant_km_recorridos"),
             String.valueOf(rs.getInt("id_color"))
         );
@@ -123,14 +134,15 @@ public class MotoDAO extends AbstractGenericDAO<Moto, String> implements IMotoDA
         String sql = """
             SELECT m.matricula_moto,
                    ma.nombre_marca,
-                   m.situacion,
+                   si.nombre AS situacion_nombre,
                    co.fecha_fin
             FROM moto m
+            JOIN situacion si ON m.id_situacion = si.id_situacion
             JOIN modelo mo ON m.id_modelo = mo.id_modelo
             JOIN marca ma ON mo.id_marca = ma.id_marca
             LEFT JOIN contrato co ON m.matricula_moto = co.matricula_moto
                 AND co.fecha_entrega IS NULL
-            ORDER BY m.situacion, m.matricula_moto
+            ORDER BY si.nombre, m.matricula_moto
             """;
 
         List<SituacionMotoDTO> lista = new ArrayList<>();
@@ -146,7 +158,7 @@ public class MotoDAO extends AbstractGenericDAO<Moto, String> implements IMotoDA
                 lista.add(new SituacionMotoDTO(
                     rs.getString("matricula_moto"),
                     rs.getString("nombre_marca"),
-                    Situacion.fromValor(rs.getString("situacion")),
+                    Situacion.fromValor(rs.getString("situacion_nombre")),
                     fechaFin
                 ));
                 hasMore = rs.next();
@@ -160,9 +172,10 @@ public class MotoDAO extends AbstractGenericDAO<Moto, String> implements IMotoDA
 
     @Override
     public void cambiarEstado(String matricula, Situacion nuevaSituacion) {
-        String sql = "UPDATE moto SET situacion = ?::tipo_situacion WHERE matricula_moto = ?";
+        String sql = "UPDATE moto SET id_situacion = ? WHERE matricula_moto = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, nuevaSituacion.getValor());
+            int idSituacion = situacionDAO.findIdByNombre(nuevaSituacion.getValor());
+            ps.setInt(1, idSituacion);
             ps.setString(2, matricula);
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -173,13 +186,16 @@ public class MotoDAO extends AbstractGenericDAO<Moto, String> implements IMotoDA
 
     @Override
     public boolean estaDisponible(String matricula) {
-        String sql = "SELECT situacion FROM moto WHERE matricula_moto = ?";
+        String sql = "SELECT si.nombre AS situacion_nombre "
+                   + "FROM moto m "
+                   + "JOIN situacion si ON m.id_situacion = si.id_situacion "
+                   + "WHERE m.matricula_moto = ?";
         boolean disponible = false;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, matricula);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    disponible = "disponible".equalsIgnoreCase(rs.getString("situacion"));
+                    disponible = "disponible".equalsIgnoreCase(rs.getString("situacion_nombre"));
                 }
             }
         } catch (SQLException e) {
