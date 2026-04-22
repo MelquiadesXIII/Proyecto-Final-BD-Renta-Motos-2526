@@ -26,7 +26,7 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, ContratoID> implem
 
     @Override
     protected String getInsertSQL() {
-        return "INSERT INTO contrato (fecha_inicio, matricula_moto, ci_cliente, "
+        return "INSERT INTO contrato (fecha_inicio, id_moto, id_cliente, "
              + "id_forma_pago, fecha_fin, dias_prorroga, seguro_adicional, "
              + "tarifa_normal, tarifa_prorroga, fecha_entrega, "
              + "cant_km_salida, cant_km_llegada) "
@@ -35,16 +35,16 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, ContratoID> implem
 
     @Override
     protected String getUpdateSQL() {
-        return "UPDATE contrato SET ci_cliente = ?, id_forma_pago = ?, "
+        return "UPDATE contrato SET id_cliente = ?, id_forma_pago = ?, "
              + "fecha_fin = ?, dias_prorroga = ?, seguro_adicional = ?, "
              + "tarifa_normal = ?, tarifa_prorroga = ?, fecha_entrega = ?, "
              + "cant_km_salida = ?, cant_km_llegada = ? "
-             + "WHERE fecha_inicio = ? AND matricula_moto = ?";
+             + "WHERE fecha_inicio = ? AND id_moto = ?";
     }
 
     @Override
     protected String getDeleteSQL() {
-        return "DELETE FROM contrato WHERE fecha_inicio = ? AND matricula_moto = ?";
+        return "DELETE FROM contrato WHERE fecha_inicio = ? AND id_moto = ?";
     }
 
     @Override
@@ -52,7 +52,7 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, ContratoID> implem
         return "SELECT co.*, fp.nombre AS forma_pago_nombre "
              + "FROM contrato co "
              + "JOIN forma_pago fp ON co.id_forma_pago = fp.id_forma_pago "
-             + "WHERE co.fecha_inicio = ? AND co.matricula_moto = ?";
+             + "WHERE co.fecha_inicio = ? AND co.id_moto = ?";
     }
 
     @Override
@@ -67,8 +67,8 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, ContratoID> implem
     protected void setInsertParameters(PreparedStatement ps, Contrato contrato) throws SQLException {
         int idFormaPago = formaPagoDAO.findIdByNombre(contrato.getFormaPago().getValor());
         ps.setDate(1, Date.valueOf(contrato.getContratoID().getFechaInicio()));
-        ps.setString(2, contrato.getContratoID().getMatriculaMoto());
-        ps.setString(3, contrato.getCiCliente());
+        ps.setInt(2, contrato.getContratoID().getIdMoto());
+        ps.setInt(3, contrato.getIdCliente());
         ps.setInt(4, idFormaPago);
         ps.setDate(5, Date.valueOf(contrato.getFechaFin()));
         ps.setInt(6, contrato.getDiasProrroga());
@@ -87,7 +87,7 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, ContratoID> implem
     @Override
     protected void setUpdateParameters(PreparedStatement ps, Contrato contrato) throws SQLException {
         int idFormaPago = formaPagoDAO.findIdByNombre(contrato.getFormaPago().getValor());
-        ps.setString(1, contrato.getCiCliente());
+        ps.setInt(1, contrato.getIdCliente());
         ps.setInt(2, idFormaPago);
         ps.setDate(3, Date.valueOf(contrato.getFechaFin()));
         ps.setInt(4, contrato.getDiasProrroga());
@@ -102,13 +102,13 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, ContratoID> implem
         ps.setDouble(9, contrato.getCantKmSalida());
         ps.setDouble(10, contrato.getCantKmLlegada());
         ps.setDate(11, Date.valueOf(contrato.getContratoID().getFechaInicio()));
-        ps.setString(12, contrato.getContratoID().getMatriculaMoto());
+        ps.setInt(12, contrato.getContratoID().getIdMoto());
     }
 
     @Override
     protected void setIdParameter(PreparedStatement ps, ContratoID id) throws SQLException {
         ps.setDate(1, Date.valueOf(id.getFechaInicio()));
-        ps.setString(2, id.getMatriculaMoto());
+        ps.setInt(2, id.getIdMoto());
     }
 
     @Override
@@ -127,13 +127,13 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, ContratoID> implem
         return new Contrato(
             cantKmLlegada,
             cantKmSalida,
-            rs.getString("ci_cliente"),
+            rs.getInt("id_cliente"),
             rs.getInt("dias_prorroga"),
             fechaEntrega,
             rs.getDate("fecha_fin").toLocalDate(),
             rs.getDate("fecha_inicio").toLocalDate(),
             FormaPago.fromValor(rs.getString("forma_pago_nombre")),
-            rs.getString("matricula_moto"),
+            rs.getInt("id_moto"),
             rs.getBoolean("seguro_adicional"),
             tarifaNormal,
             tarifaProrroga

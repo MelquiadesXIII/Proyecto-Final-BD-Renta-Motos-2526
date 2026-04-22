@@ -4,6 +4,7 @@ package org.proyectobdmotos.models;
 
 public class Cliente {
 
+    private Integer idCliente;
     private String ciCliente;
     private String nombreCLiente;
     private String primerApellido;
@@ -13,9 +14,9 @@ public class Cliente {
     private String numeroContacto;
     private String idMunicipio;
 
-    
-    public Cliente(String ciCliente, String nombreCLiente, String primerApellido, String segundoApellido, int edad,
-            Sexo sexo, String numeroContacto, String idMunicipio) {
+    public Cliente(Integer idCliente, String ciCliente, String nombreCLiente, String primerApellido,
+            String segundoApellido, int edad, Sexo sexo, String numeroContacto, String idMunicipio) {
+        setIdCliente(idCliente);
         setCiCliente(ciCliente);
         setNombreCLiente(nombreCLiente);
         setPrimerApellido(primerApellido);
@@ -24,6 +25,14 @@ public class Cliente {
         setSexo(sexo);
         setNumeroContacto(numeroContacto);
         setIdMunicipio(idMunicipio);
+    }
+
+    public Integer getIdCliente() {
+        return idCliente;
+    }
+
+    public void setIdCliente(Integer idCliente) {
+        this.idCliente = idCliente;
     }
 
     public String getCiCliente() {
