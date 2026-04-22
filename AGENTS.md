@@ -265,7 +265,7 @@ These rules capture project-specific operational and structural constraints that
 - **FXML Views**: Store all `.fxml` files in `src/main/resources/fxml/`.
 - **Naming Convention**: FXML files should use `kebab-case` (e.g., `cliente-lista.fxml`) and their corresponding controllers should use `PascalCase` with the `Controller` suffix (e.g., `ClienteListaController.java`).
 - **UI Error Handling**: Controllers must catch `BusinessException` (or its subclasses like `ValidationException`) and display them to the user using JavaFX `Alert` dialogs. Do not let business exceptions bubble up to the FxApp thread unhandled.
-- **View-Controller Link**: Every FXML must specify its controller class via the `fx:controller` attribute, and all interactive elements must use `fx:id` for reference in Java code.
+- **View-Controller Link**: All navigable screens must declare their controller association consistently with the `ScreenLoader`/`FXMLLoader` setup. Reusable presentational components included via `<fx:include/>` do not need a controller unless they contain behavior that must be handled from Java. Use `fx:id` only for nodes that are injected into or referenced from Java/controller code; do not require it for every interactive element by default.
 - **Separation of Concerns**: Controllers are forbidden from containing business logic, SQL, or direct DAO access. They must only:
     1. Handle UI events (clicks, keypresses).
     2. Collect and validate basic UI input.
