@@ -58,6 +58,20 @@ La Fase 4 deja estable la API pública de servicios, los retornos y el catálogo
 | listar (detalle) | `List<Contrato> listarContratosCompletos()` | `List<Contrato>` | vigente |
 | eliminar | `void eliminarContrato(ContratoID id)` | `void` | vigente |
 
+#### Regla de negocio aplicada en `finalizarContrato(...)` (Ticket L3)
+
+- El alquiler base se considera pagado al crear el contrato.
+- En finalización se calcula la **prórroga real** (`fecha_entrega - fecha_fin` si es positiva).
+- El cobro adicional de cierre corresponde al **recargo por prórroga** (`dias_prorroga_real * tarifa_prorroga`).
+- El total teórico (`importe_base + recargo_prorroga`) se utiliza para trazabilidad de negocio y reportes.
+- **Modelo B (decisión formal):** si `fechaInicio == fechaFin`, se considera **1 día pactado facturable**.
+- Coherencia de conteo temporal: `fechaInicio=2026-04-19` y `fechaFin=2026-04-20` computa **1 día pactado** (no 2), manteniendo conteo por diferencia de días y mínimo facturable de 1 solo para mismo día.
+- La validez de fechas se comunica por excepción de negocio (no por valores centinela como `0` o `-1`).
+- Validaciones en finalización:
+  - `fechaEntrega` no puede ser anterior a `fechaInicio`.
+  - `fechaFin` no puede ser anterior a `fechaInicio`.
+  - `cantKmLlegada` no puede ser menor a `cantKmSalida`.
+
 ### 2.4 `AgenciaService`
 
 | Operación actual | Firma actual | Estado |
@@ -65,6 +79,7 @@ La Fase 4 deja estable la API pública de servicios, los retornos y el catálogo
 | acceso a sub-servicio cliente | `ClienteService getClienteService()` | vigente |
 | acceso a sub-servicio moto | `MotoService getMotoService()` | vigente |
 | acceso a sub-servicio contrato | `ContratoService getContratoService()` | vigente |
+| finalizar (fachada) | `void finalizarContrato(Contrato contrato)` | vigente |
 
 > Nota de freeze: `AgenciaService` funciona como fachada de composición (gateway a sub-servicios), no como fachada de casos de uso unificados.
 
@@ -128,6 +143,9 @@ Este contrato queda como referencia estable para consumo UI. Cualquier cambio po
 | `CONTRATO_NO_ENCONTRADO` | `No se puede eliminar el contrato: no existe` | `ContratoService.eliminarContrato(...)` |
 | `CONTRATO_NO_ENCONTRADO` | `No se puede finalizar el contrato: no existe` | `ContratoService.finalizarContrato(...)` |
 | `CONTRATO_YA_FINALIZADO` | `No se puede finalizar el contrato: ya está finalizado` | `finalizarContrato(...)` |
+| `CONTRATO_FECHA_ENTREGA_INVALIDA` | `No se puede finalizar el contrato: fecha de entrega inválida` | `ContratoService.finalizarContrato(...)` |
+| `CONTRATO_FECHA_ENTREGA_INVALIDA` | `No se puede finalizar el contrato: fechas del contrato inválidas` | `ContratoService.finalizarContrato(...)` |
+| `CONTRATO_KM_INVALIDO` | `No se puede finalizar el contrato: kilometraje inválido` | `ContratoService.finalizarContrato(...)` |
 | `CONTRATO_VALIDACION_FALLIDA` | `No se puede crear el contrato: validaciones fallidas` | fallback defensivo en `crearContrato(...)` |
 
 ### 4.3 Catálogo objetivo (pendiente para próximos tickets)
