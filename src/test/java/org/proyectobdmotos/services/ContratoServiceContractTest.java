@@ -167,7 +167,7 @@ public class ContratoServiceContractTest extends TestCase {
         FakeMotoDAO motoDAO = new FakeMotoDAO();
 
         Contrato contratoPersistido = new Contrato(
-            10.0,
+            0.0,
             100.0,
             "C1",
             0,
@@ -219,7 +219,7 @@ public class ContratoServiceContractTest extends TestCase {
         FakeMotoDAO motoDAO = new FakeMotoDAO();
 
         Contrato contratoPersistido = new Contrato(
-            10.0,
+            0.0,
             100.0,
             "C1",
             0,
@@ -271,7 +271,7 @@ public class ContratoServiceContractTest extends TestCase {
         FakeMotoDAO motoDAO = new FakeMotoDAO();
 
         Contrato contratoPersistido = new Contrato(
-            10.0,
+            0.0,
             100.0,
             "C1",
             0,
@@ -323,7 +323,7 @@ public class ContratoServiceContractTest extends TestCase {
         FakeMotoDAO motoDAO = new FakeMotoDAO();
 
         Contrato contratoPersistido = new Contrato(
-            10.0,
+            0.0,
             100.0,
             "C1",
             0,
