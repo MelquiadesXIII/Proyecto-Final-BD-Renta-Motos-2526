@@ -63,8 +63,8 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, ContratoID> implem
         ps.setDate(5, Date.valueOf(contrato.getFechaFin()));
         ps.setInt(6, contrato.getDiasProrroga());
         ps.setBoolean(7, contrato.isSeguroAdicional());
-        ps.setDouble(8, Contrato.getTarifaNormal());
-        ps.setDouble(9, Contrato.getTarifaProrroga());
+        ps.setDouble(8, contrato.getTarifaNormal());
+        ps.setDouble(9, contrato.getTarifaProrroga());
         Date fechaEntrega = null;
         if (contrato.getFechaEntrega() != null) {
             fechaEntrega = Date.valueOf(contrato.getFechaEntrega());
@@ -81,8 +81,8 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, ContratoID> implem
         ps.setDate(3, Date.valueOf(contrato.getFechaFin()));
         ps.setInt(4, contrato.getDiasProrroga());
         ps.setBoolean(5, contrato.isSeguroAdicional());
-        ps.setDouble(6, Contrato.getTarifaNormal());
-        ps.setDouble(7, Contrato.getTarifaProrroga());
+        ps.setDouble(6, contrato.getTarifaNormal());
+        ps.setDouble(7, contrato.getTarifaProrroga());
         Date fechaEntrega = null;
         if (contrato.getFechaEntrega() != null) {
             fechaEntrega = Date.valueOf(contrato.getFechaEntrega());
@@ -110,6 +110,8 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, ContratoID> implem
 
         double cantKmSalida = rs.getDouble("cant_km_salida");
         double cantKmLlegada = rs.getDouble("cant_km_llegada");
+        double tarifaNormal = rs.getDouble("tarifa_normal");
+        double tarifaProrroga = rs.getDouble("tarifa_prorroga");
 
         return new Contrato(
             cantKmLlegada,
@@ -121,7 +123,9 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, ContratoID> implem
             rs.getDate("fecha_inicio").toLocalDate(),
             FormaPago.fromValor(rs.getString("forma_pago")),
             rs.getString("matricula_moto"),
-            rs.getBoolean("seguro_adicional")
+            rs.getBoolean("seguro_adicional"),
+            tarifaNormal,
+            tarifaProrroga
         );
     }
 
