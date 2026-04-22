@@ -2,31 +2,47 @@
 
 ## Cliente
 
+- id_cliente (Llave primaria, serial)
+- ci_cliente (Única)
 - nombre_cliente
 - primer_apellido
 - segundo_apellido
-- ci_cliente (Llave Primaria)
 - edad
-- sexo (ENUM: masculino, femenino)
-- numero_de_contacto
-- id_municipio (Llave foranea)
+- id_sexo (Llave foránea)
+- numero_contacto
+- id_municipio (Llave foránea)
+
+---
+
+## Sexo
+
+- id_sexo (Llave primaria)
+- nombre_sexo
 
 ---
 
 ## Municipio
 
-- id_municipio
+- id_municipio (Llave primaria)
 - nombre_municipio
 
 ---
 
 ## Moto
 
-- matricula_moto (Llave primaria)
-- id_modelo (Llave foranea)
-- situacion (ENUM: disponible, alquilada, taller)
+- id_moto (Llave primaria, serial)
+- matricula_moto (Única)
+- id_modelo (Llave foránea)
+- id_situacion (Llave foránea)
+- id_color (Llave foránea)
 - cant_km_recorridos
-- id_color (Llave foranea)
+
+---
+
+## Situacion
+
+- id_situacion (Llave primaria)
+- nombre_situacion
 
 ---
 
@@ -35,10 +51,12 @@
 - id_color (Llave primaria)
 - nombre_color
 
+---
+
 ## Modelo
 
 - id_modelo (Llave primaria)
-- id_marca (Llave foranea)
+- id_marca (Llave foránea)
 - nombre_modelo
 
 ---
@@ -50,13 +68,20 @@
 
 ---
 
+## FormaPago
+
+- id_forma_pago (Llave primaria)
+- nombre_forma_pago
+
+---
+
 ## Contrato
 
-- fecha_inicio (Llave primaria)
+- fecha_inicio (Llave primaria compuesta)
+- id_moto (Llave primaria compuesta, Llave foránea)
+- id_cliente (Llave foránea)
+- id_forma_pago (Llave foránea)
 - fecha_fin
-- matricula_moto (Llave primaria)
-- ci_cliente (Llave foranea)
-- forma_pago (ENUM: efectivo, cheque, credito)
 - dias_prorroga
 - seguro_adicional [true, false]
 - tarifa_normal (Valor global de la empresa)
@@ -71,11 +96,19 @@
 
 ## Dependencias directas
 
-> ci_cliente --> nombre_cliente, primer_apellido, segundo_apellido, edad, sexo, numero_contacto, id_municipio
+> id_cliente --> ci_cliente, nombre_cliente, primer_apellido, segundo_apellido, edad, id_sexo, numero_contacto, id_municipio
+
+> ci_cliente --> id_cliente
+
+> id_sexo --> nombre_sexo
 
 > id_municipio --> nombre_municipio
 
-> matricula_moto --> id_modelo, situacion, id_color, cant_km_recorridos
+> id_moto --> matricula_moto, id_modelo, id_situacion, id_color, cant_km_recorridos
+
+> matricula_moto --> id_moto
+
+> id_situacion --> nombre_situacion
 
 > id_color --> nombre_color
 
@@ -83,13 +116,15 @@
 
 > id_marca --> nombre_marca
 
-> (fecha_inicio, matricula_moto) --> fecha_fin, ci_cliente, forma_pago, dias_prorroga, seguro_adicional, tarifa_normal, tarifa_prorroga, fecha_entrega
+> id_forma_pago --> nombre_forma_pago
+
+> (fecha_inicio, id_moto) --> id_cliente, id_forma_pago, fecha_fin, dias_prorroga, seguro_adicional, tarifa_normal, tarifa_prorroga, fecha_entrega, cant_km_salida, cant_km_llegada
 
 ## Dependencias transitivas
 
-> ci_cliente --> nombre_municipio
+> id_cliente --> nombre_municipio, nombre_sexo
 
-> matricula_moto --> nombre_modelo, id_marca, nombre_marca, nombre_color
+> id_moto --> nombre_modelo, id_marca, nombre_marca, nombre_color, nombre_situacion
 
 > id_modelo --> nombre_marca
 
@@ -97,31 +132,43 @@
 
 - 1:N
 
-MUNICIPIO-CLIENTE (un municipio tiene varios clientes, un cliente solo pertenece a un municipio)
+SEXO-CLIENTE (un sexo puede estar asociado a varios clientes; un cliente pertenece a un solo sexo)
 
-MARCA-MODELO (una marca puede tener muchos modelos, un modelo solo le pertenece a una marca)
+MUNICIPIO-CLIENTE (un municipio tiene varios clientes; un cliente pertenece a un solo municipio)
 
-MODELO-MOTO (un modelo lo pueden tener muchas motos, pero una moto solo tiene un modelo)
+MARCA-MODELO (una marca puede tener muchos modelos; un modelo pertenece a una sola marca)
 
-CLIENTE-CONTRATO (un cliente puede tener muchos contratos y un contrato le pertenece a un solo cliente)
+MODELO-MOTO (un modelo puede estar en muchas motos; una moto tiene un solo modelo)
 
-MOTO-CONTRATO (una moto puede tener varios contratos en dias distintos)
+SITUACION-MOTO (una situación puede aplicarse a muchas motos; una moto tiene una sola situación)
 
-COLOR-MOTO (una moto tiene un solo color, pero un color puede estar en muchas motos)
+COLOR-MOTO (un color puede estar en muchas motos; una moto tiene un solo color)
+
+CLIENTE-CONTRATO (un cliente puede tener muchos contratos; un contrato pertenece a un solo cliente)
+
+MOTO-CONTRATO (una moto puede tener varios contratos en fechas distintas)
+
+FORMA_PAGO-CONTRATO (una forma de pago puede estar en muchos contratos; un contrato tiene una sola forma de pago)
 
 # 1FN
 
-CONTRATO(<u>fecha_inicio</u>, <u>matricula_moto</u>, nombre_cliente, primer_apellido, segundo_apellido, ci_cliente, edad, sexo, numero_contacto, id_municipio, nombre_municipio, id_modelo, situacion, id_color, nombre_color, cant_km_recorridos, id_marca, nombre_modelo, nombre_marca, fecha_fin, forma_pago, dias_prorroga, seguro_adicional, tarifa_normal, tarifa_prorroga, fecha_entrega)
+CONTRATO(<u>fecha_inicio</u>, <u>id_moto</u>, matricula_moto, id_modelo, id_situacion, nombre_situacion, id_color, nombre_color, cant_km_recorridos, id_marca, nombre_modelo, nombre_marca, id_cliente, ci_cliente, nombre_cliente, primer_apellido, segundo_apellido, edad, id_sexo, nombre_sexo, numero_contacto, id_municipio, nombre_municipio, id_forma_pago, nombre_forma_pago, fecha_fin, dias_prorroga, seguro_adicional, tarifa_normal, tarifa_prorroga, fecha_entrega, cant_km_salida, cant_km_llegada)
 
 # 2FN (Eliminar dependencias parciales)
 
-MOTO(<u>matricula_moto</u>, id_modelo, situacion, id_marca, nombre_modelo, nombre_marca, id_color, nombre_color, cant_km_recorridos)
+MOTO(<u>id_moto</u>, matricula_moto, id_modelo, id_situacion, id_marca, nombre_modelo, nombre_marca, id_color, nombre_color, cant_km_recorridos)
 
-CONTRATO(<u>fecha_inicio</u>, <u>matricula_moto</u>, nombre_cliente, primer_apellido, segundo_apellido, ci_cliente, edad, sexo, numero_contacto, id_municipio, nombre_municipio, fecha_fin, forma_pago, dias_prorroga, seguro_adicional, tarifa_normal, tarifa_prorroga, fecha_entrega)
+CLIENTE(<u>id_cliente</u>, ci_cliente, nombre_cliente, primer_apellido, segundo_apellido, edad, id_sexo, nombre_sexo, numero_contacto, id_municipio, nombre_municipio)
+
+FORMA_PAGO(<u>id_forma_pago</u>, nombre_forma_pago)
+
+CONTRATO(<u>fecha_inicio</u>, <u>id_moto</u>, id_cliente, id_forma_pago, fecha_fin, dias_prorroga, seguro_adicional, tarifa_normal, tarifa_prorroga, fecha_entrega, cant_km_salida, cant_km_llegada)
 
 # 3FN (Eliminar dependencias transitivas)
 
-MOTO(<u>matricula_moto</u>, id_modelo, situacion, id_color, cant_km_recorridos)
+MOTO(<u>id_moto</u>, matricula_moto, id_modelo, id_situacion, id_color, cant_km_recorridos)
+
+SITUACION(<u>id_situacion</u>, nombre_situacion)
 
 COLOR(<u>id_color</u>, nombre_color)
 
@@ -129,19 +176,20 @@ MODELO(<u>id_modelo</u>, id_marca, nombre_modelo)
 
 MARCA(<u>id_marca</u>, nombre_marca)
 
-CLIENTE(nombre_cliente, primer_apellido, segundo_apellido, <u>ci_cliente</u>, edad, sexo, numero_contacto, id_municipio)
+CLIENTE(<u>id_cliente</u>, ci_cliente, nombre_cliente, primer_apellido, segundo_apellido, edad, id_sexo, numero_contacto, id_municipio)
+
+SEXO(<u>id_sexo</u>, nombre_sexo)
 
 MUNICIPIO(<u>id_municipio</u>, nombre_municipio)
 
-CONTRATO(<u>fecha_inicio</u>, <u>matricula_moto</u>, ci_cliente, fecha_fin, forma_pago, dias_prorroga, seguro_adicional, tarifa_normal, tarifa_prorroga, fecha_entrega)
+FORMA_PAGO(<u>id_forma_pago</u>, nombre_forma_pago)
+
+CONTRATO(<u>fecha_inicio</u>, <u>id_moto</u>, id_cliente, id_forma_pago, fecha_fin, dias_prorroga, seguro_adicional, tarifa_normal, tarifa_prorroga, fecha_entrega, cant_km_salida, cant_km_llegada)
 
 ---
 
-## Notas sobre ENUMs
+## Notas de modelado
 
-Los siguientes atributos se implementan como tipos ENUM en PostgreSQL:
-- **sexo**: tipo_sexo ('masculino', 'femenino')
-- **forma_pago**: tipo_forma_pago ('efectivo', 'cheque', 'credito')
-- **situacion**: tipo_situacion ('disponible', 'alquilada', 'taller')
-
-Estos no son entidades independientes sino valores enumerados directamente en las columnas.
+- `ci_cliente` y `matricula_moto` dejan de ser llaves primarias y pasan a ser atributos únicos de negocio.
+- `id_cliente` e `id_moto` son identificadores numéricos (serial) y llaves primarias técnicas.
+- `sexo`, `forma_pago` y `situacion` se modelan como entidades/nomencladores con ID numérico y relación por llave foránea.
