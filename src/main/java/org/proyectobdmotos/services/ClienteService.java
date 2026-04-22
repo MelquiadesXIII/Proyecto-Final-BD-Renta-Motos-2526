@@ -6,6 +6,8 @@ import java.util.Optional;
 import org.proyectobdmotos.dao.IClienteDAO;
 import org.proyectobdmotos.dto.ClienteDTO;
 import org.proyectobdmotos.models.Cliente;
+import org.proyectobdmotos.services.exceptions.BusinessErrorCode;
+import org.proyectobdmotos.services.exceptions.ValidationException;
 import org.proyectobdmotos.utils.Logger;
 
 public class ClienteService {
@@ -22,22 +24,58 @@ public class ClienteService {
     }
 
     public void actualizarCliente(Cliente cliente) {
-        Logger.log("Actualizando cliente: " + cliente.getCiCliente());
+        Logger.log("Actualizando cliente id=" + cliente.getIdCliente() + " ci=" + cliente.getCiCliente());
         clienteDAO.actualizar(cliente);
     }
 
     public void eliminarCliente(String ci) {
-        Logger.log("Eliminando cliente: " + ci);
-        clienteDAO.eliminar(ci);
+        Logger.log("Eliminando cliente por CI: " + ci);
+        Optional<Cliente> encontrado = clienteDAO.buscarPorCi(ci);
+        boolean clienteExiste = encontrado.isPresent();
+        ValidationException validationException = null;
+
+        if (!clienteExiste) {
+            Logger.logError("Cliente no encontrado para eliminar: " + ci);
+            validationException = new ValidationException(
+                BusinessErrorCode.CLIENTE_NO_ENCONTRADO,
+                "No se puede eliminar el cliente: no existe"
+            );
+        }
+
+        if (clienteExiste) {
+            clienteDAO.eliminar(encontrado.get().getIdCliente());
+        }
+
+        if (!clienteExiste) {
+            throw validationException;
+        }
     }
 
     public void eliminarClienteConCascada(String ci) {
-        Logger.log("Eliminando cliente con cascada: " + ci);
-        clienteDAO.eliminarConCascada(ci);
+        Logger.log("Eliminando cliente con cascada por CI: " + ci);
+        Optional<Cliente> encontrado = clienteDAO.buscarPorCi(ci);
+        boolean clienteExiste = encontrado.isPresent();
+        ValidationException validationException = null;
+
+        if (!clienteExiste) {
+            Logger.logError("Cliente no encontrado para eliminar en cascada: " + ci);
+            validationException = new ValidationException(
+                BusinessErrorCode.CLIENTE_NO_ENCONTRADO,
+                "No se puede eliminar el cliente: no existe"
+            );
+        }
+
+        if (clienteExiste) {
+            clienteDAO.eliminarConCascada(encontrado.get().getIdCliente());
+        }
+
+        if (!clienteExiste) {
+            throw validationException;
+        }
     }
 
     public Optional<Cliente> buscarPorCi(String ci) {
-        return clienteDAO.buscarPorId(ci);
+        return clienteDAO.buscarPorCi(ci);
     }
 
     public List<Cliente> listarTodos() {
