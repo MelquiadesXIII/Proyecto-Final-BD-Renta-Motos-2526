@@ -25,24 +25,24 @@ public class ClienteServiceContractTest extends TestCase {
 
     public void testBuscarPorCiRetornaResultadoDelDAO() {
         FakeClienteDAO clienteDAO = new FakeClienteDAO();
-        Cliente cliente = new Cliente("123", "Ana", "Perez", "Lopez", 30, Sexo.FEMENINO, "555", "M1");
-        clienteDAO.clienteBuscado = Optional.of(cliente);
+        Cliente cliente = new Cliente(1, "123", "Ana", "Perez", "Lopez", 30, Sexo.FEMENINO, "555", "1");
+        clienteDAO.clienteBuscado = java.util.Optional.of(cliente);
         ClienteService clienteService = new ClienteService(clienteDAO);
 
-        Optional<Cliente> resultado = clienteService.buscarPorCi("123");
+        java.util.Optional<Cliente> resultado = clienteService.buscarPorCi("123");
 
         assertEquals(clienteDAO.clienteBuscado, resultado);
-        assertEquals("123", clienteDAO.ultimoIdBuscado);
+        assertEquals("123", clienteDAO.ultimoCiBuscado);
     }
 
     public void testBuscarPorCiRetornaVacioCuandoNoExisteRegistro() {
         FakeClienteDAO clienteDAO = new FakeClienteDAO();
         ClienteService clienteService = new ClienteService(clienteDAO);
 
-        Optional<Cliente> resultado = clienteService.buscarPorCi("999");
+        java.util.Optional<Cliente> resultado = clienteService.buscarPorCi("999");
 
         assertFalse(resultado.isPresent());
-        assertEquals("999", clienteDAO.ultimoIdBuscado);
+        assertEquals("999", clienteDAO.ultimoCiBuscado);
     }
 
     public void testBuscarPorCiPropagaExcepcionDelDAO() {
@@ -104,7 +104,7 @@ public class ClienteServiceContractTest extends TestCase {
     private static final class FakeClienteDAO implements IClienteDAO {
         private Optional<Cliente> clienteBuscado = Optional.empty();
         private RuntimeException excepcionEnBuscar;
-        private String ultimoIdBuscado;
+        private String ultimoCiBuscado;
 
         @Override
         public void insertar(Cliente entity) {
@@ -115,13 +115,18 @@ public class ClienteServiceContractTest extends TestCase {
         }
 
         @Override
-        public void eliminar(String id) {
+        public void eliminar(Integer id) {
         }
 
         @Override
-        public Optional<Cliente> buscarPorId(String id) {
+        public Optional<Cliente> buscarPorId(Integer id) {
+            return Optional.empty();
+        }
+
+        @Override
+        public Optional<Cliente> buscarPorCi(String ci) {
             Optional<Cliente> resultado = Optional.empty();
-            ultimoIdBuscado = id;
+            ultimoCiBuscado = ci;
             if (excepcionEnBuscar != null) {
                 throw excepcionEnBuscar;
             }
@@ -147,7 +152,7 @@ public class ClienteServiceContractTest extends TestCase {
         }
 
         @Override
-        public void eliminarConCascada(String ci) {
+        public void eliminarConCascada(Integer idCliente) {
         }
     }
 }

@@ -26,7 +26,7 @@ public class FxApp extends Application {
         try {
             compositionRoot = new AppCompositionRoot();
         } catch (SQLException e) {
-            Logger.logError("❌ Error al conectar a la base de datos: " + e.getMessage());
+            Logger.logError("Error al conectar a la base de datos: " + e.getMessage());
             throw new RuntimeException("No se pudo inicializar la aplicación", e);
         }
 
@@ -44,7 +44,7 @@ public class FxApp extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        Logger.logInfo("✅ Aplicación iniciada correctamente\n");
+        Logger.logInfo("Aplicación iniciada correctamente\n");
     }
 
     /**

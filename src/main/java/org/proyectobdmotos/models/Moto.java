@@ -4,18 +4,29 @@ package org.proyectobdmotos.models;
 
 public class Moto {
 
+  private Integer idMoto;
   private String matriculaMoto;
   private String idModelo;
   private Situacion situacion;
   private double cantKmRecorridos;
   private String idColor;
 
-  public Moto(String matriculaMoto, String idModelo, Situacion situacion, double cantKmRecorridos, String idColor) {
+  public Moto(Integer idMoto, String matriculaMoto, String idModelo, Situacion situacion,
+          double cantKmRecorridos, String idColor) {
+    setIdMoto(idMoto);
+    setMatriculaMoto(matriculaMoto);
+    setIdModelo(idModelo);
+    setSituacion(situacion);
     setCantKmRecorridos(cantKmRecorridos);
     setIdColor(idColor);
-    setIdModelo(idModelo);
-    setMatriculaMoto(matriculaMoto);
-    setSituacion(situacion);
+  }
+
+  public Integer getIdMoto() {
+    return idMoto;
+  }
+
+  public void setIdMoto(Integer idMoto) {
+    this.idMoto = idMoto;
   }
 
   public String getMatriculaMoto() {

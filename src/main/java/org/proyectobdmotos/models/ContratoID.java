@@ -6,19 +6,19 @@ import java.util.Objects;
 public class ContratoID {
 
     private final LocalDate fechaInicio;
-    private final String matriculaMoto;
+    private final Integer idMoto;
 
-    public ContratoID(LocalDate fechaInicio, String matriculaMoto) {
+    public ContratoID(LocalDate fechaInicio, Integer idMoto) {
         this.fechaInicio = fechaInicio;
-        this.matriculaMoto = matriculaMoto;
+        this.idMoto = idMoto;
     }
 
     public LocalDate getFechaInicio() {
         return fechaInicio;
     }
 
-    public String getMatriculaMoto() {
-        return matriculaMoto;
+    public Integer getIdMoto() {
+        return idMoto;
     }
 
     @Override
@@ -32,7 +32,7 @@ public class ContratoID {
 
         if (!esMismaReferencia && o instanceof ContratoID otroContratoId) {
             esIgual = Objects.equals(fechaInicio, otroContratoId.fechaInicio)
-                    && Objects.equals(matriculaMoto, otroContratoId.matriculaMoto);
+                    && Objects.equals(idMoto, otroContratoId.idMoto);
         }
 
         if (esMismaReferencia) {
@@ -44,6 +44,6 @@ public class ContratoID {
 
     @Override
     public int hashCode() {
-        return Objects.hash(fechaInicio, matriculaMoto);
+        return Objects.hash(fechaInicio, idMoto);
     }
 }

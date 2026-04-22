@@ -85,7 +85,7 @@ public final class AppCompositionRoot {
         Logger.log("✓ Creando ScreenLoader");
         this.screenLoader = new ScreenLoader(this);
 
-        Logger.logInfo("✅ Grafo de dependencias completo\n");
+        Logger.logInfo("Grafo de dependencias completo\n");
     }
 
     // Getters para acceso controlado desde ScreenLoader y otros componentes
