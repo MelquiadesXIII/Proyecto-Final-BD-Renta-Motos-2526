@@ -13,7 +13,6 @@ import org.proyectobdmotos.dto.MotoDTO;
 import org.proyectobdmotos.dto.SituacionMotoDTO;
 import org.proyectobdmotos.models.Cliente;
 import org.proyectobdmotos.models.Contrato;
-import org.proyectobdmotos.models.ContratoID;
 import org.proyectobdmotos.models.FormaPago;
 import org.proyectobdmotos.models.Moto;
 import org.proyectobdmotos.models.Sexo;

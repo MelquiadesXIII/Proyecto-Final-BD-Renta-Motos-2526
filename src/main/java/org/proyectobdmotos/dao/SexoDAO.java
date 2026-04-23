@@ -17,7 +17,7 @@ public class SexoDAO implements ISexoDAO {
 
     @Override
     public int findIdByNombre(String nombre) {
-        String sql = "SELECT id_sexo FROM sexo WHERE nombre = ?";
+        String sql = "SELECT id_sexo FROM sexo WHERE nombre_sexo = ?";
         int id = -1;
         boolean error = false;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -44,14 +44,14 @@ public class SexoDAO implements ISexoDAO {
 
     @Override
     public String findNombreById(int id) {
-        String sql = "SELECT nombre FROM sexo WHERE id_sexo = ?";
+        String sql = "SELECT nombre_sexo FROM sexo WHERE id_sexo = ?";
         String nombre = null;
         boolean error = false;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    nombre = rs.getString("nombre");
+                    nombre = rs.getString("nombre_sexo");
                 } else {
                     error = true;
                     Logger.logError("No se encontró sexo con id: " + id);

@@ -4,19 +4,19 @@ package org.proyectobdmotos.models;
 
 public class Marca {
 
-    private String idMarca;
+    private Integer idMarca;
     private String nombreMarca;
 
 
-    public Marca(String idMarca, String nombreMarca) {
+    public Marca(Integer idMarca, String nombreMarca) {
         setIdMarca(idMarca);
         setNombreMarca(nombreMarca);
     }
     
-    public String getIdMarca() {
+    public Integer getIdMarca() {
         return idMarca;
     }
-    public void setIdMarca(String idMarca) {
+    public void setIdMarca(Integer idMarca) {
         this.idMarca = idMarca;
     }
     public String getNombreMarca() {

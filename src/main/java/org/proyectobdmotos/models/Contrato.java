@@ -7,7 +7,9 @@ import java.time.temporal.ChronoUnit;
 
 public class Contrato {
 
-    private final ContratoID contratoID;
+    private Integer idContrato;
+    private LocalDate fechaInicio;
+    private Integer idMoto;
     private LocalDate fechaFin;
     private Integer idCliente;
     private FormaPago formaPago;
@@ -29,20 +31,46 @@ public class Contrato {
         setDiasProrroga(diasProrroga);
         setFechaEntrega(fechaEntrega);
         setFechaFin(fechaFin);
+        setFechaInicio(fechaInicio);
         setFormaPago(formaPago);
+        setIdMoto(idMoto);
         setSeguroAdicional(seguroAdicional);
         setTarifaNormal(tarifaNormal);
         setTarifaProrroga(tarifaProrroga);
+    }
 
-        contratoID = new ContratoID(fechaInicio, idMoto);
+    public Integer getIdContrato() {
+        return idContrato;
+    }
+
+    public void setIdContrato(Integer idContrato) {
+        this.idContrato = idContrato;
+    }
+
+    public LocalDate getFechaInicio() {
+        return fechaInicio;
+    }
+
+    public void setFechaInicio(LocalDate fechaInicio) {
+        this.fechaInicio = fechaInicio;
+    }
+
+    public Integer getIdMoto() {
+        return idMoto;
+    }
+
+    public void setIdMoto(Integer idMoto) {
+        this.idMoto = idMoto;
     }
 
     public LocalDate getFechaFin() {
         return fechaFin;
     }
+
     public void setFechaFin(LocalDate fechaFin) {
         this.fechaFin = fechaFin;
     }
+
     public Integer getIdCliente() {
         return idCliente;
     }
@@ -50,69 +78,81 @@ public class Contrato {
     public void setIdCliente(Integer idCliente) {
         this.idCliente = idCliente;
     }
+
     public FormaPago getFormaPago() {
         return formaPago;
     }
+
     public void setFormaPago(FormaPago formaPago) {
         this.formaPago = formaPago;
     }
+
     public int getDiasProrroga() {
         return diasProrroga;
     }
+
     public void setDiasProrroga(int diasProrroga) {
         this.diasProrroga = diasProrroga;
     }
+
     public boolean isSeguroAdicional() {
         return seguroAdicional;
     }
+
     public void setSeguroAdicional(boolean seguroAdicional) {
         this.seguroAdicional = seguroAdicional;
     }
+
     public double getTarifaNormal() {
         return tarifaNormal;
     }
+
     public void setTarifaNormal(double tarifaNormal) {
         this.tarifaNormal = tarifaNormal;
     }
+
     public double getTarifaProrroga() {
         return tarifaProrroga;
     }
+
     public void setTarifaProrroga(double tarifaProrroga) {
         this.tarifaProrroga = tarifaProrroga;
     }
+
     public LocalDate getFechaEntrega() {
         return fechaEntrega;
     }
+
     public void setFechaEntrega(LocalDate fechaEntrega) {
         this.fechaEntrega = fechaEntrega;
     }
+
     public double getCantKmSalida() {
         return cantKmSalida;
     }
+
     public void setCantKmSalida(double cantKmSalida) {
         this.cantKmSalida = cantKmSalida;
     }
+
     public double getCantKmLlegada() {
         return cantKmLlegada;
     }
+
     public void setCantKmLlegada(double cantKmLlegada) {
         this.cantKmLlegada = cantKmLlegada;
-    }
-
-    public ContratoID getContratoID() {
-        return contratoID;
     }
 
     public int calcularDiasPactados() {
         int diasPactados = 0;
         boolean tieneFechasValidas = false;
 
-        if (contratoID.getFechaInicio() != null && fechaFin != null && !fechaFin.isBefore(contratoID.getFechaInicio())) {
+        if (fechaInicio != null && fechaFin != null && !fechaFin.isBefore(fechaInicio)) {
             tieneFechasValidas = true;
         }
 
         if (tieneFechasValidas) {
-            long diferenciaDias = ChronoUnit.DAYS.between(contratoID.getFechaInicio(), fechaFin);
+            long diferenciaDias = ChronoUnit.DAYS.between(fechaInicio, fechaFin);
             if (diferenciaDias == 0) {
                 diasPactados = 1;
             } else {
