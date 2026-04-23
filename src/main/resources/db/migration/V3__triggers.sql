@@ -1,4 +1,3 @@
-/*
 -- FUNCIONES PARA EL TRIGGER de MOTO_ALQUILADA
 
 REATE OR REPLACE FUNCTION set_moto_alquilada()
@@ -98,4 +97,3 @@ BEFORE UPDATE ON contrato
 FOR EACH ROW
 WHEN (OLD.fecha_entrega IS NULL AND NEW.fecha_entrega IS NOT NULL)
 EXECUTE FUNCTION actualizar_km_al_entregar();
-*/
