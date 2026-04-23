@@ -1,6 +1,6 @@
 -- FUNCIONES PARA EL TRIGGER de MOTO_ALQUILADA
 
-REATE OR REPLACE FUNCTION set_moto_alquilada()
+CREATE OR REPLACE FUNCTION set_moto_alquilada()
 RETURNS TRIGGER AS $$
 DECLARE
     v_id_situacion_alquilada INT;
