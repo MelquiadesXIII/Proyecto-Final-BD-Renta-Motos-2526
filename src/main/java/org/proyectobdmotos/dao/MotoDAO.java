@@ -46,7 +46,7 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
 
     @Override
     protected String getFindByIdSQL() {
-        return "SELECT m.*, si.nombre AS situacion_nombre "
+        return "SELECT m.*, si.nombre_situacion AS situacion_nombre "
              + "FROM moto m "
              + "JOIN situacion si ON m.id_situacion = si.id_situacion "
              + "WHERE m.id_moto = ?";
@@ -54,7 +54,7 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
 
     @Override
     protected String getFindAllSQL() {
-        return "SELECT m.*, si.nombre AS situacion_nombre "
+        return "SELECT m.*, si.nombre_situacion AS situacion_nombre "
              + "FROM moto m "
              + "JOIN situacion si ON m.id_situacion = si.id_situacion "
              + "ORDER BY m.matricula_moto";
@@ -121,7 +121,7 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
 
     @Override
     public Optional<Moto> buscarPorMatricula(String matricula) {
-        String sql = "SELECT m.*, si.nombre AS situacion_nombre "
+        String sql = "SELECT m.*, si.nombre_situacion AS situacion_nombre "
                    + "FROM moto m "
                    + "JOIN situacion si ON m.id_situacion = si.id_situacion "
                    + "WHERE m.matricula_moto = ?";
@@ -178,7 +178,7 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
         String sql = """
             SELECT m.matricula_moto,
                    ma.nombre_marca,
-                   si.nombre AS situacion_nombre,
+                   si.nombre_situacion AS situacion_nombre,
                    co.fecha_fin
             FROM moto m
             JOIN situacion si ON m.id_situacion = si.id_situacion
@@ -230,7 +230,7 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
 
     @Override
     public boolean estaDisponible(Integer idMoto) {
-        String sql = "SELECT si.nombre AS situacion_nombre "
+        String sql = "SELECT si.nombre_situacion AS situacion_nombre "
                    + "FROM moto m "
                    + "JOIN situacion si ON m.id_situacion = si.id_situacion "
                    + "WHERE m.id_moto = ?";
