@@ -1,4 +1,4 @@
-/*
+
 -- AGREGAR PRIMEROS DATOS DE FORMA AUTOMATICA --
 
 INSERT INTO municipio (nombre_municipio) VALUES
@@ -258,4 +258,4 @@ BEGIN
     RAISE NOTICE 'Procedimiento de inicialización completado.';
 END;
 $$;
-*/
+
