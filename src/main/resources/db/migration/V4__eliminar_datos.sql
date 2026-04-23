@@ -1,4 +1,3 @@
-/*
 CREATE OR REPLACE PROCEDURE eliminar_cliente_y_contratos(
     p_ci_cliente CHAR(11)
 )
@@ -75,4 +74,3 @@ BEGIN
     END IF;
 END;
 $$;
-*/
