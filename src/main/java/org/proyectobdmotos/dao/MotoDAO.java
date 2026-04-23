@@ -64,20 +64,20 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
     protected void setInsertParameters(PreparedStatement ps, Moto moto) throws SQLException {
         int idSituacion = situacionDAO.findIdByNombre(moto.getSituacion().getValor());
         ps.setString(1, moto.getMatriculaMoto());
-        ps.setString(2, moto.getIdModelo());
+        ps.setInt(2, moto.getIdModelo());
         ps.setInt(3, idSituacion);
         ps.setDouble(4, moto.getCantKmRecorridos());
-        ps.setString(5, moto.getIdColor());
+        ps.setInt(5, moto.getIdColor());
     }
 
     @Override
     protected void setUpdateParameters(PreparedStatement ps, Moto moto) throws SQLException {
         int idSituacion = situacionDAO.findIdByNombre(moto.getSituacion().getValor());
         ps.setString(1, moto.getMatriculaMoto());
-        ps.setString(2, moto.getIdModelo());
+        ps.setInt(2, moto.getIdModelo());
         ps.setInt(3, idSituacion);
         ps.setDouble(4, moto.getCantKmRecorridos());
-        ps.setString(5, moto.getIdColor());
+        ps.setInt(5, moto.getIdColor());
         ps.setInt(6, moto.getIdMoto());
     }
 
@@ -91,10 +91,10 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
         return new Moto(
             rs.getInt("id_moto"),
             rs.getString("matricula_moto"),
-            String.valueOf(rs.getInt("id_modelo")),
+            rs.getInt("id_modelo"),
             Situacion.fromValor(rs.getString("situacion_nombre")),
             rs.getDouble("cant_km_recorridos"),
-            String.valueOf(rs.getInt("id_color"))
+            rs.getInt("id_color")
         );
     }
 

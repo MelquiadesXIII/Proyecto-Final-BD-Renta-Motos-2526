@@ -26,7 +26,7 @@ public class MotoServiceContractTest extends TestCase {
 
     public void testBuscarPorMatriculaRetornaResultadoDelDAO() {
         FakeMotoDAO motoDAO = new FakeMotoDAO();
-        Moto moto = new Moto(1, "ABC123", "M1", Situacion.DISPONIBLE, 123.0, "C1");
+        Moto moto = new Moto(1, "ABC123", 1, Situacion.DISPONIBLE, 123.0, 1);
         motoDAO.motoBuscada = Optional.of(moto);
         MotoService motoService = new MotoService(motoDAO);
 
@@ -49,8 +49,8 @@ public class MotoServiceContractTest extends TestCase {
     public void testListarTodosRetornaColeccionDelDAO() {
         FakeMotoDAO motoDAO = new FakeMotoDAO();
         List<Moto> motos = new ArrayList<Moto>();
-        motos.add(new Moto(1, "ABC123", "M1", Situacion.DISPONIBLE, 123.0, "C1"));
-        motos.add(new Moto(2, "XYZ999", "M2", Situacion.ALQUILADA, 321.0, "C2"));
+        motos.add(new Moto(1, "ABC123", 1, Situacion.DISPONIBLE, 123.0, 1));
+        motos.add(new Moto(2, "XYZ999", 2, Situacion.ALQUILADA, 321.0, 2));
         motoDAO.listaMotos = motos;
         MotoService motoService = new MotoService(motoDAO);
 
