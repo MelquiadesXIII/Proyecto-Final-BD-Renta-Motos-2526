@@ -9,11 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.proyectobdmotos.models.Contrato;
-import org.proyectobdmotos.models.ContratoID;
+// import org.proyectobdmotos.models.ContratoID; // removed after refactor
 import org.proyectobdmotos.models.FormaPago;
 import org.proyectobdmotos.utils.Logger;
 
-public class ContratoDAO extends AbstractGenericDAO<Contrato, ContratoID> implements IContratoDAO {
+public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implements IContratoDAO {
 
     private final IFormaPagoDAO formaPagoDAO;
 
@@ -39,25 +39,25 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, ContratoID> implem
              + "fecha_fin = ?, dias_prorroga = ?, seguro_adicional = ?, "
              + "tarifa_normal = ?, tarifa_prorroga = ?, fecha_entrega = ?, "
              + "cant_km_salida = ?, cant_km_llegada = ? "
-             + "WHERE fecha_inicio = ? AND id_moto = ?";
+             + "WHERE id_contrato = ?";
     }
 
     @Override
     protected String getDeleteSQL() {
-        return "DELETE FROM contrato WHERE fecha_inicio = ? AND id_moto = ?";
+        return "DELETE FROM contrato WHERE id_contrato = ?";
     }
 
     @Override
     protected String getFindByIdSQL() {
-        return "SELECT co.*, fp.nombre AS forma_pago_nombre "
+        return "SELECT co.*, fp.nombre_forma_pago AS forma_pago_nombre "
              + "FROM contrato co "
              + "JOIN forma_pago fp ON co.id_forma_pago = fp.id_forma_pago "
-             + "WHERE co.fecha_inicio = ? AND co.id_moto = ?";
+             + "WHERE co.id_contrato = ?";
     }
 
     @Override
     protected String getFindAllSQL() {
-        return "SELECT co.*, fp.nombre AS forma_pago_nombre "
+        return "SELECT co.*, fp.nombre_forma_pago AS forma_pago_nombre "
              + "FROM contrato co "
              + "JOIN forma_pago fp ON co.id_forma_pago = fp.id_forma_pago "
              + "ORDER BY co.fecha_inicio DESC";
@@ -66,8 +66,8 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, ContratoID> implem
     @Override
     protected void setInsertParameters(PreparedStatement ps, Contrato contrato) throws SQLException {
         int idFormaPago = formaPagoDAO.findIdByNombre(contrato.getFormaPago().getValor());
-        ps.setDate(1, Date.valueOf(contrato.getContratoID().getFechaInicio()));
-        ps.setInt(2, contrato.getContratoID().getIdMoto());
+        ps.setDate(1, Date.valueOf(contrato.getFechaInicio()));
+        ps.setInt(2, contrato.getIdMoto());
         ps.setInt(3, contrato.getIdCliente());
         ps.setInt(4, idFormaPago);
         ps.setDate(5, Date.valueOf(contrato.getFechaFin()));
@@ -79,9 +79,9 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, ContratoID> implem
         if (contrato.getFechaEntrega() != null) {
             fechaEntrega = Date.valueOf(contrato.getFechaEntrega());
         }
-        ps.setDate(10, fechaEntrega);
-        ps.setDouble(11, contrato.getCantKmSalida());
-        ps.setDouble(12, contrato.getCantKmLlegada());
+
+    }
+
     }
 
     @Override
@@ -101,14 +101,14 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, ContratoID> implem
         ps.setDate(8, fechaEntrega);
         ps.setDouble(9, contrato.getCantKmSalida());
         ps.setDouble(10, contrato.getCantKmLlegada());
-        ps.setDate(11, Date.valueOf(contrato.getContratoID().getFechaInicio()));
-        ps.setInt(12, contrato.getContratoID().getIdMoto());
+        ps.setInt(11, contrato.getIdContrato());
     }
+    // Removed leftover block referencing ContratoID (obsolete after refactor)
+
 
     @Override
-    protected void setIdParameter(PreparedStatement ps, ContratoID id) throws SQLException {
-        ps.setDate(1, Date.valueOf(id.getFechaInicio()));
-        ps.setInt(2, id.getIdMoto());
+    protected void setIdParameter(PreparedStatement ps, Integer id) throws SQLException {
+        ps.setInt(1, id);
     }
 
     @Override
@@ -145,11 +145,11 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, ContratoID> implem
     @Override
     public List<Contrato> listarContratosCompletos() {
         String sql = """
-            SELECT co.*, fp.nombre AS forma_pago_nombre
+            SELECT co.*, fp.nombre_forma_pago AS forma_pago_nombre
             FROM contrato co
             JOIN forma_pago fp ON co.id_forma_pago = fp.id_forma_pago
-            JOIN cliente c ON co.ci_cliente = c.ci_cliente
-            JOIN moto m ON co.matricula_moto = m.matricula_moto
+            JOIN cliente c ON co.id_cliente = c.id_cliente
+            JOIN moto m ON co.id_moto = m.id_moto
             ORDER BY co.fecha_inicio DESC
             """;
 

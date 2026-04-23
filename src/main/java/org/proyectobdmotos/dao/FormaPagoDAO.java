@@ -17,7 +17,7 @@ public class FormaPagoDAO implements IFormaPagoDAO {
 
     @Override
     public int findIdByNombre(String nombre) {
-        String sql = "SELECT id_forma_pago FROM forma_pago WHERE nombre = ?";
+        String sql = "SELECT id_forma_pago FROM forma_pago WHERE nombre_forma_pago = ?";
         int id = -1;
         boolean error = false;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -44,14 +44,14 @@ public class FormaPagoDAO implements IFormaPagoDAO {
 
     @Override
     public String findNombreById(int id) {
-        String sql = "SELECT nombre FROM forma_pago WHERE id_forma_pago = ?";
+        String sql = "SELECT nombre_forma_pago FROM forma_pago WHERE id_forma_pago = ?";
         String nombre = null;
         boolean error = false;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    nombre = rs.getString("nombre");
+                    nombre = rs.getString("nombre_forma_pago");
                 } else {
                     error = true;
                     Logger.logError("No se encontró forma_pago con id: " + id);

@@ -4,27 +4,27 @@ package org.proyectobdmotos.models;
 
 public class Modelo {
 
-    private String idModelo;
-    private String idMarca;
+    private Integer idModelo;
+    private Integer idMarca;
     private String nombreModelo;
 
     
-    public Modelo(String idModelo, String idMarca, String nombreModelo) {
+    public Modelo(Integer idModelo, Integer idMarca, String nombreModelo) {
         setIdModelo(idModelo);
         setIdMarca(idMarca);
         setNombreModelo(nombreModelo);
     }
 
-    public String getIdModelo() {
+    public Integer getIdModelo() {
         return idModelo;
     }
-    public void setIdModelo(String idModelo) {
+    public void setIdModelo(Integer idModelo) {
         this.idModelo = idModelo;
     }
-    public String getIdMarca() {
+    public Integer getIdMarca() {
         return idMarca;
     }
-    public void setIdMarca(String idMarca) {
+    public void setIdMarca(Integer idMarca) {
         this.idMarca = idMarca;
     }
     public String getNombreModelo() {

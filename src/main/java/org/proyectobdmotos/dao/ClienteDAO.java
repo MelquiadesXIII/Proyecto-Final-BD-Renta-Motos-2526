@@ -46,7 +46,7 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
 
     @Override
     protected String getFindByIdSQL() {
-        return "SELECT c.*, s.nombre AS sexo_nombre "
+        return "SELECT c.*, s.nombre_sexo AS sexo_nombre "
              + "FROM cliente c "
              + "JOIN sexo s ON c.id_sexo = s.id_sexo "
              + "WHERE c.id_cliente = ?";
@@ -54,7 +54,7 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
 
     @Override
     protected String getFindAllSQL() {
-        return "SELECT c.*, s.nombre AS sexo_nombre "
+        return "SELECT c.*, s.nombre_sexo AS sexo_nombre "
              + "FROM cliente c "
              + "JOIN sexo s ON c.id_sexo = s.id_sexo "
              + "ORDER BY c.nombre_cliente, c.primer_apellido";
@@ -130,7 +130,7 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
 
     @Override
     public Optional<Cliente> buscarPorCi(String ci) {
-        String sql = "SELECT c.*, s.nombre AS sexo_nombre "
+        String sql = "SELECT c.*, s.nombre_sexo AS sexo_nombre "
                    + "FROM cliente c "
                    + "JOIN sexo s ON c.id_sexo = s.id_sexo "
                    + "WHERE c.ci_cliente = ?";
@@ -186,7 +186,7 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
     @Override
     public List<Cliente> obtenerClientesIncumplidores() {
         String sql = """
-            SELECT DISTINCT c.*, s.nombre AS sexo_nombre
+            SELECT DISTINCT c.*, s.nombre_sexo AS sexo_nombre
             FROM cliente c
             JOIN sexo s ON c.id_sexo = s.id_sexo
             JOIN contrato co ON c.id_cliente = co.id_cliente
