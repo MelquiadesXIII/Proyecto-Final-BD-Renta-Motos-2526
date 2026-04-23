@@ -6,7 +6,7 @@ DECLARE
     v_id_situacion_alquilada INT;
 BEGIN
     SELECT id_situacion INTO v_id_situacion_alquilada
-    FROM situacion WHERE nombre_situacion = 'alquilada';
+    FROM situacion WHERE nombre_situacion = 'Alquilada';
 
     UPDATE moto
     SET id_situacion = v_id_situacion_alquilada
