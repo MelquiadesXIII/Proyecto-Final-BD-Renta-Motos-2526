@@ -1,4 +1,4 @@
-/*
+
 CREATE OR REPLACE PROCEDURE insertar_usuario_si_no_existe(
     p_nombre_usuario VARCHAR(50),
     p_password       VARCHAR(255),
@@ -183,4 +183,3 @@ BEGIN
     END IF;
 END;
 $$;
-*/
