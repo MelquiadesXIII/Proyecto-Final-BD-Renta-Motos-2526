@@ -64,26 +64,26 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
     protected void setInsertParameters(PreparedStatement ps, Cliente cliente) throws SQLException {
         int idSexo = sexoDAO.findIdByNombre(cliente.getSexo().getValor());
         ps.setString(1, cliente.getCiCliente());
-        ps.setString(2, cliente.getNombreCLiente());
+        ps.setString(2, cliente.getNombreCliente());
         ps.setString(3, cliente.getPrimerApellido());
         ps.setString(4, cliente.getSegundoApellido());
         ps.setInt(5, cliente.getEdad());
         ps.setInt(6, idSexo);
         ps.setString(7, cliente.getNumeroContacto());
-        ps.setString(8, cliente.getIdMunicipio());
+        ps.setInt(8, cliente.getIdMunicipio());
     }
 
     @Override
     protected void setUpdateParameters(PreparedStatement ps, Cliente cliente) throws SQLException {
         int idSexo = sexoDAO.findIdByNombre(cliente.getSexo().getValor());
         ps.setString(1, cliente.getCiCliente());
-        ps.setString(2, cliente.getNombreCLiente());
+        ps.setString(2, cliente.getNombreCliente());
         ps.setString(3, cliente.getPrimerApellido());
         ps.setString(4, cliente.getSegundoApellido());
         ps.setInt(5, cliente.getEdad());
         ps.setInt(6, idSexo);
         ps.setString(7, cliente.getNumeroContacto());
-        ps.setString(8, cliente.getIdMunicipio());
+        ps.setInt(8, cliente.getIdMunicipio());
         ps.setInt(9, cliente.getIdCliente());
     }
 
@@ -103,7 +103,7 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
             rs.getInt("edad"),
             Sexo.fromValor(rs.getString("sexo_nombre")),
             rs.getString("numero_contacto"),
-            String.valueOf(rs.getInt("id_municipio"))
+            rs.getInt("id_municipio")
         );
     }
 
