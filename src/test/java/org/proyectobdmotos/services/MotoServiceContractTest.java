@@ -26,7 +26,7 @@ public class MotoServiceContractTest extends TestCase {
 
     public void testBuscarPorMatriculaRetornaResultadoDelDAO() {
         FakeMotoDAO motoDAO = new FakeMotoDAO();
-        Moto moto = new Moto("ABC123", "M1", Situacion.DISPONIBLE, 123.0, "C1");
+        Moto moto = new Moto(1, "ABC123", 1, Situacion.DISPONIBLE, 123.0, 1);
         motoDAO.motoBuscada = Optional.of(moto);
         MotoService motoService = new MotoService(motoDAO);
 
@@ -49,8 +49,8 @@ public class MotoServiceContractTest extends TestCase {
     public void testListarTodosRetornaColeccionDelDAO() {
         FakeMotoDAO motoDAO = new FakeMotoDAO();
         List<Moto> motos = new ArrayList<Moto>();
-        motos.add(new Moto("ABC123", "M1", Situacion.DISPONIBLE, 123.0, "C1"));
-        motos.add(new Moto("XYZ999", "M2", Situacion.ALQUILADA, 321.0, "C2"));
+        motos.add(new Moto(1, "ABC123", 1, Situacion.DISPONIBLE, 123.0, 1));
+        motos.add(new Moto(2, "XYZ999", 2, Situacion.ALQUILADA, 321.0, 2));
         motoDAO.listaMotos = motos;
         MotoService motoService = new MotoService(motoDAO);
 
@@ -144,13 +144,18 @@ public class MotoServiceContractTest extends TestCase {
         }
 
         @Override
-        public void eliminar(String id) {
+        public void eliminar(Integer id) {
         }
 
         @Override
-        public Optional<Moto> buscarPorId(String id) {
+        public Optional<Moto> buscarPorId(Integer id) {
+            return Optional.empty();
+        }
+
+        @Override
+        public Optional<Moto> buscarPorMatricula(String matricula) {
             Optional<Moto> resultado = Optional.empty();
-            ultimaMatriculaBuscada = id;
+            ultimaMatriculaBuscada = matricula;
             if (excepcionEnBuscar != null) {
                 throw excepcionEnBuscar;
             }
@@ -176,11 +181,11 @@ public class MotoServiceContractTest extends TestCase {
         }
 
         @Override
-        public void cambiarEstado(String matricula, Situacion nuevaSituacion) {
+        public void cambiarEstado(Integer idMoto, Situacion nuevaSituacion) {
         }
 
         @Override
-        public boolean estaDisponible(String matricula) {
+        public boolean estaDisponible(Integer idMoto) {
             return false;
         }
     }

@@ -41,7 +41,7 @@ public class ContratoServiceContractTest extends TestCase {
         FakeMotoDAO motoDAO = new FakeMotoDAO();
         clienteDAO.cliente = Optional.empty();
         ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
-        Contrato contrato = crearContrato("C1", "M1");
+        Contrato contrato = crearContrato(1, 1);
 
         ValidationException exception = null;
         try {
@@ -60,11 +60,11 @@ public class ContratoServiceContractTest extends TestCase {
         FakeContratoDAO contratoDAO = new FakeContratoDAO();
         FakeClienteDAO clienteDAO = new FakeClienteDAO();
         FakeMotoDAO motoDAO = new FakeMotoDAO();
-        clienteDAO.cliente = Optional.of(new Cliente("C1", "Ana", "Perez", "Lopez", 30, Sexo.FEMENINO, "555", "M1"));
-        motoDAO.moto = Optional.of(crearMoto("M1"));
+        clienteDAO.cliente = Optional.of(new Cliente(1, "C1", "Ana", "Perez", "Lopez", 30, Sexo.FEMENINO, "555", 1));
+        motoDAO.moto = Optional.of(crearMoto(1, "M1"));
         motoDAO.disponible = false;
         ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
-        Contrato contrato = crearContrato("C1", "M1");
+        Contrato contrato = crearContrato(1, 1);
 
         ValidationException exception = null;
         try {
@@ -82,16 +82,16 @@ public class ContratoServiceContractTest extends TestCase {
         FakeContratoDAO contratoDAO = new FakeContratoDAO();
         FakeClienteDAO clienteDAO = new FakeClienteDAO();
         FakeMotoDAO motoDAO = new FakeMotoDAO();
-        clienteDAO.cliente = Optional.of(new Cliente("C1", "Ana", "Perez", "Lopez", 30, Sexo.FEMENINO, "555", "M1"));
-        motoDAO.moto = Optional.of(crearMoto("M1"));
+        clienteDAO.cliente = Optional.of(new Cliente(1, "C1", "Ana", "Perez", "Lopez", 30, Sexo.FEMENINO, "555", 1));
+        motoDAO.moto = Optional.of(crearMoto(1, "M1"));
         motoDAO.disponible = true;
         ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
-        Contrato contrato = crearContrato("C1", "M1");
+        Contrato contrato = crearContrato(1, 1);
 
         contratoService.crearContrato(contrato);
 
         assertEquals(1, contratoDAO.insertCount);
-        assertEquals("C1", contratoDAO.ultimoContratoInsertado.getCiCliente());
+        assertEquals(Integer.valueOf(1), contratoDAO.ultimoContratoInsertado.getIdCliente());
     }
 
     public void testFinalizarContratoLanzaCodigoContratoNoEncontradoSinActualizarNiCambiarEstado() {
@@ -99,7 +99,7 @@ public class ContratoServiceContractTest extends TestCase {
         FakeClienteDAO clienteDAO = new FakeClienteDAO();
         FakeMotoDAO motoDAO = new FakeMotoDAO();
         ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
-        Contrato contrato = crearContrato("C1", "M1");
+        Contrato contrato = crearContrato(1, 1);
 
         ValidationException exception = null;
         try {
@@ -119,11 +119,11 @@ public class ContratoServiceContractTest extends TestCase {
         FakeContratoDAO contratoDAO = new FakeContratoDAO();
         FakeClienteDAO clienteDAO = new FakeClienteDAO();
         FakeMotoDAO motoDAO = new FakeMotoDAO();
-        Contrato contratoPersistido = crearContrato("C1", "M1");
+        Contrato contratoPersistido = crearContrato(1, 1);
         contratoPersistido.setFechaEntrega(LocalDate.of(2026, 4, 21));
         contratoDAO.contrato = Optional.of(contratoPersistido);
         ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
-        Contrato contrato = crearContrato("C1", "M1");
+        Contrato contrato = crearContrato(1, 1);
 
         ValidationException exception = null;
         try {
@@ -143,10 +143,10 @@ public class ContratoServiceContractTest extends TestCase {
         FakeContratoDAO contratoDAO = new FakeContratoDAO();
         FakeClienteDAO clienteDAO = new FakeClienteDAO();
         FakeMotoDAO motoDAO = new FakeMotoDAO();
-        contratoDAO.contrato = Optional.of(crearContrato("C1", "M1"));
+        contratoDAO.contrato = Optional.of(crearContrato(1, 1));
         motoDAO.moto = Optional.empty();
         ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
-        Contrato contrato = crearContrato("C1", "M1");
+        Contrato contrato = crearContrato(1, 1);
 
         ValidationException exception = null;
         try {
@@ -169,32 +169,32 @@ public class ContratoServiceContractTest extends TestCase {
         Contrato contratoPersistido = new Contrato(
             0.0,
             100.0,
-            "C1",
+            1,
             0,
             null,
             LocalDate.of(2026, 4, 20),
             LocalDate.of(2026, 4, 19),
             FormaPago.EFECTIVO,
-            "M1",
+            1,
             false,
             100.0,
             50.0
         );
         contratoDAO.contrato = Optional.of(contratoPersistido);
-        motoDAO.moto = Optional.of(crearMoto("M1"));
+        motoDAO.moto = Optional.of(crearMoto(1, "M1"));
 
         ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
 
         Contrato requestFinalizacion = new Contrato(
             130.0,
             0.0,
-            "C1",
+            1,
             0,
             LocalDate.of(2026, 4, 23),
             LocalDate.of(2026, 5, 10),
             LocalDate.of(2026, 4, 19),
             FormaPago.EFECTIVO,
-            "M1",
+            1,
             false,
             999.0,
             999.0
@@ -221,32 +221,32 @@ public class ContratoServiceContractTest extends TestCase {
         Contrato contratoPersistido = new Contrato(
             0.0,
             100.0,
-            "C1",
+            1,
             0,
             null,
             LocalDate.of(2026, 4, 20),
             LocalDate.of(2026, 4, 19),
             FormaPago.EFECTIVO,
-            "M1",
+            1,
             false,
             100.0,
             50.0
         );
         contratoDAO.contrato = Optional.of(contratoPersistido);
-        motoDAO.moto = Optional.of(crearMoto("M1"));
+        motoDAO.moto = Optional.of(crearMoto(1, "M1"));
 
         ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
 
         Contrato requestFinalizacion = new Contrato(
             90.0,
             0.0,
-            "C1",
+            1,
             0,
             LocalDate.of(2026, 4, 23),
             LocalDate.of(2026, 5, 10),
             LocalDate.of(2026, 4, 19),
             FormaPago.EFECTIVO,
-            "M1",
+            1,
             false,
             999.0,
             999.0
@@ -273,32 +273,32 @@ public class ContratoServiceContractTest extends TestCase {
         Contrato contratoPersistido = new Contrato(
             0.0,
             100.0,
-            "C1",
+            1,
             0,
             null,
             LocalDate.of(2026, 4, 20),
             LocalDate.of(2026, 4, 19),
             FormaPago.EFECTIVO,
-            "M1",
+            1,
             false,
             100.0,
             50.0
         );
         contratoDAO.contrato = Optional.of(contratoPersistido);
-        motoDAO.moto = Optional.of(crearMoto("M1"));
+        motoDAO.moto = Optional.of(crearMoto(1, "M1"));
 
         ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
 
         Contrato requestFinalizacion = new Contrato(
             120.0,
             0.0,
-            "C1",
+            1,
             0,
             LocalDate.of(2026, 4, 18),
             LocalDate.of(2026, 5, 10),
             LocalDate.of(2026, 4, 19),
             FormaPago.EFECTIVO,
-            "M1",
+            1,
             false,
             999.0,
             999.0
@@ -325,32 +325,32 @@ public class ContratoServiceContractTest extends TestCase {
         Contrato contratoPersistido = new Contrato(
             0.0,
             100.0,
-            "C1",
+            1,
             0,
             null,
             LocalDate.of(2026, 4, 18),
             LocalDate.of(2026, 4, 19),
             FormaPago.EFECTIVO,
-            "M1",
+            1,
             false,
             100.0,
             50.0
         );
         contratoDAO.contrato = Optional.of(contratoPersistido);
-        motoDAO.moto = Optional.of(crearMoto("M1"));
+        motoDAO.moto = Optional.of(crearMoto(1, "M1"));
 
         ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
 
         Contrato requestFinalizacion = new Contrato(
             120.0,
             0.0,
-            "C1",
+            1,
             0,
             LocalDate.of(2026, 4, 21),
             LocalDate.of(2026, 5, 10),
             LocalDate.of(2026, 4, 19),
             FormaPago.EFECTIVO,
-            "M1",
+            1,
             false,
             999.0,
             999.0
@@ -374,7 +374,7 @@ public class ContratoServiceContractTest extends TestCase {
         FakeClienteDAO clienteDAO = new FakeClienteDAO();
         FakeMotoDAO motoDAO = new FakeMotoDAO();
         ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
-        Contrato contrato = crearContrato("C1", "M1");
+        Contrato contrato = crearContrato(1, 1);
 
         ValidationException exception = null;
         try {
@@ -393,7 +393,7 @@ public class ContratoServiceContractTest extends TestCase {
         FakeClienteDAO clienteDAO = new FakeClienteDAO();
         FakeMotoDAO motoDAO = new FakeMotoDAO();
         ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
-        ContratoID id = new ContratoID(LocalDate.of(2026, 4, 19), "M1");
+        ContratoID id = new ContratoID(LocalDate.of(2026, 4, 19), 1);
 
         ValidationException exception = null;
         try {
@@ -407,21 +407,21 @@ public class ContratoServiceContractTest extends TestCase {
         assertEquals(0, contratoDAO.deleteCount);
     }
 
-    private Moto crearMoto(String matricula) {
-        return new Moto(matricula, "MDL1", Situacion.DISPONIBLE, 0.0, "BLANCO");
+    private Moto crearMoto(Integer idMoto, String matricula) {
+        return new Moto(idMoto, matricula, 1, Situacion.DISPONIBLE, 0.0, 1);
     }
 
-    private Contrato crearContrato(String ciCliente, String matricula) {
+    private Contrato crearContrato(Integer idCliente, Integer idMoto) {
         return new Contrato(
             0.0,
             0.0,
-            ciCliente,
+            idCliente,
             0,
             null,
             LocalDate.of(2026, 4, 20),
             LocalDate.of(2026, 4, 19),
             FormaPago.EFECTIVO,
-            matricula,
+            idMoto,
             false,
             100.0,
             50.0
@@ -481,12 +481,17 @@ public class ContratoServiceContractTest extends TestCase {
         }
 
         @Override
-        public void eliminar(String id) {
+        public void eliminar(Integer id) {
         }
 
         @Override
-        public Optional<Cliente> buscarPorId(String id) {
+        public Optional<Cliente> buscarPorId(Integer id) {
             return cliente;
+        }
+
+        @Override
+        public Optional<Cliente> buscarPorCi(String ci) {
+            return Optional.empty();
         }
 
         @Override
@@ -505,7 +510,7 @@ public class ContratoServiceContractTest extends TestCase {
         }
 
         @Override
-        public void eliminarConCascada(String ci) {
+        public void eliminarConCascada(Integer idCliente) {
         }
     }
 
@@ -524,13 +529,18 @@ public class ContratoServiceContractTest extends TestCase {
         }
 
         @Override
-        public void eliminar(String id) {
+        public void eliminar(Integer id) {
         }
 
         @Override
-        public Optional<Moto> buscarPorId(String id) {
+        public Optional<Moto> buscarPorId(Integer id) {
             buscarPorIdCount = buscarPorIdCount + 1;
             return moto;
+        }
+
+        @Override
+        public Optional<Moto> buscarPorMatricula(String matricula) {
+            return Optional.empty();
         }
 
         @Override
@@ -549,12 +559,12 @@ public class ContratoServiceContractTest extends TestCase {
         }
 
         @Override
-        public void cambiarEstado(String matricula, Situacion nuevaSituacion) {
+        public void cambiarEstado(Integer idMoto, Situacion nuevaSituacion) {
             cambiarEstadoCount = cambiarEstadoCount + 1;
         }
 
         @Override
-        public boolean estaDisponible(String matricula) {
+        public boolean estaDisponible(Integer idMoto) {
             return disponible;
         }
     }

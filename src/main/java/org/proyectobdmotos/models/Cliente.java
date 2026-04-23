@@ -4,20 +4,21 @@ package org.proyectobdmotos.models;
 
 public class Cliente {
 
+    private Integer idCliente;
     private String ciCliente;
-    private String nombreCLiente;
+    private String nombreCliente;
     private String primerApellido;
     private String segundoApellido;
     private int edad;
     private Sexo sexo;
     private String numeroContacto;
-    private String idMunicipio;
+    private Integer idMunicipio;
 
-    
-    public Cliente(String ciCliente, String nombreCLiente, String primerApellido, String segundoApellido, int edad,
-            Sexo sexo, String numeroContacto, String idMunicipio) {
+    public Cliente(Integer idCliente, String ciCliente, String nombreCliente, String primerApellido,
+            String segundoApellido, int edad, Sexo sexo, String numeroContacto, Integer idMunicipio) {
+        setIdCliente(idCliente);
         setCiCliente(ciCliente);
-        setNombreCLiente(nombreCLiente);
+        setNombreCliente(nombreCliente);
         setPrimerApellido(primerApellido);
         setSegundoApellido(segundoApellido);
         setEdad(edad);
@@ -26,17 +27,25 @@ public class Cliente {
         setIdMunicipio(idMunicipio);
     }
 
+    public Integer getIdCliente() {
+        return idCliente;
+    }
+
+    public void setIdCliente(Integer idCliente) {
+        this.idCliente = idCliente;
+    }
+
     public String getCiCliente() {
         return ciCliente;
     }
     public void setCiCliente(String ciCliente) {
         this.ciCliente = ciCliente;
     }
-    public String getNombreCLiente() {
-        return nombreCLiente;
+    public String getNombreCliente() {
+        return nombreCliente;
     }
-    public void setNombreCLiente(String nombreCLiente) {
-        this.nombreCLiente = nombreCLiente;
+    public void setNombreCliente(String nombreCliente) {
+        this.nombreCliente = nombreCliente;
     }
     public String getPrimerApellido() {
         return primerApellido;
@@ -68,10 +77,10 @@ public class Cliente {
     public void setNumeroContacto(String numeroContacto) {
         this.numeroContacto = numeroContacto;
     }
-    public String getIdMunicipio() {
+    public Integer getIdMunicipio() {
         return idMunicipio;
     }
-    public void setIdMunicipio(String idMunicipio) {
+    public void setIdMunicipio(Integer idMunicipio) {
         this.idMunicipio = idMunicipio;
     }
 }

@@ -9,7 +9,7 @@ public class Contrato {
 
     private final ContratoID contratoID;
     private LocalDate fechaFin;
-    private String ciCliente;
+    private Integer idCliente;
     private FormaPago formaPago;
     private int diasProrroga;
     private boolean seguroAdicional;
@@ -19,10 +19,13 @@ public class Contrato {
     private double cantKmSalida;
     private double cantKmLlegada;
 
-    public Contrato(double cantKmLlegada, double cantKmSalida, String ciCliente, int diasProrroga, LocalDate fechaEntrega, LocalDate fechaFin, LocalDate fechaInicio, FormaPago formaPago, String matriculaMoto, boolean seguroAdicional, double tarifaNormal, double tarifaProrroga) {
+    public Contrato(double cantKmLlegada, double cantKmSalida, Integer idCliente, int diasProrroga,
+            LocalDate fechaEntrega, LocalDate fechaFin, LocalDate fechaInicio,
+            FormaPago formaPago, Integer idMoto, boolean seguroAdicional,
+            double tarifaNormal, double tarifaProrroga) {
         setCantKmLlegada(cantKmLlegada);
         setCantKmSalida(cantKmSalida);
-        setCiCliente(ciCliente);
+        setIdCliente(idCliente);
         setDiasProrroga(diasProrroga);
         setFechaEntrega(fechaEntrega);
         setFechaFin(fechaFin);
@@ -31,7 +34,7 @@ public class Contrato {
         setTarifaNormal(tarifaNormal);
         setTarifaProrroga(tarifaProrroga);
 
-        contratoID = new ContratoID(fechaInicio, matriculaMoto);
+        contratoID = new ContratoID(fechaInicio, idMoto);
     }
 
     public LocalDate getFechaFin() {
@@ -40,11 +43,12 @@ public class Contrato {
     public void setFechaFin(LocalDate fechaFin) {
         this.fechaFin = fechaFin;
     }
-    public String getCiCliente() {
-        return ciCliente;
+    public Integer getIdCliente() {
+        return idCliente;
     }
-    public void setCiCliente(String ciCliente) {
-        this.ciCliente = ciCliente;
+
+    public void setIdCliente(Integer idCliente) {
+        this.idCliente = idCliente;
     }
     public FormaPago getFormaPago() {
         return formaPago;

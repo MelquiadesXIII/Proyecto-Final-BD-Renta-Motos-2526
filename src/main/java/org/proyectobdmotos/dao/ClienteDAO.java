@@ -4,15 +4,17 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.proyectobdmotos.dto.ClienteDTO;
 import org.proyectobdmotos.models.Cliente;
 import org.proyectobdmotos.models.Sexo;
 import org.proyectobdmotos.utils.Logger;
 
-public class ClienteDAO extends AbstractGenericDAO<Cliente, String> implements IClienteDAO {
+public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements IClienteDAO {
 
     private final ISexoDAO sexoDAO;
 
@@ -32,14 +34,14 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, String> implements I
 
     @Override
     protected String getUpdateSQL() {
-        return "UPDATE cliente SET nombre_cliente = ?, primer_apellido = ?, "
+        return "UPDATE cliente SET ci_cliente = ?, nombre_cliente = ?, primer_apellido = ?, "
              + "segundo_apellido = ?, edad = ?, id_sexo = ?, numero_contacto = ?, "
-             + "id_municipio = ? WHERE ci_cliente = ?";
+             + "id_municipio = ? WHERE id_cliente = ?";
     }
 
     @Override
     protected String getDeleteSQL() {
-        return "DELETE FROM cliente WHERE ci_cliente = ?";
+        return "DELETE FROM cliente WHERE id_cliente = ?";
     }
 
     @Override
@@ -47,7 +49,7 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, String> implements I
         return "SELECT c.*, s.nombre AS sexo_nombre "
              + "FROM cliente c "
              + "JOIN sexo s ON c.id_sexo = s.id_sexo "
-             + "WHERE c.ci_cliente = ?";
+             + "WHERE c.id_cliente = ?";
     }
 
     @Override
@@ -62,36 +64,38 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, String> implements I
     protected void setInsertParameters(PreparedStatement ps, Cliente cliente) throws SQLException {
         int idSexo = sexoDAO.findIdByNombre(cliente.getSexo().getValor());
         ps.setString(1, cliente.getCiCliente());
-        ps.setString(2, cliente.getNombreCLiente());
+        ps.setString(2, cliente.getNombreCliente());
         ps.setString(3, cliente.getPrimerApellido());
         ps.setString(4, cliente.getSegundoApellido());
         ps.setInt(5, cliente.getEdad());
         ps.setInt(6, idSexo);
         ps.setString(7, cliente.getNumeroContacto());
-        ps.setString(8, cliente.getIdMunicipio());
+        ps.setInt(8, cliente.getIdMunicipio());
     }
 
     @Override
     protected void setUpdateParameters(PreparedStatement ps, Cliente cliente) throws SQLException {
         int idSexo = sexoDAO.findIdByNombre(cliente.getSexo().getValor());
-        ps.setString(1, cliente.getNombreCLiente());
-        ps.setString(2, cliente.getPrimerApellido());
-        ps.setString(3, cliente.getSegundoApellido());
-        ps.setInt(4, cliente.getEdad());
-        ps.setInt(5, idSexo);
-        ps.setString(6, cliente.getNumeroContacto());
-        ps.setString(7, cliente.getIdMunicipio());
-        ps.setString(8, cliente.getCiCliente());
+        ps.setString(1, cliente.getCiCliente());
+        ps.setString(2, cliente.getNombreCliente());
+        ps.setString(3, cliente.getPrimerApellido());
+        ps.setString(4, cliente.getSegundoApellido());
+        ps.setInt(5, cliente.getEdad());
+        ps.setInt(6, idSexo);
+        ps.setString(7, cliente.getNumeroContacto());
+        ps.setInt(8, cliente.getIdMunicipio());
+        ps.setInt(9, cliente.getIdCliente());
     }
 
     @Override
-    protected void setIdParameter(PreparedStatement ps, String ci) throws SQLException {
-        ps.setString(1, ci);
+    protected void setIdParameter(PreparedStatement ps, Integer id) throws SQLException {
+        ps.setInt(1, id);
     }
 
     @Override
     protected Cliente mapResultSetToEntity(ResultSet rs) throws SQLException {
         return new Cliente(
+            rs.getInt("id_cliente"),
             rs.getString("ci_cliente"),
             rs.getString("nombre_cliente"),
             rs.getString("primer_apellido"),
@@ -99,11 +103,51 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, String> implements I
             rs.getInt("edad"),
             Sexo.fromValor(rs.getString("sexo_nombre")),
             rs.getString("numero_contacto"),
-            String.valueOf(rs.getInt("id_municipio"))
+            rs.getInt("id_municipio")
         );
     }
 
+    /**
+     * Override para capturar el id_cliente generado (SERIAL) tras el INSERT.
+     */
+    @Override
+    public void insertar(Cliente cliente) {
+        try (PreparedStatement ps = connection.prepareStatement(getInsertSQL(), Statement.RETURN_GENERATED_KEYS)) {
+            setInsertParameters(ps, cliente);
+            ps.executeUpdate();
+            try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    cliente.setIdCliente(generatedKeys.getInt(1));
+                }
+            }
+        } catch (SQLException e) {
+            Logger.logError("Error al insertar cliente: " + e.getMessage());
+            throw new RuntimeException("Error al insertar cliente: " + e.getMessage(), e);
+        }
+    }
+
     // ===== MÉTODOS ESPECÍFICOS =====
+
+    @Override
+    public Optional<Cliente> buscarPorCi(String ci) {
+        String sql = "SELECT c.*, s.nombre AS sexo_nombre "
+                   + "FROM cliente c "
+                   + "JOIN sexo s ON c.id_sexo = s.id_sexo "
+                   + "WHERE c.ci_cliente = ?";
+        Optional<Cliente> resultado = Optional.empty();
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, ci);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    resultado = Optional.of(mapResultSetToEntity(rs));
+                }
+            }
+        } catch (SQLException e) {
+            Logger.logError("Error al buscar cliente por CI: " + e.getMessage());
+            throw new RuntimeException("Error al buscar cliente por CI: " + e.getMessage(), e);
+        }
+        return resultado;
+    }
 
     @Override
     public List<ClienteDTO> listarClientesPorMunicipio() {
@@ -111,10 +155,10 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, String> implements I
             SELECT c.ci_cliente,
                    c.nombre_cliente || ' ' || c.primer_apellido AS nombre_completo,
                    m.nombre_municipio,
-                   COUNT(co.matricula_moto) AS cantidad_alquileres
+                   COUNT(co.id_moto) AS cantidad_alquileres
             FROM cliente c
             JOIN municipio m ON c.id_municipio = m.id_municipio
-            LEFT JOIN contrato co ON c.ci_cliente = co.ci_cliente
+            LEFT JOIN contrato co ON c.id_cliente = co.id_cliente
             GROUP BY c.ci_cliente, nombre_completo, m.nombre_municipio
             ORDER BY m.nombre_municipio, nombre_completo
             """;
@@ -145,7 +189,7 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, String> implements I
             SELECT DISTINCT c.*, s.nombre AS sexo_nombre
             FROM cliente c
             JOIN sexo s ON c.id_sexo = s.id_sexo
-            JOIN contrato co ON c.ci_cliente = co.ci_cliente
+            JOIN contrato co ON c.id_cliente = co.id_cliente
             WHERE co.fecha_entrega IS NOT NULL
               AND co.fecha_entrega > co.fecha_fin
             ORDER BY c.nombre_cliente
@@ -167,19 +211,19 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, String> implements I
     }
 
     @Override
-    public void eliminarConCascada(String ci) {
+    public void eliminarConCascada(Integer idCliente) {
         try {
             connection.setAutoCommit(false);
 
-            String deleteContratos = "DELETE FROM contrato WHERE ci_cliente = ?";
+            String deleteContratos = "DELETE FROM contrato WHERE id_cliente = ?";
             try (PreparedStatement ps = connection.prepareStatement(deleteContratos)) {
-                ps.setString(1, ci);
+                ps.setInt(1, idCliente);
                 ps.executeUpdate();
             }
 
-            String deleteCliente = "DELETE FROM cliente WHERE ci_cliente = ?";
+            String deleteCliente = "DELETE FROM cliente WHERE id_cliente = ?";
             try (PreparedStatement ps = connection.prepareStatement(deleteCliente)) {
-                ps.setString(1, ci);
+                ps.setInt(1, idCliente);
                 ps.executeUpdate();
             }
 

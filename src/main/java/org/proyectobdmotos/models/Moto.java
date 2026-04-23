@@ -4,18 +4,29 @@ package org.proyectobdmotos.models;
 
 public class Moto {
 
+  private Integer idMoto;
   private String matriculaMoto;
-  private String idModelo;
+  private Integer idModelo;
   private Situacion situacion;
   private double cantKmRecorridos;
-  private String idColor;
+  private Integer idColor;
 
-  public Moto(String matriculaMoto, String idModelo, Situacion situacion, double cantKmRecorridos, String idColor) {
+  public Moto(Integer idMoto, String matriculaMoto, Integer idModelo, Situacion situacion,
+          double cantKmRecorridos, Integer idColor) {
+    setIdMoto(idMoto);
+    setMatriculaMoto(matriculaMoto);
+    setIdModelo(idModelo);
+    setSituacion(situacion);
     setCantKmRecorridos(cantKmRecorridos);
     setIdColor(idColor);
-    setIdModelo(idModelo);
-    setMatriculaMoto(matriculaMoto);
-    setSituacion(situacion);
+  }
+
+  public Integer getIdMoto() {
+    return idMoto;
+  }
+
+  public void setIdMoto(Integer idMoto) {
+    this.idMoto = idMoto;
   }
 
   public String getMatriculaMoto() {
@@ -26,11 +37,11 @@ public class Moto {
     this.matriculaMoto = matriculaMoto;
   }
 
-  public String getIdModelo() {
+  public Integer getIdModelo() {
     return idModelo;
   }
 
-  public void setIdModelo(String idModelo) {
+  public void setIdModelo(Integer idModelo) {
     if (idModelo == null) throw new IllegalArgumentException(
       "El id no puede ser null"
     );
@@ -54,11 +65,11 @@ public class Moto {
     this.cantKmRecorridos = cantKmRecorridos;
   }
 
-  public String getIdColor() {
+  public Integer getIdColor() {
     return idColor;
   }
 
-  public void setIdColor(String idColor) {
+  public void setIdColor(Integer idColor) {
     this.idColor = idColor;
   }
 }

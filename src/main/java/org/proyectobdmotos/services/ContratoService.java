@@ -38,17 +38,17 @@ public class ContratoService {
      * El trigger de BD se encarga de poner la moto en estado 'alquilada'.
      */
     public void crearContrato(Contrato contrato) {
-        String ciCliente = contrato.getCiCliente();
-        String matricula = contrato.getContratoID().getMatriculaMoto();
+        Integer idCliente = contrato.getIdCliente();
+        Integer idMoto = contrato.getContratoID().getIdMoto();
 
-        boolean clienteExiste = clienteDAO.buscarPorId(ciCliente).isPresent();
+        boolean clienteExiste = clienteDAO.buscarPorId(idCliente).isPresent();
         boolean motoExiste = false;
         boolean motoDisponible = false;
         boolean puedeCrear = false;
         ValidationException validationException = null;
 
         if (!clienteExiste) {
-            Logger.logError("Cliente no encontrado: " + ciCliente);
+            Logger.logError("Cliente no encontrado: id=" + idCliente);
             validationException = new ValidationException(
                 BusinessErrorCode.CLIENTE_NO_ENCONTRADO,
                 "No se puede crear el contrato: cliente no encontrado"
@@ -56,11 +56,11 @@ public class ContratoService {
         }
 
         if (clienteExiste) {
-            motoExiste = motoDAO.buscarPorId(matricula).isPresent();
+            motoExiste = motoDAO.buscarPorId(idMoto).isPresent();
         }
 
         if (clienteExiste && !motoExiste) {
-            Logger.logError("Moto no encontrada: " + matricula);
+            Logger.logError("Moto no encontrada: id=" + idMoto);
             validationException = new ValidationException(
                 BusinessErrorCode.MOTO_NO_ENCONTRADA,
                 "No se puede crear el contrato: moto no encontrada"
@@ -68,9 +68,9 @@ public class ContratoService {
         }
 
         if (clienteExiste && motoExiste) {
-            motoDisponible = motoDAO.estaDisponible(matricula);
+            motoDisponible = motoDAO.estaDisponible(idMoto);
             if (!motoDisponible) {
-                Logger.logError("Moto no disponible: " + matricula);
+                Logger.logError("Moto no disponible: id=" + idMoto);
                 validationException = new ValidationException(
                     BusinessErrorCode.MOTO_NO_DISPONIBLE,
                     "No se puede crear el contrato: moto no disponible"
@@ -83,7 +83,7 @@ public class ContratoService {
         }
 
         if (puedeCrear) {
-            Logger.log("Creando contrato para cliente " + ciCliente + " con moto " + matricula);
+            Logger.log("Creando contrato para cliente id=" + idCliente + " con moto id=" + idMoto);
             contratoDAO.insertar(contrato);
         }
 
@@ -102,7 +102,7 @@ public class ContratoService {
      * Finaliza un contrato: registra la fecha de entrega y devuelve la moto a 'disponible'.
      */
     public void finalizarContrato(Contrato contrato) {
-        String matricula = contrato.getContratoID().getMatriculaMoto();
+        Integer idMoto = contrato.getContratoID().getIdMoto();
         Optional<Contrato> contratoPersistido = contratoDAO.buscarPorId(contrato.getContratoID());
         boolean contratoExiste = contratoPersistido.isPresent();
         Contrato contratoBase = contratoPersistido.orElse(null);
@@ -125,7 +125,7 @@ public class ContratoService {
         double importeTotalTeorico = 0.0;
 
         if (!contratoExiste) {
-            Logger.logError("Contrato no encontrado: " + contrato.getContratoID().getFechaInicio() + " / " + matricula);
+            Logger.logError("Contrato no encontrado: " + contrato.getContratoID().getFechaInicio() + " / idMoto=" + idMoto);
             validationException = new ValidationException(
                 BusinessErrorCode.CONTRATO_NO_ENCONTRADO,
                 "No se puede finalizar el contrato: no existe"
@@ -140,7 +140,7 @@ public class ContratoService {
             contratoBaseDisponible = true;
             contratoYaFinalizado = contratoBase.getFechaEntrega() != null;
             if (contratoYaFinalizado) {
-                Logger.logError("Contrato ya finalizado: " + contrato.getContratoID().getFechaInicio() + " / " + matricula);
+                Logger.logError("Contrato ya finalizado: " + contrato.getContratoID().getFechaInicio() + " / idMoto=" + idMoto);
                 validationException = new ValidationException(
                     BusinessErrorCode.CONTRATO_YA_FINALIZADO,
                     "No se puede finalizar el contrato: ya está finalizado"
@@ -149,11 +149,11 @@ public class ContratoService {
         }
 
         if (contratoExiste && !contratoYaFinalizado) {
-            motoExiste = motoDAO.buscarPorId(matricula).isPresent();
+            motoExiste = motoDAO.buscarPorId(idMoto).isPresent();
         }
 
         if (contratoExiste && !contratoYaFinalizado && !motoExiste) {
-            Logger.logError("Moto no encontrada: " + matricula);
+            Logger.logError("Moto no encontrada: id=" + idMoto);
             validationException = new ValidationException(
                 BusinessErrorCode.MOTO_NO_ENCONTRADA,
                 "No se puede finalizar el contrato: moto no encontrada"
@@ -171,7 +171,7 @@ public class ContratoService {
 
             if (!fechaEntregaValida) {
                 Logger.logError("Fecha de entrega inválida para contrato: "
-                    + contrato.getContratoID().getFechaInicio() + " / " + matricula);
+                    + contrato.getContratoID().getFechaInicio() + " / idMoto=" + idMoto);
                 validationException = new ValidationException(
                     BusinessErrorCode.CONTRATO_FECHA_ENTREGA_INVALIDA,
                     "No se puede finalizar el contrato: fecha de entrega inválida"
@@ -184,7 +184,7 @@ public class ContratoService {
                 rangoFechasContratoValido = true;
             } else {
                 Logger.logError("Rango de fechas del contrato inválido para finalización: "
-                    + contrato.getContratoID().getFechaInicio() + " / " + matricula);
+                    + contrato.getContratoID().getFechaInicio() + " / idMoto=" + idMoto);
                 validationException = new ValidationException(
                     BusinessErrorCode.CONTRATO_FECHA_ENTREGA_INVALIDA,
                     "No se puede finalizar el contrato: fechas del contrato inválidas"
@@ -199,7 +199,7 @@ public class ContratoService {
 
             if (!kilometrajeValido) {
                 Logger.logError("Kilometraje inválido para contrato: "
-                    + contrato.getContratoID().getFechaInicio() + " / " + matricula);
+                    + contrato.getContratoID().getFechaInicio() + " / idMoto=" + idMoto);
                 validationException = new ValidationException(
                     BusinessErrorCode.CONTRATO_KM_INVALIDO,
                     "No se puede finalizar el contrato: kilometraje inválido"
@@ -207,8 +207,6 @@ public class ContratoService {
             }
         }
 
-        /* kilometrajeValido solo puede ser true si validacionBaseOk,
-        fechaEntregaValida y rangoFechasContratoValido ya fueron true*/
         if (kilometrajeValido && contratoBase != null) {
             contratoParaFinalizar = contratoBase;
             contratoParaFinalizar.setFechaEntrega(contrato.getFechaEntrega());
@@ -225,12 +223,12 @@ public class ContratoService {
         }
 
         if (puedeFinalizar) {
-            Logger.log("Finalizando contrato: " + matricula
+            Logger.log("Finalizando contrato: idMoto=" + idMoto
                 + " | dias_prorroga=" + diasProrrogaReal
                 + " | recargo_prorroga=" + recargoProrroga
                 + " | total_teorico=" + importeTotalTeorico);
             contratoDAO.actualizar(contratoParaFinalizar);
-            motoDAO.cambiarEstado(matricula, Situacion.DISPONIBLE);
+            motoDAO.cambiarEstado(idMoto, Situacion.DISPONIBLE);
         }
 
         if (!puedeFinalizar) {
@@ -251,8 +249,8 @@ public class ContratoService {
 
         if (!contratoExiste) {
             Logger.logError("Contrato no encontrado para actualizar: "
-                + contrato.getContratoID().getFechaInicio() + " / "
-                + contrato.getContratoID().getMatriculaMoto());
+                + contrato.getContratoID().getFechaInicio() + " / idMoto="
+                + contrato.getContratoID().getIdMoto());
             validationException = new ValidationException(
                 BusinessErrorCode.CONTRATO_NO_ENCONTRADO,
                 "No se puede actualizar el contrato: no existe"
@@ -264,7 +262,7 @@ public class ContratoService {
         }
 
         if (puedeActualizar) {
-            Logger.log("Actualizando contrato: " + contrato.getContratoID().getMatriculaMoto());
+            Logger.log("Actualizando contrato: idMoto=" + contrato.getContratoID().getIdMoto());
             contratoDAO.actualizar(contrato);
         }
 
@@ -297,7 +295,7 @@ public class ContratoService {
         ValidationException validationException = null;
 
         if (!contratoExiste) {
-            Logger.logError("Contrato no encontrado para eliminar: " + id.getFechaInicio() + " / " + id.getMatriculaMoto());
+            Logger.logError("Contrato no encontrado para eliminar: " + id.getFechaInicio() + " / idMoto=" + id.getIdMoto());
             validationException = new ValidationException(
                 BusinessErrorCode.CONTRATO_NO_ENCONTRADO,
                 "No se puede eliminar el contrato: no existe"
@@ -309,7 +307,7 @@ public class ContratoService {
         }
 
         if (puedeEliminar) {
-            Logger.log("Eliminando contrato: " + id.getMatriculaMoto() + " / " + id.getFechaInicio());
+            Logger.log("Eliminando contrato: idMoto=" + id.getIdMoto() + " / " + id.getFechaInicio());
             contratoDAO.eliminar(id);
         }
 

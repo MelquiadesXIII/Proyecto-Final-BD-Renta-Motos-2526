@@ -1,19 +1,22 @@
 package org.proyectobdmotos.dao;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.proyectobdmotos.dto.MotoDTO;
 import org.proyectobdmotos.dto.SituacionMotoDTO;
 import org.proyectobdmotos.models.Moto;
 import org.proyectobdmotos.models.Situacion;
 
-public interface IMotoDAO extends GenericDAO<Moto, String> {
+public interface IMotoDAO extends GenericDAO<Moto, Integer> {
 
     List<MotoDTO> listarMotosConKilometraje();
 
     List<SituacionMotoDTO> listarSituacionMotos();
 
-    void cambiarEstado(String matricula, Situacion nuevaSituacion);
+    void cambiarEstado(Integer idMoto, Situacion nuevaSituacion);
 
-    boolean estaDisponible(String matricula);
+    boolean estaDisponible(Integer idMoto);
+
+    Optional<Moto> buscarPorMatricula(String matricula);
 }
