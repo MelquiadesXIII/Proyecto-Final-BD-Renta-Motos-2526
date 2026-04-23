@@ -1,4 +1,3 @@
-/*
 CREATE OR REPLACE PROCEDURE registrar_devolucion(
     p_id_contrato      INT,
     p_fecha_entrega    DATE,
@@ -47,4 +46,3 @@ BEGIN
                  v_km_salida, p_cant_km_llegada;
 END;
 $$;
-*/
