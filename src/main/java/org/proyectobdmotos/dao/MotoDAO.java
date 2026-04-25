@@ -18,11 +18,25 @@ import org.proyectobdmotos.utils.Logger;
 
 public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoDAO {
 
-    private final ISituacionDAO situacionDAO;
-
-    public MotoDAO(Connection connection, ISituacionDAO situacionDAO) {
+    public MotoDAO(Connection connection) {
         super(connection);
-        this.situacionDAO = situacionDAO;
+    }
+
+    private int buscarIdSituacion(String valor) throws SQLException {
+        String sql = "SELECT id_situacion FROM situacion WHERE LOWER(nombre_situacion) = LOWER(?)";
+        int id = -1;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, valor);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    id = rs.getInt("id_situacion");
+                }
+            }
+        }
+        if (id == -1) {
+            throw new SQLException("Situacion no encontrada: " + valor);
+        }
+        return id;
     }
 
     // ===== MÉTODOS TEMPLATE =====
@@ -62,7 +76,7 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
 
     @Override
     protected void setInsertParameters(PreparedStatement ps, Moto moto) throws SQLException {
-        int idSituacion = situacionDAO.findIdByNombre(moto.getSituacion().getValor());
+        int idSituacion = buscarIdSituacion(moto.getSituacion().getValor());
         ps.setString(1, moto.getMatriculaMoto());
         ps.setInt(2, moto.getIdModelo());
         ps.setInt(3, idSituacion);
@@ -72,7 +86,7 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
 
     @Override
     protected void setUpdateParameters(PreparedStatement ps, Moto moto) throws SQLException {
-        int idSituacion = situacionDAO.findIdByNombre(moto.getSituacion().getValor());
+        int idSituacion = buscarIdSituacion(moto.getSituacion().getValor());
         ps.setString(1, moto.getMatriculaMoto());
         ps.setInt(2, moto.getIdModelo());
         ps.setInt(3, idSituacion);
@@ -218,7 +232,7 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
     public void cambiarEstado(Integer idMoto, Situacion nuevaSituacion) {
         String sql = "UPDATE moto SET id_situacion = ? WHERE id_moto = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            int idSituacion = situacionDAO.findIdByNombre(nuevaSituacion.getValor());
+            int idSituacion = buscarIdSituacion(nuevaSituacion.getValor());
             ps.setInt(1, idSituacion);
             ps.setInt(2, idMoto);
             ps.executeUpdate();

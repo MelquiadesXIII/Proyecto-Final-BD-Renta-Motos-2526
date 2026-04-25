@@ -16,11 +16,25 @@ import org.proyectobdmotos.utils.Logger;
 
 public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements IClienteDAO {
 
-    private final ISexoDAO sexoDAO;
-
-    public ClienteDAO(Connection connection, ISexoDAO sexoDAO) {
+    public ClienteDAO(Connection connection) {
         super(connection);
-        this.sexoDAO = sexoDAO;
+    }
+
+    private int buscarIdSexo(String valor) throws SQLException {
+        String sql = "SELECT id_sexo FROM sexo WHERE LOWER(nombre_sexo) = LOWER(?)";
+        int id = -1;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, valor);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    id = rs.getInt("id_sexo");
+                }
+            }
+        }
+        if (id == -1) {
+            throw new SQLException("Sexo no encontrado: " + valor);
+        }
+        return id;
     }
 
     // ===== MÉTODOS TEMPLATE =====
@@ -62,7 +76,7 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
 
     @Override
     protected void setInsertParameters(PreparedStatement ps, Cliente cliente) throws SQLException {
-        int idSexo = sexoDAO.findIdByNombre(cliente.getSexo().getValor());
+        int idSexo = buscarIdSexo(cliente.getSexo().getValor());
         ps.setString(1, cliente.getCiCliente());
         ps.setString(2, cliente.getNombreCliente());
         ps.setString(3, cliente.getPrimerApellido());
@@ -75,7 +89,7 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
 
     @Override
     protected void setUpdateParameters(PreparedStatement ps, Cliente cliente) throws SQLException {
-        int idSexo = sexoDAO.findIdByNombre(cliente.getSexo().getValor());
+        int idSexo = buscarIdSexo(cliente.getSexo().getValor());
         ps.setString(1, cliente.getCiCliente());
         ps.setString(2, cliente.getNombreCliente());
         ps.setString(3, cliente.getPrimerApellido());
