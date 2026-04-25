@@ -5,10 +5,7 @@ import java.sql.SQLException;
 
 import org.proyectobdmotos.dao.ClienteDAO;
 import org.proyectobdmotos.dao.ContratoDAO;
-import org.proyectobdmotos.dao.FormaPagoDAO;
 import org.proyectobdmotos.dao.MotoDAO;
-import org.proyectobdmotos.dao.SexoDAO;
-import org.proyectobdmotos.dao.SituacionDAO;
 import org.proyectobdmotos.utils.Logger;
 import org.proyectobdmotos.database.DatabaseConnection;
 import org.proyectobdmotos.services.AgenciaService;
@@ -27,11 +24,6 @@ public final class AppCompositionRoot {
 
     // Capa de infraestructura
     private final Connection connection;
-
-    // DAOs de catálogos lookup
-    private final SexoDAO sexoDAO;
-    private final SituacionDAO situacionDAO;
-    private final FormaPagoDAO formaPagoDAO;
 
     // Capa de acceso a datos
     private final ClienteDAO clienteDAO;
@@ -60,12 +52,9 @@ public final class AppCompositionRoot {
 
         // 2. DAOs
         Logger.log("✓ Creando DAOs (ClienteDAO, MotoDAO, ContratoDAO)");
-        this.sexoDAO = new SexoDAO(connection);
-        this.situacionDAO = new SituacionDAO(connection);
-        this.formaPagoDAO = new FormaPagoDAO(connection);
-        this.clienteDAO = new ClienteDAO(connection, sexoDAO);
-        this.motoDAO = new MotoDAO(connection, situacionDAO);
-        this.contratoDAO = new ContratoDAO(connection, formaPagoDAO);
+        this.clienteDAO = new ClienteDAO(connection);
+        this.motoDAO = new MotoDAO(connection);
+        this.contratoDAO = new ContratoDAO(connection);
 
         // 3. Services
         Logger.log("✓ Creando Services (ClienteService, MotoService, ContratoService)");
@@ -92,18 +81,6 @@ public final class AppCompositionRoot {
 
     public Connection getConnection() {
         return connection;
-    }
-
-    public SexoDAO getSexoDAO() {
-        return sexoDAO;
-    }
-
-    public SituacionDAO getSituacionDAO() {
-        return situacionDAO;
-    }
-
-    public FormaPagoDAO getFormaPagoDAO() {
-        return formaPagoDAO;
     }
 
     public ClienteDAO getClienteDAO() {

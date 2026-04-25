@@ -392,7 +392,7 @@ public class ContratoServiceContractTest extends TestCase {
         FakeClienteDAO clienteDAO = new FakeClienteDAO();
         FakeMotoDAO motoDAO = new FakeMotoDAO();
         ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
-        ContratoID id = new ContratoID(LocalDate.of(2026, 4, 19), 1);
+        Integer id = 99;
 
         ValidationException exception = null;
         try {
@@ -404,6 +404,18 @@ public class ContratoServiceContractTest extends TestCase {
         assertNotNull(exception);
         assertEquals(BusinessErrorCode.CONTRATO_NO_ENCONTRADO, exception.getErrorCode());
         assertEquals(0, contratoDAO.deleteCount);
+    }
+
+    public void testEliminarContratoValidoEliminaContrato() {
+        FakeContratoDAO contratoDAO = new FakeContratoDAO();
+        FakeClienteDAO clienteDAO = new FakeClienteDAO();
+        FakeMotoDAO motoDAO = new FakeMotoDAO();
+        contratoDAO.contrato = Optional.of(crearContrato(1, 1));
+        ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
+
+        contratoService.eliminarContrato(1);
+
+        assertEquals(1, contratoDAO.deleteCount);
     }
 
     private Moto crearMoto(Integer idMoto, String matricula) {
@@ -448,12 +460,12 @@ public class ContratoServiceContractTest extends TestCase {
         }
 
         @Override
-        public void eliminar(ContratoID id) {
+        public void eliminar(Integer id) {
             deleteCount = deleteCount + 1;
         }
 
         @Override
-        public Optional<Contrato> buscarPorId(ContratoID id) {
+        public Optional<Contrato> buscarPorId(Integer id) {
             return contrato;
         }
 
