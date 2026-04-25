@@ -9,17 +9,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.proyectobdmotos.models.Contrato;
-// import org.proyectobdmotos.models.ContratoID; // removed after refactor
 import org.proyectobdmotos.models.FormaPago;
 import org.proyectobdmotos.utils.Logger;
 
 public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implements IContratoDAO {
 
-    private final IFormaPagoDAO formaPagoDAO;
-
-    public ContratoDAO(Connection connection, IFormaPagoDAO formaPagoDAO) {
+    public ContratoDAO(Connection connection) {
         super(connection);
-        this.formaPagoDAO = formaPagoDAO;
+    }
+
+    private int buscarIdFormaPago(String valor) throws SQLException {
+        String sql = "SELECT id_forma_pago FROM forma_pago WHERE LOWER(nombre_forma_pago) = LOWER(?)";
+        int id = -1;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, valor);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    id = rs.getInt("id_forma_pago");
+                }
+            }
+        }
+        if (id == -1) {
+            throw new SQLException("FormaPago no encontrada: " + valor);
+        }
+        return id;
     }
 
     // ===== MÉTODOS TEMPLATE =====
@@ -65,7 +78,7 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
 
     @Override
     protected void setInsertParameters(PreparedStatement ps, Contrato contrato) throws SQLException {
-        int idFormaPago = formaPagoDAO.findIdByNombre(contrato.getFormaPago().getValor());
+        int idFormaPago = buscarIdFormaPago(contrato.getFormaPago().getValor());
         ps.setDate(1, Date.valueOf(contrato.getFechaInicio()));
         ps.setInt(2, contrato.getIdMoto());
         ps.setInt(3, contrato.getIdCliente());
@@ -79,14 +92,14 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
         if (contrato.getFechaEntrega() != null) {
             fechaEntrega = Date.valueOf(contrato.getFechaEntrega());
         }
-
-    }
-
+        ps.setDate(10, fechaEntrega);
+        ps.setDouble(11, contrato.getCantKmSalida());
+        ps.setDouble(12, contrato.getCantKmLlegada());
     }
 
     @Override
     protected void setUpdateParameters(PreparedStatement ps, Contrato contrato) throws SQLException {
-        int idFormaPago = formaPagoDAO.findIdByNombre(contrato.getFormaPago().getValor());
+        int idFormaPago = buscarIdFormaPago(contrato.getFormaPago().getValor());
         ps.setInt(1, contrato.getIdCliente());
         ps.setInt(2, idFormaPago);
         ps.setDate(3, Date.valueOf(contrato.getFechaFin()));
@@ -103,8 +116,6 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
         ps.setDouble(10, contrato.getCantKmLlegada());
         ps.setInt(11, contrato.getIdContrato());
     }
-    // Removed leftover block referencing ContratoID (obsolete after refactor)
-
 
     @Override
     protected void setIdParameter(PreparedStatement ps, Integer id) throws SQLException {
@@ -124,7 +135,7 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
         double tarifaNormal = rs.getDouble("tarifa_normal");
         double tarifaProrroga = rs.getDouble("tarifa_prorroga");
 
-        return new Contrato(
+        Contrato contrato = new Contrato(
             cantKmLlegada,
             cantKmSalida,
             rs.getInt("id_cliente"),
@@ -138,6 +149,8 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
             tarifaNormal,
             tarifaProrroga
         );
+        contrato.setIdContrato(rs.getInt("id_contrato"));
+        return contrato;
     }
 
     // ===== MÉTODOS ESPECÍFICOS =====

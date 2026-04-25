@@ -77,8 +77,9 @@
 
 ## Contrato
 
-- fecha_inicio (Llave primaria compuesta)
-- id_moto (Llave primaria compuesta, Llave foránea)
+- id_contrato (Llave primaria, serial)
+- fecha_inicio (Única junto con id_moto)
+- id_moto (Llave foránea, única junto con fecha_inicio)
 - id_cliente (Llave foránea)
 - id_forma_pago (Llave foránea)
 - fecha_fin
@@ -118,7 +119,9 @@
 
 > id_forma_pago --> nombre_forma_pago
 
-> (fecha_inicio, id_moto) --> id_cliente, id_forma_pago, fecha_fin, dias_prorroga, seguro_adicional, tarifa_normal, tarifa_prorroga, fecha_entrega, cant_km_salida, cant_km_llegada
+> id_contrato --> id_cliente, id_forma_pago, fecha_fin, dias_prorroga, seguro_adicional, tarifa_normal, tarifa_prorroga, fecha_entrega, cant_km_salida, cant_km_llegada
+
+> (fecha_inicio, id_moto) --> id_contrato  [restricción UNIQUE — garantiza que una moto no tiene dos contratos en la misma fecha]
 
 ## Dependencias transitivas
 
@@ -152,7 +155,7 @@ FORMA_PAGO-CONTRATO (una forma de pago puede estar en muchos contratos; un contr
 
 # 1FN
 
-CONTRATO(<u>fecha_inicio</u>, <u>id_moto</u>, matricula_moto, id_modelo, id_situacion, nombre_situacion, id_color, nombre_color, cant_km_recorridos, id_marca, nombre_modelo, nombre_marca, id_cliente, ci_cliente, nombre_cliente, primer_apellido, segundo_apellido, edad, id_sexo, nombre_sexo, numero_contacto, id_municipio, nombre_municipio, id_forma_pago, nombre_forma_pago, fecha_fin, dias_prorroga, seguro_adicional, tarifa_normal, tarifa_prorroga, fecha_entrega, cant_km_salida, cant_km_llegada)
+CONTRATO(<u>id_contrato</u>, fecha_inicio, id_moto, matricula_moto, id_modelo, id_situacion, nombre_situacion, id_color, nombre_color, cant_km_recorridos, id_marca, nombre_modelo, nombre_marca, id_cliente, ci_cliente, nombre_cliente, primer_apellido, segundo_apellido, edad, id_sexo, nombre_sexo, numero_contacto, id_municipio, nombre_municipio, id_forma_pago, nombre_forma_pago, fecha_fin, dias_prorroga, seguro_adicional, tarifa_normal, tarifa_prorroga, fecha_entrega, cant_km_salida, cant_km_llegada)
 
 # 2FN (Eliminar dependencias parciales)
 
@@ -162,7 +165,7 @@ CLIENTE(<u>id_cliente</u>, ci_cliente, nombre_cliente, primer_apellido, segundo_
 
 FORMA_PAGO(<u>id_forma_pago</u>, nombre_forma_pago)
 
-CONTRATO(<u>fecha_inicio</u>, <u>id_moto</u>, id_cliente, id_forma_pago, fecha_fin, dias_prorroga, seguro_adicional, tarifa_normal, tarifa_prorroga, fecha_entrega, cant_km_salida, cant_km_llegada)
+CONTRATO(<u>id_contrato</u>, fecha_inicio, id_moto, id_cliente, id_forma_pago, fecha_fin, dias_prorroga, seguro_adicional, tarifa_normal, tarifa_prorroga, fecha_entrega, cant_km_salida, cant_km_llegada)
 
 # 3FN (Eliminar dependencias transitivas)
 
@@ -184,12 +187,13 @@ MUNICIPIO(<u>id_municipio</u>, nombre_municipio)
 
 FORMA_PAGO(<u>id_forma_pago</u>, nombre_forma_pago)
 
-CONTRATO(<u>fecha_inicio</u>, <u>id_moto</u>, id_cliente, id_forma_pago, fecha_fin, dias_prorroga, seguro_adicional, tarifa_normal, tarifa_prorroga, fecha_entrega, cant_km_salida, cant_km_llegada)
+CONTRATO(<u>id_contrato</u>, fecha_inicio, id_moto, id_cliente, id_forma_pago, fecha_fin, dias_prorroga, seguro_adicional, tarifa_normal, tarifa_prorroga, fecha_entrega, cant_km_salida, cant_km_llegada)
 
 ---
 
 ## Notas de modelado
 
 - `ci_cliente` y `matricula_moto` dejan de ser llaves primarias y pasan a ser atributos únicos de negocio.
-- `id_cliente` e `id_moto` son identificadores numéricos (serial) y llaves primarias técnicas.
+- `id_cliente`, `id_moto` e `id_contrato` son identificadores numéricos (serial) y llaves primarias técnicas.
 - `sexo`, `forma_pago` y `situacion` se modelan como entidades/nomencladores con ID numérico y relación por llave foránea.
+- `contrato` usa `id_contrato` (SERIAL) como PK técnica; la pareja `(fecha_inicio, id_moto)` persiste como restricción UNIQUE de negocio que garantiza que una moto no puede tener dos contratos activos en la misma fecha.
