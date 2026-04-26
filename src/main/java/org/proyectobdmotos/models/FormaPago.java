@@ -1,33 +1,37 @@
 package org.proyectobdmotos.models;
 
 public enum FormaPago {
-  EFECTIVO("efectivo"),
-  CHEQUE("cheque"),
-  CREDITO("credito");
+  EFECTIVO(1, "efectivo"),
+  CHEQUE(2, "cheque"),
+  CREDITO(3, "credito");
 
+  private final int id;
   private final String valor;
 
-  FormaPago(String valor) {
+  FormaPago(int id, String valor) {
+    this.id = id;
     this.valor = valor;
+  }
+
+  public int getId() {
+    return id;
   }
 
   public String getValor() {
     return valor;
   }
 
-  public static FormaPago fromValor(String valor) {
-    FormaPago form = null;
-    int i = 0;
-    FormaPago[] valores = values();
-    while (i < valores.length && form == null) {
-        if (valores[i].valor.equalsIgnoreCase(valor))
-        form = valores[i];
-      i++;
+  public static FormaPago fromId(int id) {
+    for (FormaPago forma : values()) {
+      if (forma.id == id) return forma;
     }
+    throw new IllegalArgumentException("ID de forma de pago inválido: " + id);
+  }
 
-    if (form == null) throw new IllegalArgumentException(
-      "Forma de pago inválida: " + valor
-    );
-    return form;
+  public static FormaPago fromValor(String valor) {
+    for (FormaPago forma : values()) {
+      if (forma.valor.equalsIgnoreCase(valor)) return forma;
+    }
+    throw new IllegalArgumentException("Forma de pago inválida: " + valor);
   }
 }
