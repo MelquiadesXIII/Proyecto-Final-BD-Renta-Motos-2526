@@ -20,25 +20,6 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
         super(connection);
     }
 
-    private int buscarIdSexo(String valor) throws SQLException {
-        String sql = "SELECT id_sexo FROM sexo WHERE LOWER(nombre_sexo) = LOWER(?)";
-        int id = -1;
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, valor);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    id = rs.getInt("id_sexo");
-                }
-            }
-        }
-        if (id == -1) {
-            throw new SQLException("Sexo no encontrado: " + valor);
-        }
-        return id;
-    }
-
-    // ===== MÉTODOS TEMPLATE =====
-
     @Override
     protected String getInsertSQL() {
         return "INSERT INTO cliente (ci_cliente, nombre_cliente, primer_apellido, "
@@ -60,42 +41,34 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
 
     @Override
     protected String getFindByIdSQL() {
-        return "SELECT c.*, s.nombre_sexo AS sexo_nombre "
-             + "FROM cliente c "
-             + "JOIN sexo s ON c.id_sexo = s.id_sexo "
-             + "WHERE c.id_cliente = ?";
+        return "SELECT * FROM cliente WHERE id_cliente = ?";
     }
 
     @Override
     protected String getFindAllSQL() {
-        return "SELECT c.*, s.nombre_sexo AS sexo_nombre "
-             + "FROM cliente c "
-             + "JOIN sexo s ON c.id_sexo = s.id_sexo "
-             + "ORDER BY c.nombre_cliente, c.primer_apellido";
+        return "SELECT * FROM cliente ORDER BY nombre_cliente, primer_apellido";
     }
 
     @Override
     protected void setInsertParameters(PreparedStatement ps, Cliente cliente) throws SQLException {
-        int idSexo = buscarIdSexo(cliente.getSexo().getValor());
         ps.setString(1, cliente.getCiCliente());
         ps.setString(2, cliente.getNombreCliente());
         ps.setString(3, cliente.getPrimerApellido());
         ps.setString(4, cliente.getSegundoApellido());
         ps.setInt(5, cliente.getEdad());
-        ps.setInt(6, idSexo);
+        ps.setInt(6, cliente.getSexo().getId());
         ps.setString(7, cliente.getNumeroContacto());
         ps.setInt(8, cliente.getIdMunicipio());
     }
 
     @Override
     protected void setUpdateParameters(PreparedStatement ps, Cliente cliente) throws SQLException {
-        int idSexo = buscarIdSexo(cliente.getSexo().getValor());
         ps.setString(1, cliente.getCiCliente());
         ps.setString(2, cliente.getNombreCliente());
         ps.setString(3, cliente.getPrimerApellido());
         ps.setString(4, cliente.getSegundoApellido());
         ps.setInt(5, cliente.getEdad());
-        ps.setInt(6, idSexo);
+        ps.setInt(6, cliente.getSexo().getId());
         ps.setString(7, cliente.getNumeroContacto());
         ps.setInt(8, cliente.getIdMunicipio());
         ps.setInt(9, cliente.getIdCliente());
@@ -115,15 +88,12 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
             rs.getString("primer_apellido"),
             rs.getString("segundo_apellido"),
             rs.getInt("edad"),
-            Sexo.fromValor(rs.getString("sexo_nombre")),
+            Sexo.fromId(rs.getInt("id_sexo")),
             rs.getString("numero_contacto"),
             rs.getInt("id_municipio")
         );
     }
 
-    /**
-     * Override para capturar el id_cliente generado (SERIAL) tras el INSERT.
-     */
     @Override
     public void insertar(Cliente cliente) {
         try (PreparedStatement ps = connection.prepareStatement(getInsertSQL(), Statement.RETURN_GENERATED_KEYS)) {
@@ -140,14 +110,9 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
         }
     }
 
-    // ===== MÉTODOS ESPECÍFICOS =====
-
     @Override
     public Optional<Cliente> buscarPorCi(String ci) {
-        String sql = "SELECT c.*, s.nombre_sexo AS sexo_nombre "
-                   + "FROM cliente c "
-                   + "JOIN sexo s ON c.id_sexo = s.id_sexo "
-                   + "WHERE c.ci_cliente = ?";
+        String sql = "SELECT * FROM cliente WHERE ci_cliente = ?";
         Optional<Cliente> resultado = Optional.empty();
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, ci);
@@ -200,9 +165,8 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
     @Override
     public List<Cliente> obtenerClientesIncumplidores() {
         String sql = """
-            SELECT DISTINCT c.*, s.nombre_sexo AS sexo_nombre
+            SELECT DISTINCT c.*
             FROM cliente c
-            JOIN sexo s ON c.id_sexo = s.id_sexo
             JOIN contrato co ON c.id_cliente = co.id_cliente
             WHERE co.fecha_entrega IS NOT NULL
               AND co.fecha_entrega > co.fecha_fin
