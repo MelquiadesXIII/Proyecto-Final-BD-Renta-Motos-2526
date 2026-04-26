@@ -18,25 +18,6 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
         super(connection);
     }
 
-    private int buscarIdFormaPago(String valor) throws SQLException {
-        String sql = "SELECT id_forma_pago FROM forma_pago WHERE LOWER(nombre_forma_pago) = LOWER(?)";
-        int id = -1;
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, valor);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    id = rs.getInt("id_forma_pago");
-                }
-            }
-        }
-        if (id == -1) {
-            throw new SQLException("FormaPago no encontrada: " + valor);
-        }
-        return id;
-    }
-
-    // ===== MÉTODOS TEMPLATE =====
-
     @Override
     protected String getInsertSQL() {
         return "INSERT INTO contrato (fecha_inicio, id_moto, id_cliente, "
@@ -62,27 +43,20 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
 
     @Override
     protected String getFindByIdSQL() {
-        return "SELECT co.*, fp.nombre_forma_pago AS forma_pago_nombre "
-             + "FROM contrato co "
-             + "JOIN forma_pago fp ON co.id_forma_pago = fp.id_forma_pago "
-             + "WHERE co.id_contrato = ?";
+        return "SELECT * FROM contrato WHERE id_contrato = ?";
     }
 
     @Override
     protected String getFindAllSQL() {
-        return "SELECT co.*, fp.nombre_forma_pago AS forma_pago_nombre "
-             + "FROM contrato co "
-             + "JOIN forma_pago fp ON co.id_forma_pago = fp.id_forma_pago "
-             + "ORDER BY co.fecha_inicio DESC";
+        return "SELECT * FROM contrato ORDER BY fecha_inicio DESC";
     }
 
     @Override
     protected void setInsertParameters(PreparedStatement ps, Contrato contrato) throws SQLException {
-        int idFormaPago = buscarIdFormaPago(contrato.getFormaPago().getValor());
         ps.setDate(1, Date.valueOf(contrato.getFechaInicio()));
         ps.setInt(2, contrato.getIdMoto());
         ps.setInt(3, contrato.getIdCliente());
-        ps.setInt(4, idFormaPago);
+        ps.setInt(4, contrato.getFormaPago().getId());
         ps.setDate(5, Date.valueOf(contrato.getFechaFin()));
         ps.setInt(6, contrato.getDiasProrroga());
         ps.setBoolean(7, contrato.isSeguroAdicional());
@@ -99,9 +73,8 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
 
     @Override
     protected void setUpdateParameters(PreparedStatement ps, Contrato contrato) throws SQLException {
-        int idFormaPago = buscarIdFormaPago(contrato.getFormaPago().getValor());
         ps.setInt(1, contrato.getIdCliente());
-        ps.setInt(2, idFormaPago);
+        ps.setInt(2, contrato.getFormaPago().getId());
         ps.setDate(3, Date.valueOf(contrato.getFechaFin()));
         ps.setInt(4, contrato.getDiasProrroga());
         ps.setBoolean(5, contrato.isSeguroAdicional());
@@ -143,7 +116,7 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
             fechaEntrega,
             rs.getDate("fecha_fin").toLocalDate(),
             rs.getDate("fecha_inicio").toLocalDate(),
-            FormaPago.fromValor(rs.getString("forma_pago_nombre")),
+            FormaPago.fromId(rs.getInt("id_forma_pago")),
             rs.getInt("id_moto"),
             rs.getBoolean("seguro_adicional"),
             tarifaNormal,
@@ -153,14 +126,11 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
         return contrato;
     }
 
-    // ===== MÉTODOS ESPECÍFICOS =====
-
     @Override
     public List<Contrato> listarContratosCompletos() {
         String sql = """
-            SELECT co.*, fp.nombre_forma_pago AS forma_pago_nombre
+            SELECT co.*
             FROM contrato co
-            JOIN forma_pago fp ON co.id_forma_pago = fp.id_forma_pago
             JOIN cliente c ON co.id_cliente = c.id_cliente
             JOIN moto m ON co.id_moto = m.id_moto
             ORDER BY co.fecha_inicio DESC
