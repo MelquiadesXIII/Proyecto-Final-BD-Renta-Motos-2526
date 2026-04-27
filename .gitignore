@@ -45,6 +45,3 @@ config.properties.example
 .lian/
 src/main/resources/images/
 docs/Dario Registro.md
-
-### Amazon Q ###
-.amazonq/
