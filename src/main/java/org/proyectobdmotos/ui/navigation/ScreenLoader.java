@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.proyectobdmotos.controller.ClienteController;
 import org.proyectobdmotos.utils.Logger;
 import org.proyectobdmotos.controller.ContratoController;
+import org.proyectobdmotos.controller.MainController;
 import org.proyectobdmotos.controller.MotoController;
 import org.proyectobdmotos.ui.AppCompositionRoot;
 
@@ -62,6 +63,10 @@ public final class ScreenLoader {
                     compositionRoot.getAgenciaStore(),
                     compositionRoot.getReferenceDataStore()
                 );
+            }
+
+            if (controllerClass == MainController.class) {
+                return new MainController(this);
             }
 
             // Si llega aquí, el controller no está registrado
