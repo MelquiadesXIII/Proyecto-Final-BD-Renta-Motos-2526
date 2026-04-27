@@ -100,21 +100,76 @@ Centralizar reglas de finalización (fechas, km, retorno de moto a disponible, c
 **Objetivo**
 Tener estructura base de UI con navegación y vistas de lectura iniciales.
 
+**Definición de investigación previa (obligatoria antes de implementar)**
+
+> Base consultada: JavaFX 21 (`FXMLLoader`, `setControllerFactory`, `fx:include`, ciclo de vida `initialize()`) según documentación oficial OpenJFX (vía Context7).
+
+#### Preguntas que deben quedar respondidas
+
+1. ¿Cómo usar `FXMLLoader.setControllerFactory(...)` sin romper `fx:controller` y manteniendo constructor injection?
+2. ¿Cómo componer pantallas con `fx:include` sin generar dependencia circular entre controllers?
+3. ¿Qué lógica va en `initialize()` y qué lógica debe quedar fuera (servicios, navegación, reglas de negocio)?
+4. ¿Qué responsabilidades quedan en `FxApp`, `ScreenLoader`, controllers y stores en arquitectura por capas?
+
+#### Entregable mínimo de investigación (antes de tocar código)
+
+- Documento corto dentro del ticket/PR con:
+  - decisiones de arquitectura de carga de pantallas,
+  - riesgos (ciclo de vida de controller, null en `@FXML`, includes),
+  - patrón de navegación elegido para L4.
+
+#### Criterio de salida de investigación
+
+- Existe consenso técnico sobre:
+  - uso de `ScreenLoader` como único punto de carga FXML,
+  - uso de `controllerFactory` para inyección,
+  - composición inicial de `main.fxml` + vistas hijas de listas,
+  - límites claros controller vs service/store.
+
 **Archivos a modificar/crear**
 - `src/main/java/org/proyectobdmotos/ui/FxApp.java`
+- `src/main/java/org/proyectobdmotos/ui/navigation/ScreenLoader.java`
 - `src/main/resources/fxml/main.fxml` (crear)
 - `src/main/resources/fxml/cliente-lista.fxml` (crear)
 - `src/main/resources/fxml/moto-lista.fxml` (crear)
 - `src/main/resources/fxml/contrato-lista.fxml` (crear)
 
 **Checklist de implementación**
-- [ ] Crear layout principal (`BorderPane` + navegación).
-- [ ] Definir contenedores para vistas de cliente/moto/contrato.
-- [ ] Verificar carga inicial sin errores de FXML.
+- [ ] Reemplazar placeholder en `FxApp` por carga de `main.fxml` vía `ScreenLoader`.
+- [ ] Crear `main.fxml` con `BorderPane` y contenedor central para navegación.
+- [ ] Crear vistas base de lectura: `cliente-lista.fxml`, `moto-lista.fxml`, `contrato-lista.fxml`.
+- [ ] Definir estrategia de composición (carga dinámica con `ScreenLoader` y/o `fx:include` para componentes presentacionales).
+- [ ] Validar ciclo de vida de controllers (`@FXML` inyectado + `initialize()` sin acceso prematuro a nodos).
+- [ ] Verificar carga inicial sin errores de FXML ni controllers no registrados.
+
+**Plan técnico L4 (listo para ejecutar)**
+
+### Fase A — Shell y arranque
+- `src/main/resources/fxml/main.fxml`: definir shell (`BorderPane`) y región `center` para contenido.
+- `src/main/java/org/proyectobdmotos/ui/FxApp.java`: cargar shell real en lugar del placeholder.
+
+### Fase B — Pantallas de listas base
+- `src/main/resources/fxml/cliente-lista.fxml`
+- `src/main/resources/fxml/moto-lista.fxml`
+- `src/main/resources/fxml/contrato-lista.fxml`
+
+Cada pantalla inicia en modo lectura (tabla + layout base), sin ABM todavía.
+
+### Fase C — Navegación y composición
+- `src/main/java/org/proyectobdmotos/ui/navigation/ScreenLoader.java`: consolidar carga de vistas y fallback de errores.
+- Composición: shell carga vistas hijas por acción de navegación; `fx:include` reservado para componentes reusables, no para navegación global.
+
+### Fase D — Verificación manual
+- Arranque de app sin placeholder.
+- Navegación entre 3 vistas base.
+- Sin instanciación manual de controllers desde UI.
+- Sin lógica de negocio/SQL en controllers.
 
 **Criterio de aceptación**
 - La app abre pantalla principal real (sin placeholder).
 - Se visualiza navegación entre vistas base.
+- La composición de pantallas sigue arquitectura por capas documentada en `docs/diseno-ui-javafx.md`.
+- El ticket deja trazabilidad explícita de investigación previa y decisiones tomadas.
 
 **Qué investigar/estudiar antes de implementar**
 - Estructuración de JavaFX con FXML en apps por capas.
