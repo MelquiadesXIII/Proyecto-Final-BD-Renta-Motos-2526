@@ -89,7 +89,41 @@ Las vistas complejas se dividirán en FXMLs más pequeños que se integrarán en
 
 Esta modularidad permite que distintos desarrolladores trabajen en diferentes partes de la UI simultáneamente sin generar conflictos de merge masivos, facilitando el mantenimiento y la escalabilidad del diseño en JavaFX.
 
-## 5. Ajustes recomendados para mantener el documento sincronizado
+## 5. Arquitectura por capas aplicada a JavaFX/FXML (guía de implementación)
+
+### 5.1 Responsabilidades por capa
+
+- **FxApp (arranque):** inicializa JavaFX, crea `AppCompositionRoot`, carga shell principal (`main.fxml`) y configura `Stage`.
+- **AppCompositionRoot (wiring):** único lugar para construir dependencias (Connection, DAOs, Services, Stores, navegación).
+- **ScreenLoader (infra UI):** único punto para cargar FXML y resolver controllers mediante `setControllerFactory(...)`.
+- **Controller (adaptador UI):** recibe eventos, lee/escribe controles JavaFX, delega a Service/Store, muestra `Alert` ante `BusinessException`.
+- **Service (aplicación/dominio):** reglas de negocio y validaciones; no depende de JavaFX.
+- **DAO (persistencia):** SQL/JDBC con `PreparedStatement`; sin conocimiento de UI.
+- **Store (estado observable):** estado compartido de UI (`ObservableList`) y sincronización entre pantallas.
+
+### 5.2 Reglas de composición de pantallas
+
+- **Navegación global:** por carga dinámica de vistas en el contenedor central del shell (`main.fxml`) usando `ScreenLoader`.
+- **Composición local:** por `fx:include` solo para componentes presentacionales reusables dentro de una pantalla.
+- **No mezclar responsabilidades:** `fx:include` no sustituye el flujo de navegación global.
+
+### 5.3 Ciclo de vida de controllers (JavaFX 21)
+
+- `@FXML` se inyecta durante el `load()` del `FXMLLoader`.
+- `initialize()` se ejecuta cuando el árbol FXML ya fue procesado.
+- En `initialize()`: preparar bindings/listeners/config visual.
+- Fuera de `initialize()`: wiring de dependencias por constructor (vía `controllerFactory`).
+- Prohibido acceder a nodos `@FXML` antes de la carga del FXML.
+
+### 5.4 Pauta concreta para L4
+
+1. Crear `main.fxml` como shell (`BorderPane`).
+2. Reemplazar placeholder de `FxApp` para cargar `main.fxml`.
+3. Crear vistas base de lectura (`cliente-lista.fxml`, `moto-lista.fxml`, `contrato-lista.fxml`).
+4. Mantener controllers sin lógica de negocio; delegar siempre a services/stores.
+5. Registrar controllers nuevos en `ScreenLoader`.
+
+## 6. Ajustes recomendados para mantener el documento sincronizado
 
 1. Mantener una mini sección de “Estado actual” al inicio (qué existe vs qué falta).
 2. Cuando se cree cada FXML real, enlazarlo aquí con su path exacto.
