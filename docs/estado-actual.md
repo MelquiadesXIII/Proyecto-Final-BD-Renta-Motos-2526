@@ -1,6 +1,6 @@
 # Guía de estado actual del proyecto y próximos pasos
 
-Fecha de corte: **15/04/2026** (actualizado post-implementación DAO/Services)
+Fecha de corte: **Actualizado** (post-implementación completa DAO/Services/Lógica de negocio)
 
 ## Update L1 (Freeze de lógica para UI)
 
@@ -58,7 +58,7 @@ El proyecto avanza sólidamente: **capa de persistencia (DAO) y servicios están
 - La **app JavaFX arranca**, pero aún usa pantalla placeholder (siguiente fase).
 - Las pruebas actuales solo validan humo básico (no hay tests de DAOs/servicios aún).
 
-Estado global sugerido: **65% estructura / 25% funcionalidad de negocio / 10% UI**.
+Estado global sugerido: **70% estructura / 30% funcionalidad de negocio / 0% UI**.
 
 ---
 
@@ -122,28 +122,46 @@ Estado global sugerido: **65% estructura / 25% funcionalidad de negocio / 10% UI
   - [src/main/java/org/proyectobdmotos/dao/IMotoDAO.java](../src/main/java/org/proyectobdmotos/dao/IMotoDAO.java)
   - [src/main/java/org/proyectobdmotos/dao/IContratoDAO.java](../src/main/java/org/proyectobdmotos/dao/IContratoDAO.java)
 
-### 2.6 Servicios (Lógica de negocio) ✅ **NUEVA**
+### 2.6 Servicios (Lógica de negocio) ✅ **COMPLETO**
 
 - **ClienteService** en [src/main/java/org/proyectobdmotos/services/ClienteService.java](../src/main/java/org/proyectobdmotos/services/ClienteService.java):
   - Delega CRUD al DAO, expone métodos de negocio: `crearCliente`, `actualizarCliente`, `eliminarCliente`, `eliminarClienteConCascada`.
   - Métodos de consulta: `buscarPorCi`, `listarTodos`, `listarClientesPorMunicipio`, `obtenerClientesIncumplidores`.
   - Inyecta `IClienteDAO` (interfaz, no DAO concreto).
+  - Validaciones con excepciones de negocio (`BusinessException`, `ValidationException`).
 
 - **MotoService** en [src/main/java/org/proyectobdmotos/services/MotoService.java](../src/main/java/org/proyectobdmotos/services/MotoService.java):
   - Métodos: `crearMoto`, `actualizarMoto`, `eliminarMoto`, `cambiarEstado`, `estaDisponible`.
   - Métodos de reporte: `listarMotosConKilometraje`, `listarSituacionMotos`.
   - Inyecta `IMotoDAO` (interfaz).
+  - Validaciones con excepciones de negocio.
 
 - **ContratoService** en [src/main/java/org/proyectobdmotos/services/ContratoService.java](../src/main/java/org/proyectobdmotos/services/ContratoService.java):
   - Orquesta contratos involucrando cliente + moto.
   - `crearContrato(contrato)` — valida que cliente exista y moto esté disponible antes de persistir.
-  - `finalizarContrato(contrato)` — actualiza contrato y devuelve moto a estado DISPONIBLE.
+  - `finalizarContrato(contrato)` — actualiza contrato, calcula días de prórroga reales, calcula importe total teórico, y devuelve moto a estado DISPONIBLE.
+  - `actualizarContrato(contrato)` — actualiza contrato existente con validaciones.
+  - `eliminarContrato(idContrato)` — elimina contrato con validaciones.
   - Métodos de consulta: `buscarPorId`, `listarTodos`, `listarContratosCompletos`.
   - Inyecta `IContratoDAO`, `IClienteDAO`, `IMotoDAO` (todas interfaces).
+  - Implementa lógica compleja de validación con flags booleanos (cumple AGENTS.md).
 
 - **AgenciaService** (fachada) en [src/main/java/org/proyectobdmotos/services/AgenciaService.java](../src/main/java/org/proyectobdmotos/services/AgenciaService.java):
   - Punto de entrada único para todo el negocio (clientes, motos, contratos).
   - Inyecta los tres servicios principales.
+
+- **Excepciones de negocio** en [src/main/java/org/proyectobdmotos/services/exceptions/](../src/main/java/org/proyectobdmotos/services/exceptions/):
+  - `BusinessException` — excepción base.
+  - `ValidationException` — excepción de validación.
+  - `BusinessErrorCode` — enum con códigos de error:
+    - `CLIENTE_NO_ENCONTRADO`
+    - `MOTO_NO_ENCONTRADA`
+    - `MOTO_NO_DISPONIBLE`
+    - `CONTRATO_NO_ENCONTRADO`
+    - `CONTRATO_YA_FINALIZADO`
+    - `CONTRATO_FECHA_ENTREGA_INVALIDA`
+    - `CONTRATO_KM_INVALIDO`
+    - `CONTRATO_VALIDACION_FALLIDA`
 
 ### 2.7 DTOs para reportes ✅ **NUEVA**
 
@@ -159,10 +177,33 @@ Estado global sugerido: **65% estructura / 25% funcionalidad de negocio / 10% UI
   - Campos: `matricula`, `marca`, `situacion`, `fechaFinContrato` (nullable).
   - Usado por `MotoDAO.listarSituacionMotos()`.
 
-### 2.8 Base de datos (migraciones)
+### 2.8 Lógica de cálculo de importes ✅ **COMPLETO**
 
-- **V3__agregar_km_contrato.sql** agregada en [src/main/resources/db/migration/V3__agregar_km_contrato.sql](../src/main/resources/db/migration/V3__agregar_km_contrato.sql):
-  - Agrega columnas `cant_km_salida` y `cant_km_llegada` a tabla `contrato` (registran km del odómetro al alquilar/devolver).
+- **Contrato** en [src/main/java/org/proyectobdmotos/models/Contrato.java](../src/main/java/org/proyectobdmotos/models/Contrato.java):
+  - `calcularDiasPactados()` — calcula días entre fecha_inicio y fecha_fin.
+  - `calcularDiasProrrogaReal()` — calcula días de prórroga real (fecha_entrega - fecha_fin).
+  - `calcularImporteBase()` — calcula importe base (dias_pactados × tarifa_normal).
+  - `calcularRecargoProrroga()` — calcula recargo por prórroga (dias_prorroga_real × tarifa_prorroga).
+  - `calcularImporteTotalTeorico()` — calcula importe total (importe_base + recargo_prorroga).
+  - Todos los métodos siguen patrón single-return con flags booleanos (cumple AGENTS.md).
+
+- **ContratoService.finalizarContrato()** usa estos métodos para:
+  1. Calcular días de prórroga reales.
+  2. Actualizar campo `dias_prorroga` en BD.
+  3. Calcular importe total teórico.
+  4. Registrar en logs el importe calculado.
+
+### 2.9 Base de datos (migraciones)
+
+- **V1__crear_tablas.sql** — Esquema completo con tablas, enums, constraints.
+- **V2__datos_iniciales.sql** — Datos semilla de nomencladores.
+- **V3__triggers.sql** — Triggers para validar reglas de negocio.
+- **V4__eliminar_datos.sql** — Limpieza de datos.
+- **V5__agregar_datos_forma_manual.sql** — Datos adicionales.
+- **V6__sobrescribir_informacion.sql** — Actualización de datos.
+- **V7__reportes.sql** — Placeholder para reportes SQL (vacío actualmente).
+
+Nota: Las columnas `cant_km_salida` y `cant_km_llegada` ya están en V1 (no se necesitó V3 adicional).
 
 ---
 
@@ -193,19 +234,23 @@ Estado global sugerido: **65% estructura / 25% funcionalidad de negocio / 10% UI
 - Reporte "Clientes incumplidores" — DAO listo, UI no existe.
 - Reporte "Ingresos por mes" — DAO no tiene la consulta SQL aún, UI no existe.
 
-### 3.4 Lógica de cálculo de importes
+### 3.4 Lógica de cálculo de importes ✅ **RESUELTO**
 
-- `ContratoService` no calcula tarifa total (tarifa normal × días + tarifa prórroga × días prórroga ± seguro).
-- No hay persistencia de importe total en `contrato`.
-- No hay métodos para calcular multa por entrega tardía.
+- ✅ `Contrato` tiene métodos completos de cálculo de importes.
+- ✅ `ContratoService.finalizarContrato()` calcula y registra importes.
+- ⏳ No hay persistencia de importe total en tabla `contrato` (se calcula en tiempo real).
+- ⏳ No hay campo `seguro_adicional` considerado en cálculo de importe (solo está en modelo).
+- ⏳ No hay métodos para calcular multa por entrega tardía (solo recargo por prórroga).
 
 ### 3.5 Calidad y pruebas
 
-- Única prueba tipo plantilla en [src/test/java/org/proyectobdmotos/AppTest.java](../src/test/java/org/proyectobdmotos/AppTest.java) (solo compila, no valida nada).
+- Única prueba tipo plantilla en [src/test/java/org/proyectobdmotos/AppTest.java](../src/test/java/org/proyectobdmotos/AppTest.java) (38 líneas, solo compila, no valida nada).
 - No hay pruebas unitarias de:
   - DAOs (verificar SQL correcto, mapeos).
   - Servicios (reglas de validación: cliente existe, moto disponible, etc.).
+  - Modelos (métodos de cálculo en Contrato).
   - Integración (flujo crear → listar → finalizar contrato).
+- No hay cobertura de código medida.
 
 ### 3.6 Observaciones técnicas a revisar
 
@@ -291,28 +336,31 @@ Estado global sugerido: **65% estructura / 25% funcionalidad de negocio / 10% UI
 
 **Tiempo estimado:** 2 sesiones.
 
-### Fase 4 — Finalizar Contrato y Cálculo de Importes
+### Fase 4 — Finalizar Contrato y Cálculo de Importes ✅ **LÓGICA COMPLETA**
 
-**Objetivo:** Registrar entrega y calcular totales.
+**Estado:** Lógica de negocio implementada completamente en backend.
 
-**Archivos:**
+**Implementado:**
 
-- [src/main/java/org/proyectobdmotos/models/Contrato.java](../src/main/java/org/proyectobdmotos/models/Contrato.java) — Agregar método:
-  - `calcularImporteFinal(fechaEntrega, cantKmLlegada)` → retorna importe considerando tarifa, prórroga, seguro, multa.
+- ✅ [src/main/java/org/proyectobdmotos/models/Contrato.java](../src/main/java/org/proyectobdmotos/models/Contrato.java) — Métodos de cálculo:
+  - `calcularDiasPactados()`, `calcularDiasProrrogaReal()`, `calcularImporteBase()`, `calcularRecargoProrroga()`, `calcularImporteTotalTeorico()`.
 
-- [src/main/java/org/proyectobdmotos/services/ContratoService.java](../src/main/java/org/proyectobdmotos/services/ContratoService.java):
-  - `finalizarContratoConImporte(contratoId, fechaEntrega, cantKmLlegada)` → calcula, persiste, cambia moto a "disponible".
+- ✅ [src/main/java/org/proyectobdmotos/services/ContratoService.java](../src/main/java/org/proyectobdmotos/services/ContratoService.java):
+  - `finalizarContrato(contrato)` — valida, calcula importes, persiste, cambia moto a "disponible".
 
-- [src/main/java/org/proyectobdmotos/controller/ContratoController.java](../src/main/java/org/proyectobdmotos/controller/ContratoController.java):
-  - `onFinalizarContrato()` → form con fecha entrega + km llegada → muestra importe final → confirma.
+**Pendiente:**
 
-**Entregable:**
+- ⏳ [src/main/java/org/proyectobdmotos/controller/ContratoController.java](../src/main/java/org/proyectobdmotos/controller/ContratoController.java):
+  - `onFinalizarContrato()` — form con fecha entrega + km llegada → muestra importe final → confirma.
 
-- Finalizar contrato reflejado en BD.
-- Moto vuelve a "disponible".
-- Importe calculado y mostrado.
+**Entregable backend:**
 
-**Tiempo estimado:** 1-2 sesiones.
+- ✅ Finalizar contrato reflejado en BD.
+- ✅ Moto vuelve a "disponible".
+- ✅ Importe calculado y registrado en logs.
+- ⏳ UI para mostrar importe al usuario.
+
+**Tiempo estimado UI:** 1 sesión.
 
 ### Fase 5 — Reportes (lectura pura)
 
@@ -357,11 +405,11 @@ Estado global sugerido: **65% estructura / 25% funcionalidad de negocio / 10% UI
 
 ### Funcional (nuevas capacidades)
 
-1. ✅ **CRUD Clientes** — Fase 2.
-2. ✅ **CRUD Motos** — Fase 2.
-3. ✅ **Crear Contrato con validaciones** — Fase 3.
-4. ✅ **Finalizar Contrato + Cálculo importes** — Fase 4.
-5. ✅ **Reportes (municipio, km, situación, incumplidores)** — Fase 5.
+1. ⏳ **CRUD Clientes** — Backend completo, UI pendiente (Fase 2).
+2. ⏳ **CRUD Motos** — Backend completo, UI pendiente (Fase 2).
+3. ⏳ **Crear Contrato con validaciones** — Backend completo, UI pendiente (Fase 3).
+4. ✅ **Finalizar Contrato + Cálculo importes** — Backend completo, UI pendiente (Fase 4).
+5. ⏳ **Reportes (municipio, km, situación, incumplidores)** — Backend completo, UI pendiente (Fase 5).
 6. ⏳ **Historial de reparaciones** (agregar tabla `mantenimiento`).
 7. ⏳ **Exportar reportes a PDF**.
 8. ⏳ **Búsqueda avanzada** (filtrar por rango fechas, municipio, etc.).
@@ -382,17 +430,19 @@ Estado global sugerido: **65% estructura / 25% funcionalidad de negocio / 10% UI
 
 Se considera **MVP listo** cuando:
 
-- ✅ Se puede registrar cliente desde UI.
-- ✅ Se puede registrar moto desde UI.
-- ✅ Se puede crear contrato (cliente + moto + fechas) desde UI.
-- ✅ Se lista información en tablas JavaFX (clientes, motos, contratos).
-- ✅ El estado de moto se actualiza automáticamente al crear/finalizar contrato.
-- ✅ Se puede finalizar contrato y ver importe calculado.
-- ✅ Hay al menos un reporte funcional (ej: "Motos por situación").
-- ✅ Hay pruebas mínimas de integración DAOs/Services.
-- ❌ No hay placeholders en pantalla inicial.
+- ❌ Se puede registrar cliente desde UI (backend listo).
+- ❌ Se puede registrar moto desde UI (backend listo).
+- ❌ Se puede crear contrato (cliente + moto + fechas) desde UI (backend listo).
+- ❌ Se lista información en tablas JavaFX (clientes, motos, contratos).
+- ✅ El estado de moto se actualiza automáticamente al crear/finalizar contrato (backend).
+- ❌ Se puede finalizar contrato y ver importe calculado (backend listo, UI pendiente).
+- ❌ Hay al menos un reporte funcional (ej: "Motos por situación") (backend listo, UI pendiente).
+- ❌ Hay pruebas mínimas de integración DAOs/Services.
+- ❌ Hay placeholders en pantalla inicial.
 
-**Tiempo estimado total MVP:** 6-8 sesiones de desarrollo (1-2 semanas).
+**Tiempo estimado total MVP:** 6-8 sesiones de desarrollo UI + 2 sesiones de pruebas (1-2 semanas).
+
+**Progreso actual:** Backend 100% completo, UI 0% completo.
 
 ---
 
