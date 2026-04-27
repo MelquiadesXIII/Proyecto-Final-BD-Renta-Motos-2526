@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="org.proyectobdmotos.controller.ContratoController"
+      spacing="10.0"
+      styleClass="list-screen">
+    <children>
+        <Label text="Listado de Contratos" styleClass="screen-title"/>
+        <TableView fx:id="contratosTable" prefHeight="600.0">
+            <columns>
+                <TableColumn fx:id="idColumn" text="ID" prefWidth="120.0"/>
+                <TableColumn fx:id="clienteIdColumn" text="Cliente" prefWidth="220.0"/>
+                <TableColumn fx:id="motoIdColumn" text="Moto" prefWidth="180.0"/>
+                <TableColumn fx:id="inicioColumn" text="Inicio" prefWidth="140.0"/>
+                <TableColumn fx:id="finColumn" text="Fin" prefWidth="140.0"/>
+                <TableColumn fx:id="estadoColumn" text="Estado" prefWidth="140.0"/>
+            </columns>
+        </TableView>
+    </children>
+</VBox>

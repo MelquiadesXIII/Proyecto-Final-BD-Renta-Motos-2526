@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      spacing="10.0"
+      styleClass="list-screen">
+    <children>
+        <Label text="Reportes" styleClass="screen-title"/>
+        <Label text="Pantalla base L4 para reportes (admin)."/>
+    </children>
+</VBox>

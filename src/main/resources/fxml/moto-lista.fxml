@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="org.proyectobdmotos.controller.MotoController"
+      spacing="10.0"
+      styleClass="list-screen">
+    <children>
+        <Label text="Listado de Motos" styleClass="screen-title"/>
+        <TableView fx:id="motosTable" prefHeight="600.0">
+            <columns>
+                <TableColumn fx:id="matriculaColumn" text="Matrícula" prefWidth="180.0"/>
+                <TableColumn fx:id="modeloColumn" text="Modelo" prefWidth="180.0"/>
+                <TableColumn fx:id="colorColumn" text="Color" prefWidth="180.0"/>
+                <TableColumn fx:id="situacionColumn" text="Situación" prefWidth="180.0"/>
+            </columns>
+        </TableView>
+    </children>
+</VBox>
