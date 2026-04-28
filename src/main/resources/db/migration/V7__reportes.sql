@@ -222,7 +222,8 @@ BEGIN
 END;
 $$;
 
-SELECT * FROM reporte_motos();
+-- COMO USAR:
+-- SELECT * FROM reporte_motos();
 
 
 
@@ -270,6 +271,7 @@ BEGIN
 END;
 $$;
 
+-- COMO USAR:
 -- SELECT * FROM reporte_motos();
 
 
