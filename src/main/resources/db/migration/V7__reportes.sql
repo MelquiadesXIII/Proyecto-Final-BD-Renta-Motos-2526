@@ -239,3 +239,42 @@ SELECT * FROM reporte_motos();
 
 
 
+CREATE OR REPLACE FUNCTION reporte_motos()
+RETURNS TABLE(
+    fecha_reporte      DATE,
+    matricula_marca    TEXT,
+    situacion          VARCHAR(20),
+    fecha_fin_contrato DATE
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        CURRENT_DATE,
+        m.matricula_moto || ' - ' || ma.nombre_marca,
+        CASE
+            WHEN c.id_contrato IS NOT NULL THEN 'Alquilada'
+            ELSE s.nombre_situacion
+        END,
+        c.fecha_fin   -- NULL si no hay contrato activo
+    FROM moto m
+    JOIN modelo mo     ON m.id_modelo = mo.id_modelo
+    JOIN marca ma      ON mo.id_marca = ma.id_marca
+    JOIN situacion s   ON m.id_situacion = s.id_situacion
+    LEFT JOIN contrato c
+        ON c.id_moto = m.id_moto
+        AND c.fecha_inicio <= CURRENT_DATE
+        AND c.fecha_entrega IS NULL
+    ORDER BY m.matricula_moto;
+END;
+$$;
+
+-- SELECT * FROM reporte_motos();
+
+
+
+
+
+
+
