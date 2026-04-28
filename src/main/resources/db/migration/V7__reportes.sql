@@ -1,23 +1,6 @@
 -- IRE COLOCANDO LOS REPORTES AQUI --
 /*
 
-
---Listado de los clientes:
-- Fecha (fecha en que se muestra el reporte)
-- Y, para cada municipio:
-- Municipio
-- Y, para cada cliente de ese municipio:
-- Nombre del cliente
-- Número de identificación
-- Cantidad de veces que el cliente ha alquilado motos (hasta la fecha)
-- Valor total de los alquileres del cliente hasta la fecha
-
-
-
-
-
-
-
 Listado de los contratos:
 - Nombre del cliente
 - Matrícula
@@ -30,13 +13,6 @@ Listado de los contratos:
 - Seguro adicional (sí o no)
 - Importe total
 
-
-Listado de la situación de las motos:
-- Fecha (fecha en que se muestra el reporte)
-- Y, para cada moto:
-- Matrícula- Marca
-- Situación
-- En caso de estar alquilada, fecha de fin del contrato
 
 
 
@@ -84,6 +60,130 @@ El sistema debe garantizar lo siguiente:
 */
 
 
+--Listado de los clientes:
+-- Fecha (fecha en que se muestra el reporte)
+-- Y, para cada municipio:
+-- Municipio
+-- Y, para cada cliente de ese municipio:
+-- Nombre del cliente
+-- Número de identificación
+-- Cantidad de veces que el cliente ha alquilado motos (hasta la fecha)
+-- Valor total de los alquileres del cliente hasta la fecha
+
+
+
+
+
+-- =====================================================
+-- FUNCION AUXILIAR: Cantidad de contratos terminados
+-- =====================================================
+CREATE OR REPLACE FUNCTION cantidad_de_contratos_terminados(p_id_cliente INTEGER)
+RETURNS INTEGER
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    total INTEGER;
+BEGIN
+    SELECT COUNT(*) INTO total
+    FROM Contrato 
+    WHERE id_cliente = p_id_cliente 
+      AND fecha_entrega <= CURRENT_DATE;
+    RETURN total;
+END;
+$$;
+
+-- =====================================================
+-- FUNCION PRINCIPAL (escalar): contar contratos terminados de un cliente
+-- =====================================================
+CREATE OR REPLACE FUNCTION contar_contratos_terminados(p_id_cliente INTEGER)
+RETURNS INTEGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN cantidad_de_contratos_terminados(p_id_cliente);
+END;
+$$;
+
+-- =====================================================
+-- FUNCION AUXILIAR: calcular monto de un contrato individual
+-- =====================================================
+CREATE OR REPLACE FUNCTION calcular_monto_contrato(p_id_contrato INTEGER)
+RETURNS NUMERIC(10,2)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    monto NUMERIC(10,2);
+BEGIN
+    SELECT
+        ((fecha_fin - fecha_inicio + 1) * tarifa_normal) +
+        (CASE
+            WHEN fecha_entrega > fecha_fin THEN (fecha_entrega - fecha_fin) * tarifa_prorroga
+            ELSE 0
+         END)
+    INTO monto
+    FROM contrato
+    WHERE id_contrato = p_id_contrato
+      AND fecha_entrega IS NOT NULL
+      AND fecha_entrega <= CURRENT_DATE;
+
+    RETURN COALESCE(monto, 0);
+END;
+$$;
+
+-- =====================================================
+-- FUNCION PRINCIPAL: dinero total gastado por un cliente
+-- =====================================================
+CREATE OR REPLACE FUNCTION dinero_gastado(p_id_cliente INTEGER)
+RETURNS NUMERIC(10,2)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    total NUMERIC(10,2);
+BEGIN
+    SELECT SUM(calcular_monto_contrato(id_contrato))
+    INTO total
+    FROM contrato
+    WHERE id_cliente = p_id_cliente
+      AND fecha_entrega IS NOT NULL
+      AND fecha_entrega <= CURRENT_DATE;
+
+    RETURN COALESCE(total, 0);
+END;
+$$;
+
+-- =====================================================
+-- FUNCION: listado completo de clientes
+-- =====================================================
+CREATE OR REPLACE FUNCTION listado_clientes()
+RETURNS TABLE (
+    "Fecha de hoy" DATE,
+    "Municipio" VARCHAR(100),
+    "Nombre" VARCHAR(100),
+    "CI" CHAR(11),
+    "Cantidad de Contratos contratados" INTEGER,
+    "Total de Dinero gastado" NUMERIC(10,2)
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        CURRENT_DATE,
+        m.nombre_municipio,
+        c.nombre_cliente,
+        c.ci_cliente,
+        contar_contratos_terminados(c.id_cliente),
+        dinero_gastado(c.id_cliente)
+    FROM cliente c
+    JOIN municipio m ON m.id_municipio = c.id_municipio
+    ORDER BY m.nombre_municipio, c.nombre_cliente;
+END;
+$$;
+
+-- Como usar:
+-- SELECT * FROM listado_clientes();
+
+
 --Listado de las motos:
 -- Fecha (fecha en que se muestra el reporte)
 -- Y, para cada moto:
@@ -123,6 +223,18 @@ END;
 $$;
 
 SELECT * FROM reporte_motos();
+
+
+
+
+
+
+--Listado de la situación de las motos:
+-- Fecha (fecha en que se muestra el reporte)
+-- Y, para cada moto:
+-- Matrícula- Marca
+-- Situación
+-- En caso de estar alquilada, fecha de fin del contrato
 
 
 
