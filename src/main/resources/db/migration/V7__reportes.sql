@@ -312,3 +312,176 @@ $$;
 -- SELECT * FROM lista_incumplidores();
 
 
+
+--Resumen de contratos por marcas y modelos:
+-- Fecha (fecha en que se muestra el reporte)
+-- Y, para cada marca:
+-- Marca
+-- Y, para cada modelo:
+-- Modelo
+-- Cantidad de motos (de esa marca y modelo)
+-- Cantidad de días totales alquilados
+-- Ingresos por concepto de tarjetas de crédito
+-- Ingresos por concepto de cheques
+-- Ingresos por concepto de efectivo
+-- Totales de ingresos por marca
+-- Total general de ingresos
+
+-- =============================================
+-- FUNCIONES AUXILIARES 
+-- =============================================
+
+-- Cantidad de motos distintas de esa marca y modelo
+CREATE OR REPLACE FUNCTION cant_motos_mod_y_marca(p_id_marca INT, p_id_modelo INT)
+RETURNS BIGINT
+LANGUAGE sql
+AS $$
+    SELECT COUNT(DISTINCT m.id_moto)
+    FROM contrato c
+    JOIN moto m ON c.id_moto = m.id_moto
+    JOIN modelo mo ON m.id_modelo = mo.id_modelo
+    WHERE mo.id_modelo = p_id_modelo
+      AND mo.id_marca = p_id_marca
+      AND c.fecha_entrega IS NOT NULL
+      AND c.fecha_entrega <= CURRENT_DATE;
+$$;
+
+-- DIas totales alquilados para esa marca y modelo
+CREATE OR REPLACE FUNCTION cant_dias_totales_alquilado_marc_mod(p_id_marca INT, p_id_modelo INT)
+RETURNS NUMERIC
+LANGUAGE sql
+AS $$
+    SELECT SUM(
+        (c.fecha_fin - c.fecha_inicio + 1) +
+        CASE WHEN c.fecha_entrega > c.fecha_fin THEN (c.fecha_entrega - c.fecha_fin) ELSE 0 END
+    )
+    FROM contrato c
+    JOIN moto m ON c.id_moto = m.id_moto
+    JOIN modelo mo ON m.id_modelo = mo.id_modelo
+    WHERE mo.id_modelo = p_id_modelo
+      AND mo.id_marca = p_id_marca
+      AND c.fecha_entrega IS NOT NULL
+      AND c.fecha_entrega <= CURRENT_DATE;
+$$;
+
+-- Ingresos por tarjeta para esa marca y modelo
+CREATE OR REPLACE FUNCTION ingresos_tarjeta_mod_marca(p_id_marca INT, p_id_modelo INT)
+RETURNS NUMERIC(10,2)
+LANGUAGE sql
+AS $$
+    SELECT COALESCE(SUM(calcular_monto_contrato(c.id_contrato)), 0)
+    FROM contrato c
+    JOIN moto m ON c.id_moto = m.id_moto
+    JOIN modelo mo ON m.id_modelo = mo.id_modelo
+    JOIN forma_pago fp ON c.id_forma_pago = fp.id_forma_pago
+    WHERE mo.id_modelo = p_id_modelo
+      AND mo.id_marca = p_id_marca
+      AND c.fecha_entrega IS NOT NULL
+      AND c.fecha_entrega <= CURRENT_DATE
+      AND fp.nombre_forma_pago = 'Tarjeta de crédito';
+$$;
+
+-- Ingresos por cheque para esa marca y modelo
+CREATE OR REPLACE FUNCTION ingresos_cheque_mod_marca(p_id_marca INT, p_id_modelo INT)
+RETURNS NUMERIC(10,2)
+LANGUAGE sql
+AS $$
+    SELECT COALESCE(SUM(calcular_monto_contrato(c.id_contrato)), 0)
+    FROM contrato c
+    JOIN moto m ON c.id_moto = m.id_moto
+    JOIN modelo mo ON m.id_modelo = mo.id_modelo
+    JOIN forma_pago fp ON c.id_forma_pago = fp.id_forma_pago
+    WHERE mo.id_modelo = p_id_modelo
+      AND mo.id_marca = p_id_marca
+      AND c.fecha_entrega IS NOT NULL
+      AND c.fecha_entrega <= CURRENT_DATE
+      AND fp.nombre_forma_pago = 'Cheque';
+$$;
+
+-- Ingresos por efectivo para esa marca y modelo
+CREATE OR REPLACE FUNCTION ingresos_efectivo_mod_marca(p_id_marca INT, p_id_modelo INT)
+RETURNS NUMERIC(10,2)
+LANGUAGE sql
+AS $$
+    SELECT COALESCE(SUM(calcular_monto_contrato(c.id_contrato)), 0)
+    FROM contrato c
+    JOIN moto m ON c.id_moto = m.id_moto
+    JOIN modelo mo ON m.id_modelo = mo.id_modelo
+    JOIN forma_pago fp ON c.id_forma_pago = fp.id_forma_pago
+    WHERE mo.id_modelo = p_id_modelo
+      AND mo.id_marca = p_id_marca
+      AND c.fecha_entrega IS NOT NULL
+      AND c.fecha_entrega <= CURRENT_DATE
+      AND fp.nombre_forma_pago = 'Efectivo';
+$$;
+
+-- Total de ingresos de una marca
+CREATE OR REPLACE FUNCTION total_ingresos_marca(p_id_marca INT)
+RETURNS NUMERIC(10,2)
+LANGUAGE sql
+AS $$
+    SELECT COALESCE(SUM(calcular_monto_contrato(c.id_contrato)), 0)
+    FROM contrato c
+    JOIN moto m ON c.id_moto = m.id_moto
+    JOIN modelo mo ON m.id_modelo = mo.id_modelo
+    WHERE mo.id_marca = p_id_marca
+      AND c.fecha_entrega IS NOT NULL
+      AND c.fecha_entrega <= CURRENT_DATE;
+$$;
+
+-- Total de ingresos 
+CREATE OR REPLACE FUNCTION total_ingresos_general()
+RETURNS NUMERIC(10,2)
+LANGUAGE sql
+AS $$
+    SELECT COALESCE(SUM(calcular_monto_contrato(c.id_contrato)), 0)
+    FROM contrato c
+    WHERE c.fecha_entrega IS NOT NULL
+      AND c.fecha_entrega <= CURRENT_DATE;
+$$;
+
+--================================================
+-- FUNCION PRINCIPAL:
+--================================================
+
+CREATE OR REPLACE FUNCTION resumen_contratos_por_marcas_modelos()
+RETURNS TABLE (
+    "Fecha"                 DATE,
+    "Marca"                 TEXT,
+    "Modelo"                TEXT,
+    "Cantidad de motos"     BIGINT,
+    "Días totales"          NUMERIC,
+    "Ingresos tarjeta"      NUMERIC(10,2),
+    "Ingresos cheque"       NUMERIC(10,2),
+    "Ingresos efectivo"     NUMERIC(10,2),
+    "Total ingresos marca"  NUMERIC(10,2),
+    "Total general ingresos" NUMERIC(10,2)
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        CURRENT_DATE,
+        ma.nombre_marca,
+        mo.nombre_modelo,
+        cant_motos_mod_y_marca(ma.id_marca, mo.id_modelo),
+        cant_dias_totales_alquilado_marc_mod(ma.id_marca, mo.id_modelo),
+        ingresos_tarjeta_mod_marca(ma.id_marca, mo.id_modelo),
+        ingresos_cheque_mod_marca(ma.id_marca, mo.id_modelo),
+        ingresos_efectivo_mod_marca(ma.id_marca, mo.id_modelo),
+        total_ingresos_marca(ma.id_marca),
+        total_ingresos_general()
+    FROM marca ma
+    JOIN modelo mo ON mo.id_marca = ma.id_marca
+    WHERE EXISTS (
+        SELECT 1
+        FROM contrato c
+        JOIN moto m ON c.id_moto = m.id_moto
+        WHERE m.id_modelo = mo.id_modelo
+          AND c.fecha_entrega IS NOT NULL
+          AND c.fecha_entrega <= CURRENT_DATE
+    )
+    ORDER BY ma.nombre_marca, mo.nombre_modelo;
+END;
+$$;
