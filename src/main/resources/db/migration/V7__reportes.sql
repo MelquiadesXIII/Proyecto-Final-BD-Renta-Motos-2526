@@ -1,18 +1,6 @@
 -- IRE COLOCANDO LOS REPORTES AQUI --
 /*
 
-Listado de los contratos:
-- Nombre del cliente
-- Matrícula
-- Marca
-- Modelo
-- Forma de pago
-- Fecha de inicio del contrato
-- Fecha de fin del contrato
-- Prórroga (cantidad de días)
-- Seguro adicional (sí o no)
-- Importe total
-
 
 
 
@@ -277,6 +265,59 @@ $$;
 
 
 
+
+--Listado de los contratos:
+-- Nombre del cliente
+-- Matrícula
+-- Marca
+-- Modelo
+-- Forma de pago
+-- Fecha de inicio del contrato
+-- Fecha de fin del contrato
+-- Prórroga (cantidad de días)
+-- Seguro adicional (sí o no)
+-- Importe total
+
+CREATE OR REPLACE FUNCTION listado_contratos()
+RETURNS TABLE (
+    "Nombre del cliente"       TEXT,
+    "Matrícula"                VARCHAR(10),
+    "Marca"                    VARCHAR(100),
+    "Modelo"                   VARCHAR(100),
+    "Forma de pago"            VARCHAR(20),
+    "Fecha inicio"             DATE,
+    "Fecha fin"                DATE,
+    "Prórroga (días)"          INTEGER,
+    "Seguro adicional"         TEXT,
+    "Importe total"            NUMERIC(10,2)
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        cl.nombre_cliente || ' ' || cl.primer_apellido || ' ' || COALESCE(cl.segundo_apellido, ''),
+        m.matricula_moto,
+        ma.nombre_marca,
+        mo.nombre_modelo,
+        fp.nombre_forma_pago,
+        c.fecha_inicio,
+        c.fecha_fin,
+        c.dias_prorroga,
+        CASE WHEN c.seguro_adicional THEN 'Sí' ELSE 'No' END,
+        calcular_monto_contrato(c.id_contrato)
+    FROM contrato c
+    JOIN cliente cl      ON c.id_cliente = cl.id_cliente
+    JOIN moto m           ON c.id_moto = m.id_moto
+    JOIN modelo mo        ON m.id_modelo = mo.id_modelo
+    JOIN marca ma         ON mo.id_marca = ma.id_marca
+    JOIN forma_pago fp    ON c.id_forma_pago = fp.id_forma_pago
+    ORDER BY c.id_contrato;   -- puedes cambiar el orden si lo deseas
+END;
+$$;
+
+-- COMO USAR:
+--SELECT * FROM listado_contratos();
 
 
 
