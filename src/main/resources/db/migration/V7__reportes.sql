@@ -1,52 +1,7 @@
 -- IRE COLOCANDO LOS REPORTES AQUI --
-/*
 
-
-
-
-Listado de clientes incumplidores del contrato:
-- Fecha actual (fecha en que se muestra el reporte)
-- Nombres y apellidos del cliente
-- Fecha de fin del contrato
-- Fecha de entrega de la moto
-Resumen de contratos por marcas y modelos:
-- Fecha (fecha en que se muestra el reporte)
-- Y, para cada marca:
-- Marca
-- Y, para cada modelo:
-- Modelo
-- Cantidad de motos (de esa marca y modelo)
-- Cantidad de días totales alquilados
-- Ingresos por concepto de tarjetas de crédito
-- Ingresos por concepto de cheques
-- Ingresos por concepto de efectivo
-- Totales de ingresos por marca
-- Total general de ingresos
-Resumen de contratos por municipios:
-- Fecha (fecha en que se muestra el reporte)
-- Y, para cada municipio:
-- Municipio
-- Y, para cada marca y modelo:
-- Cantidad de días alquilados
-- Cantidad de días de prórroga
-- Valor total en efectivo
-- Valor total general
-Listado de ingresos del año:
-- Fecha (fecha en que se muestra el reporte)
-- Ingreso total anual
-- Y, para cada mes:
-- Nombre del mes
-- Ingreso mensual
-El sistema debe garantizar lo siguiente:
-- Tener integridad relacional en toda la base de datos.
-- Gestionar (insertar, modificar y eliminar) cada una de sus entidades.
-- Que no se repitan los nombres de los nomencladores.
-- Que cuando una moto se alquile, automáticamente su estado pase a ser Alquilado.
-- No permitir alquilar una moto cuyo estado no sea Disponible.
-- Que cuando se elimine un cliente del sistema se eliminen también todos sus contratos.
-
-*/
-
+-- ESTO de abajo es para que la zona horaria sea la de cuba.
+SET timezone = 'America/Havana';
 
 --Listado de los clientes:
 -- Fecha (fecha en que se muestra el reporte)
@@ -320,13 +275,40 @@ $$;
 
 
 
---Listado de clientes incumplidores del contrato:
-- Fecha actual (fecha en que se muestra el reporte)
-- Nombres y apellidos del cliente
-- Fecha de fin del contrato
-- Fecha de entrega de la moto
+-- Listado de clientes incumplidores del contrato:
+-- Fecha actual (fecha en que se muestra el reporte)
+-- Nombres y apellidos del cliente
+-- Fecha de fin del contrato
+-- Fecha de entrega de la moto
 
 
 
+
+CREATE OR REPLACE FUNCTION lista_incumplidores()
+RETURNS TABLE (
+    "Fecha actual"              DATE,
+    "Nombres y apellidos"       TEXT,
+    "Fecha fin del contrato"    DATE,
+    "Fecha de entrega"          DATE
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        CURRENT_DATE,
+        cl.nombre_cliente || ' ' || cl.primer_apellido || ' ' || COALESCE(cl.segundo_apellido, ''),
+        c.fecha_fin,
+        c.fecha_entrega
+    FROM contrato c
+    JOIN cliente cl ON c.id_cliente = cl.id_cliente
+    WHERE c.fecha_entrega IS NOT NULL
+      AND c.fecha_entrega > c.fecha_fin
+    ORDER BY c.id_contrato;
+END;
+$$;
+
+-- COMO USAR:
+-- SELECT * FROM lista_incumplidores();
 
 
