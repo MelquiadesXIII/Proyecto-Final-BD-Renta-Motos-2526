@@ -53,10 +53,10 @@ La Fase 4 deja estable la API pública de servicios, los retornos y el catálogo
 | crear | `void crearContrato(Contrato contrato)` | `void` | vigente |
 | actualizar | `void actualizarContrato(Contrato contrato)` | `void` | vigente |
 | finalizar | `void finalizarContrato(Contrato contrato)` | `void` | vigente |
-| buscar | `Optional<Contrato> buscarPorId(ContratoID id)` | `Optional<Contrato>` | vigente |
+| buscar | `Optional<Contrato> buscarPorId(Integer idContrato)` | `Optional<Contrato>` | vigente |
 | listar | `List<Contrato> listarTodos()` | `List<Contrato>` | vigente |
 | listar (detalle) | `List<Contrato> listarContratosCompletos()` | `List<Contrato>` | vigente |
-| eliminar | `void eliminarContrato(ContratoID id)` | `void` | vigente |
+| eliminar | `void eliminarContrato(Integer idContrato)` | `void` | vigente |
 
 #### Regla de negocio aplicada en `finalizarContrato(...)` (Ticket L3)
 
@@ -105,9 +105,9 @@ Este contrato queda como referencia estable para consumo UI. Cualquier cambio po
 | Moto | eliminar | `void eliminarMoto(String matricula)` | `void` |
 | Contrato | crear | `void crearContrato(Contrato contrato)` | `void` |
 | Contrato | listar | `List<Contrato> listarTodos()` | `List<Contrato>` |
-| Contrato | buscar | `Optional<Contrato> buscarPorId(ContratoID id)` | `Optional<Contrato>` |
+| Contrato | buscar | `Optional<Contrato> buscarPorId(Integer idContrato)` | `Optional<Contrato>` |
 | Contrato | actualizar | `void actualizarContrato(Contrato contrato)` | `void` |
-| Contrato | eliminar | `void eliminarContrato(ContratoID id)` | `void` |
+| Contrato | eliminar | `void eliminarContrato(Integer idContrato)` | `void` |
 | Contrato | finalizar | `void finalizarContrato(Contrato contrato)` | `void` |
 
 ### 3.2 Operaciones de soporte/reporte (vigentes)

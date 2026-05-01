@@ -48,20 +48,27 @@ Cerrar firmas de métodos, tipos de retorno y excepciones esperadas para que Dar
 ### Ticket L2 — Cerrar deuda técnica de identidad de contrato
 
 **Objetivo**
-Garantizar comportamiento correcto de clave compuesta (`ContratoID`) en estructuras y comparaciones.
+Refactorizar identidad de contrato para usar `id_contrato` entero en toda la capa de dominio/DAO/services,
+y remover referencias a clave compuesta en el contrato de integración.
 
 **Archivos a modificar**
-- `src/main/java/org/proyectobdmotos/models/ContratoID.java`
+- `src/main/java/org/proyectobdmotos/dao/IContratoDAO.java`
+- `src/main/java/org/proyectobdmotos/dao/ContratoDAO.java`
+- `src/main/java/org/proyectobdmotos/services/ContratoService.java`
+- `docs/contrato-integracion-ui.md`
+- `docs/estado-actual.md`
 
 **Checklist de implementación**
-- [x] Verificar/implementar `equals()` y `hashCode()` coherentes.
-- [x] Validar consistencia con campos PK (`fecha_inicio`, `matricula_moto`).
+- [x] Unificar el uso de `Integer idContrato` en DAO/Service.
+- [x] Eliminar dependencia de `ContratoID` (ya no existe en el modelo).
+- [x] Actualizar documentación de integración UI para reflejar el ID entero.
 
 **Criterio de aceptación**
-- `ContratoID` se comporta correctamente en comparaciones y colecciones.
+- Todas las operaciones de contrato usan `Integer idContrato`.
+- La documentación no referencia `ContratoID` ni PK compuesta.
 
 **Qué investigar/estudiar antes de implementar**
-- Buenas prácticas de `equals/hashCode` para IDs compuestos en Java.
+- Impacto de cambiar PK compuesta a PK simple en consultas y reportes.
 
 ---
 
@@ -135,12 +142,12 @@ Tener estructura base de UI con navegación y vistas de lectura iniciales.
 - `src/main/resources/fxml/contrato-lista.fxml` (crear)
 
 **Checklist de implementación**
-- [ ] Reemplazar placeholder en `FxApp` por carga de `main.fxml` vía `ScreenLoader`.
-- [ ] Crear `main.fxml` con `BorderPane` y contenedor central para navegación.
-- [ ] Crear vistas base de lectura: `cliente-lista.fxml`, `moto-lista.fxml`, `contrato-lista.fxml`.
-- [ ] Definir estrategia de composición (carga dinámica con `ScreenLoader` y/o `fx:include` para componentes presentacionales).
-- [ ] Validar ciclo de vida de controllers (`@FXML` inyectado + `initialize()` sin acceso prematuro a nodos).
-- [ ] Verificar carga inicial sin errores de FXML ni controllers no registrados.
+- [x] Reemplazar placeholder en `FxApp` por carga de `main.fxml` vía `ScreenLoader`.
+- [x] Crear `main.fxml` con `BorderPane` y contenedor central para navegación.
+- [x] Crear vistas base de lectura: `cliente-lista.fxml`, `moto-lista.fxml`, `contrato-lista.fxml`.
+- [x] Definir estrategia de composición (carga dinámica con `ScreenLoader` y/o `fx:include` para componentes presentacionales).
+- [x] Validar ciclo de vida de controllers (`@FXML` inyectado + `initialize()` sin acceso prematuro a nodos).
+- [x] Verificar carga inicial sin errores de FXML ni controllers no registrados.
 
 **Plan técnico L4 (listo para ejecutar)**
 
@@ -187,9 +194,9 @@ Asegurar que controladores se creen por constructor injection desde el compositi
 - `src/main/java/org/proyectobdmotos/ui/AppCompositionRoot.java`
 
 **Checklist de implementación**
-- [ ] Implementar/ajustar `FXMLLoader.setControllerFactory(...)`.
-- [ ] Registrar mapping de controladores actuales.
-- [ ] Validar que cada vista carga su controller con dependencias.
+- [x] Implementar/ajustar `FXMLLoader.setControllerFactory(...)`.
+- [x] Registrar mapping de controladores actuales.
+- [x] Validar que cada vista carga su controller con dependencias.
 
 **Criterio de aceptación**
 - Ningún controller de UI se instancia manualmente en vistas.
