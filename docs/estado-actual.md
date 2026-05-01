@@ -34,8 +34,8 @@ Fecha de corte: **Actualizado** (post-implementación completa DAO/Services/Lóg
 - `void crearContrato(Contrato contrato)`
 - `void actualizarContrato(Contrato contrato)`
 - `void finalizarContrato(Contrato contrato)`
-- `void eliminarContrato(ContratoID id)`
-- `Optional<Contrato> buscarPorId(ContratoID id)`
+- `void eliminarContrato(Integer idContrato)`
+- `Optional<Contrato> buscarPorId(Integer idContrato)`
 - `List<Contrato> listarTodos()`
 - `List<Contrato> listarContratosCompletos()`
 
@@ -258,7 +258,7 @@ Nota: Las columnas `cant_km_salida` y `cant_km_llegada` ya están en V1 (no se n
 - Igual con `Moto.idColor` e `Moto.idModelo` (String en Java, INT en BD).
 - **Opción 1:** Corregir modelos Java a `int` (ruptura controlada).
 - **Opción 2:** Mantener String pero documentar conversión explícita en DAOs.
-- Posible falta de `equals()` y `hashCode()` en `ContratoID` para usarla como clave en maps/sets.
+- `ContratoID` no existe: el contrato usa `id_contrato` entero en BD y en servicios/DAO.
 
 ---
 
@@ -417,7 +417,7 @@ Nota: Las columnas `cant_km_salida` y `cant_km_llegada` ya están en V1 (no se n
 ### Técnico (deuda, refactoring, tests)
 
 1. ⏳ **Resolver inconsistencia de tipos** (String vs int en IDs de catálogos).
-2. ⏳ **Agregar `equals()` y `hashCode()` a `ContratoID`**.
+2. ✅ **Contrato usa `id_contrato` entero (refactor aplicado)**.
 3. ⏳ **Pruebas unitarias** (DAO, Service, validaciones) — Fase 6.
 4. ⏳ **Pruebas de integración** (flujo completo cliente → contrato → finalizar).
 5. ⏳ **Validar CI formato** (11 dígitos correctos).
