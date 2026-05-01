@@ -485,3 +485,152 @@ BEGIN
     ORDER BY ma.nombre_marca, mo.nombre_modelo;
 END;
 $$;
+
+
+
+
+-- =============================================
+-- FUNCIONES AUXILIARES 
+-- =============================================
+
+-- Dias base alquilados 
+CREATE OR REPLACE FUNCTION cant_dias_alquilados_mun_marca_modelo(
+    p_id_municipio INT,
+    p_id_marca INT,
+    p_id_modelo INT
+)
+RETURNS NUMERIC
+LANGUAGE sql
+AS $$
+    SELECT COALESCE(SUM(
+        (c.fecha_fin - c.fecha_inicio + 1)
+    ), 0)
+    FROM contrato c
+    JOIN cliente cl ON c.id_cliente = cl.id_cliente
+    JOIN moto m ON c.id_moto = m.id_moto
+    JOIN modelo mo ON m.id_modelo = mo.id_modelo
+    WHERE cl.id_municipio = p_id_municipio
+      AND mo.id_modelo = p_id_modelo
+      AND mo.id_marca = p_id_marca
+      AND c.fecha_entrega IS NOT NULL
+      AND c.fecha_entrega <= CURRENT_DATE;
+$$;
+
+-- Dias de prorroga
+CREATE OR REPLACE FUNCTION cant_dias_prorroga_mun_marca_modelo(
+    p_id_municipio INT,
+    p_id_marca INT,
+    p_id_modelo INT
+)
+RETURNS NUMERIC
+LANGUAGE sql
+AS $$
+    SELECT COALESCE(SUM(c.dias_prorroga), 0)
+    FROM contrato c
+    JOIN cliente cl ON c.id_cliente = cl.id_cliente
+    JOIN moto m ON c.id_moto = m.id_moto
+    JOIN modelo mo ON m.id_modelo = mo.id_modelo
+    WHERE cl.id_municipio = p_id_municipio
+      AND mo.id_modelo = p_id_modelo
+      AND mo.id_marca = p_id_marca
+      AND c.fecha_entrega IS NOT NULL
+      AND c.fecha_entrega <= CURRENT_DATE;
+$$;
+
+-- Valor en efectivo
+CREATE OR REPLACE FUNCTION valor_efectivo_mun_marca_modelo(
+    p_id_municipio INT,
+    p_id_marca INT,
+    p_id_modelo INT
+)
+RETURNS NUMERIC(10,2)
+LANGUAGE sql
+AS $$
+    SELECT COALESCE(SUM(
+        CASE WHEN fp.nombre_forma_pago = 'Efectivo'
+             THEN calcular_monto_contrato(c.id_contrato)
+             ELSE 0 END
+    ), 0)
+    FROM contrato c
+    JOIN cliente cl ON c.id_cliente = cl.id_cliente
+    JOIN moto m ON c.id_moto = m.id_moto
+    JOIN modelo mo ON m.id_modelo = mo.id_modelo
+    JOIN forma_pago fp ON c.id_forma_pago = fp.id_forma_pago
+    WHERE cl.id_municipio = p_id_municipio
+      AND mo.id_modelo = p_id_modelo
+      AND mo.id_marca = p_id_marca
+      AND c.fecha_entrega IS NOT NULL
+      AND c.fecha_entrega <= CURRENT_DATE;
+$$;
+
+-- Valor total general
+CREATE OR REPLACE FUNCTION valor_total_mun_marca_modelo(
+    p_id_municipio INT,
+    p_id_marca INT,
+    p_id_modelo INT
+)
+RETURNS NUMERIC(10,2)
+LANGUAGE sql
+AS $$
+    SELECT COALESCE(SUM(calcular_monto_contrato(c.id_contrato)), 0)
+    FROM contrato c
+    JOIN cliente cl ON c.id_cliente = cl.id_cliente
+    JOIN moto m ON c.id_moto = m.id_moto
+    JOIN modelo mo ON m.id_modelo = mo.id_modelo
+    WHERE cl.id_municipio = p_id_municipio
+      AND mo.id_modelo = p_id_modelo
+      AND mo.id_marca = p_id_marca
+      AND c.fecha_entrega IS NOT NULL
+      AND c.fecha_entrega <= CURRENT_DATE;
+$$;
+
+-- =============================================
+-- FUNCION PRINCIPAL 
+-- =============================================
+CREATE OR REPLACE FUNCTION resumen_contratos_por_municipios()
+RETURNS TABLE (
+    "Fecha"                DATE,
+    "Municipio"            VARCHAR(100),
+    "Marca"                VARCHAR(100),
+    "Modelo"               VARCHAR(100),
+    "Días alquilados"      NUMERIC,
+    "Días de prórroga"     NUMERIC,
+    "Valor en efectivo"    NUMERIC(10,2),
+    "Valor total general"  NUMERIC(10,2)
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT DISTINCT
+        CURRENT_DATE,
+        muni.nombre_municipio,
+        ma.nombre_marca,
+        mo.nombre_modelo,
+        cant_dias_alquilados_mun_marca_modelo(muni.id_municipio, ma.id_marca, mo.id_modelo),
+        cant_dias_prorroga_mun_marca_modelo(muni.id_municipio, ma.id_marca, mo.id_modelo),
+        valor_efectivo_mun_marca_modelo(muni.id_municipio, ma.id_marca, mo.id_modelo),
+        valor_total_mun_marca_modelo(muni.id_municipio, ma.id_marca, mo.id_modelo)
+    FROM contrato c
+    JOIN cliente cli ON c.id_cliente = cli.id_cliente
+    JOIN municipio muni ON cli.id_municipio = muni.id_municipio
+    JOIN moto m ON c.id_moto = m.id_moto
+    JOIN modelo mo ON m.id_modelo = mo.id_modelo
+    JOIN marca ma ON mo.id_marca = ma.id_marca
+    WHERE c.fecha_entrega IS NOT NULL
+      AND c.fecha_entrega <= CURRENT_DATE
+    ORDER BY muni.nombre_municipio, ma.nombre_marca, mo.nombre_modelo;
+END;
+$$;
+
+-- Como se usa:
+-- SELECT * FROM resumen_contratos_por_municipios();
+
+
+
+
+
+
+
+
+
