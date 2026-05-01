@@ -18,7 +18,7 @@ SET timezone = 'America/Havana';
 
 
 -- =====================================================
--- FUNCION AUXILIAR: Cantidad de contratos terminados
+-- FUNCION AUXILIAR
 -- =====================================================
 CREATE OR REPLACE FUNCTION cantidad_de_contratos_terminados(p_id_cliente INTEGER)
 RETURNS INTEGER
@@ -36,7 +36,7 @@ END;
 $$;
 
 -- =====================================================
--- FUNCION PRINCIPAL (escalar): contar contratos terminados de un cliente
+-- FUNCION PRINCIPAL
 -- =====================================================
 CREATE OR REPLACE FUNCTION contar_contratos_terminados(p_id_cliente INTEGER)
 RETURNS INTEGER
@@ -48,7 +48,7 @@ END;
 $$;
 
 -- =====================================================
--- FUNCION AUXILIAR: calcular monto de un contrato individual
+-- FUNCION AUXILIAR
 -- =====================================================
 CREATE OR REPLACE FUNCTION calcular_monto_contrato(p_id_contrato INTEGER)
 RETURNS NUMERIC(10,2)
@@ -74,7 +74,7 @@ END;
 $$;
 
 -- =====================================================
--- FUNCION PRINCIPAL: dinero total gastado por un cliente
+-- FUNCION PRINCIPAL:
 -- =====================================================
 CREATE OR REPLACE FUNCTION dinero_gastado(p_id_cliente INTEGER)
 RETURNS NUMERIC(10,2)
@@ -136,8 +136,9 @@ $$;
 -- Color
 -- Cantidad de kilómetros recorridos
 
-
-
+--===============================================
+--FUNCION: listado completo de motos
+--===============================================
 CREATE OR REPLACE FUNCTION reporte_motos()
 RETURNS TABLE(
     fecha_reporte DATE,
@@ -239,7 +240,7 @@ $$;
 
 
 
-CREATE OR REPLACE FUNCTION reporte_motos()
+CREATE OR REPLACE FUNCTION reporte_situacion_motos()
 RETURNS TABLE(
     fecha_reporte      DATE,
     matricula_marca    TEXT,
@@ -271,7 +272,7 @@ END;
 $$;
 
 -- COMO USAR:
--- SELECT * FROM reporte_motos();
+-- SELECT * FROM reporte_situacion_motos();
 
 
 
