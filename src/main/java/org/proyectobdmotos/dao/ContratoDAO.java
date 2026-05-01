@@ -9,20 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.proyectobdmotos.models.Contrato;
-import org.proyectobdmotos.models.ContratoID;
 import org.proyectobdmotos.models.FormaPago;
 import org.proyectobdmotos.utils.Logger;
 
-public class ContratoDAO extends AbstractGenericDAO<Contrato, ContratoID> implements IContratoDAO {
+public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implements IContratoDAO {
 
-    private final IFormaPagoDAO formaPagoDAO;
-
-    public ContratoDAO(Connection connection, IFormaPagoDAO formaPagoDAO) {
+    public ContratoDAO(Connection connection) {
         super(connection);
-        this.formaPagoDAO = formaPagoDAO;
     }
-
-    // ===== MÉTODOS TEMPLATE =====
 
     @Override
     protected String getInsertSQL() {
@@ -39,37 +33,30 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, ContratoID> implem
              + "fecha_fin = ?, dias_prorroga = ?, seguro_adicional = ?, "
              + "tarifa_normal = ?, tarifa_prorroga = ?, fecha_entrega = ?, "
              + "cant_km_salida = ?, cant_km_llegada = ? "
-             + "WHERE fecha_inicio = ? AND id_moto = ?";
+             + "WHERE id_contrato = ?";
     }
 
     @Override
     protected String getDeleteSQL() {
-        return "DELETE FROM contrato WHERE fecha_inicio = ? AND id_moto = ?";
+        return "DELETE FROM contrato WHERE id_contrato = ?";
     }
 
     @Override
     protected String getFindByIdSQL() {
-        return "SELECT co.*, fp.nombre AS forma_pago_nombre "
-             + "FROM contrato co "
-             + "JOIN forma_pago fp ON co.id_forma_pago = fp.id_forma_pago "
-             + "WHERE co.fecha_inicio = ? AND co.id_moto = ?";
+        return "SELECT * FROM contrato WHERE id_contrato = ?";
     }
 
     @Override
     protected String getFindAllSQL() {
-        return "SELECT co.*, fp.nombre AS forma_pago_nombre "
-             + "FROM contrato co "
-             + "JOIN forma_pago fp ON co.id_forma_pago = fp.id_forma_pago "
-             + "ORDER BY co.fecha_inicio DESC";
+        return "SELECT * FROM contrato ORDER BY fecha_inicio DESC";
     }
 
     @Override
     protected void setInsertParameters(PreparedStatement ps, Contrato contrato) throws SQLException {
-        int idFormaPago = formaPagoDAO.findIdByNombre(contrato.getFormaPago().getValor());
-        ps.setDate(1, Date.valueOf(contrato.getContratoID().getFechaInicio()));
-        ps.setInt(2, contrato.getContratoID().getIdMoto());
+        ps.setDate(1, Date.valueOf(contrato.getFechaInicio()));
+        ps.setInt(2, contrato.getIdMoto());
         ps.setInt(3, contrato.getIdCliente());
-        ps.setInt(4, idFormaPago);
+        ps.setInt(4, contrato.getFormaPago().getId());
         ps.setDate(5, Date.valueOf(contrato.getFechaFin()));
         ps.setInt(6, contrato.getDiasProrroga());
         ps.setBoolean(7, contrato.isSeguroAdicional());
@@ -86,9 +73,8 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, ContratoID> implem
 
     @Override
     protected void setUpdateParameters(PreparedStatement ps, Contrato contrato) throws SQLException {
-        int idFormaPago = formaPagoDAO.findIdByNombre(contrato.getFormaPago().getValor());
         ps.setInt(1, contrato.getIdCliente());
-        ps.setInt(2, idFormaPago);
+        ps.setInt(2, contrato.getFormaPago().getId());
         ps.setDate(3, Date.valueOf(contrato.getFechaFin()));
         ps.setInt(4, contrato.getDiasProrroga());
         ps.setBoolean(5, contrato.isSeguroAdicional());
@@ -101,14 +87,12 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, ContratoID> implem
         ps.setDate(8, fechaEntrega);
         ps.setDouble(9, contrato.getCantKmSalida());
         ps.setDouble(10, contrato.getCantKmLlegada());
-        ps.setDate(11, Date.valueOf(contrato.getContratoID().getFechaInicio()));
-        ps.setInt(12, contrato.getContratoID().getIdMoto());
+        ps.setInt(11, contrato.getIdContrato());
     }
 
     @Override
-    protected void setIdParameter(PreparedStatement ps, ContratoID id) throws SQLException {
-        ps.setDate(1, Date.valueOf(id.getFechaInicio()));
-        ps.setInt(2, id.getIdMoto());
+    protected void setIdParameter(PreparedStatement ps, Integer id) throws SQLException {
+        ps.setInt(1, id);
     }
 
     @Override
@@ -124,7 +108,7 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, ContratoID> implem
         double tarifaNormal = rs.getDouble("tarifa_normal");
         double tarifaProrroga = rs.getDouble("tarifa_prorroga");
 
-        return new Contrato(
+        Contrato contrato = new Contrato(
             cantKmLlegada,
             cantKmSalida,
             rs.getInt("id_cliente"),
@@ -132,24 +116,23 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, ContratoID> implem
             fechaEntrega,
             rs.getDate("fecha_fin").toLocalDate(),
             rs.getDate("fecha_inicio").toLocalDate(),
-            FormaPago.fromValor(rs.getString("forma_pago_nombre")),
+            FormaPago.fromId(rs.getInt("id_forma_pago")),
             rs.getInt("id_moto"),
             rs.getBoolean("seguro_adicional"),
             tarifaNormal,
             tarifaProrroga
         );
+        contrato.setIdContrato(rs.getInt("id_contrato"));
+        return contrato;
     }
-
-    // ===== MÉTODOS ESPECÍFICOS =====
 
     @Override
     public List<Contrato> listarContratosCompletos() {
         String sql = """
-            SELECT co.*, fp.nombre AS forma_pago_nombre
+            SELECT co.*
             FROM contrato co
-            JOIN forma_pago fp ON co.id_forma_pago = fp.id_forma_pago
-            JOIN cliente c ON co.ci_cliente = c.ci_cliente
-            JOIN moto m ON co.matricula_moto = m.matricula_moto
+            JOIN cliente c ON co.id_cliente = c.id_cliente
+            JOIN moto m ON co.id_moto = m.id_moto
             ORDER BY co.fecha_inicio DESC
             """;
 

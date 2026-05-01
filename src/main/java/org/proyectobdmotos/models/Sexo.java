@@ -1,32 +1,36 @@
 package org.proyectobdmotos.models;
 
 public enum Sexo {
-  MASCULINO("masculino"),
-  FEMENINO("femenino");
+  MASCULINO(1, "masculino"),
+  FEMENINO(2, "femenino");
 
+  private final int id;
   private final String valor;
 
-  Sexo(String valor) {
+  Sexo(int id, String valor) {
+    this.id = id;
     this.valor = valor;
+  }
+
+  public int getId() {
+    return id;
   }
 
   public String getValor() {
     return valor;
   }
 
-  public static Sexo fromValor(String valor) {
-    Sexo sex = null;
-    int i = 0;
-    Sexo[] valores = values();
-    while (i < valores.length && sex == null) {
-        if (valores[i].valor.equalsIgnoreCase(valor))
-            sex = valores[i];
-      i++;
+  public static Sexo fromId(int id) {
+    for (Sexo sexo : values()) {
+      if (sexo.id == id) return sexo;
     }
+    throw new IllegalArgumentException("ID de sexo inválido: " + id);
+  }
 
-    if (sex == null) throw new IllegalArgumentException(
-      "Sexo inválido: " + valor
-    );
-    return sex;
+  public static Sexo fromValor(String valor) {
+    for (Sexo sexo : values()) {
+      if (sexo.valor.equalsIgnoreCase(valor)) return sexo;
+    }
+    throw new IllegalArgumentException("Sexo inválido: " + valor);
   }
 }

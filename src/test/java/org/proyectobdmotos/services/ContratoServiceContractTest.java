@@ -13,7 +13,6 @@ import org.proyectobdmotos.dto.MotoDTO;
 import org.proyectobdmotos.dto.SituacionMotoDTO;
 import org.proyectobdmotos.models.Cliente;
 import org.proyectobdmotos.models.Contrato;
-import org.proyectobdmotos.models.ContratoID;
 import org.proyectobdmotos.models.FormaPago;
 import org.proyectobdmotos.models.Moto;
 import org.proyectobdmotos.models.Sexo;
@@ -60,7 +59,7 @@ public class ContratoServiceContractTest extends TestCase {
         FakeContratoDAO contratoDAO = new FakeContratoDAO();
         FakeClienteDAO clienteDAO = new FakeClienteDAO();
         FakeMotoDAO motoDAO = new FakeMotoDAO();
-        clienteDAO.cliente = Optional.of(new Cliente(1, "C1", "Ana", "Perez", "Lopez", 30, Sexo.FEMENINO, "555", "1"));
+        clienteDAO.cliente = Optional.of(new Cliente(1, "C1", "Ana", "Perez", "Lopez", 30, Sexo.FEMENINO, "555", 1));
         motoDAO.moto = Optional.of(crearMoto(1, "M1"));
         motoDAO.disponible = false;
         ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
@@ -82,7 +81,7 @@ public class ContratoServiceContractTest extends TestCase {
         FakeContratoDAO contratoDAO = new FakeContratoDAO();
         FakeClienteDAO clienteDAO = new FakeClienteDAO();
         FakeMotoDAO motoDAO = new FakeMotoDAO();
-        clienteDAO.cliente = Optional.of(new Cliente(1, "C1", "Ana", "Perez", "Lopez", 30, Sexo.FEMENINO, "555", "1"));
+        clienteDAO.cliente = Optional.of(new Cliente(1, "C1", "Ana", "Perez", "Lopez", 30, Sexo.FEMENINO, "555", 1));
         motoDAO.moto = Optional.of(crearMoto(1, "M1"));
         motoDAO.disponible = true;
         ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
@@ -393,7 +392,7 @@ public class ContratoServiceContractTest extends TestCase {
         FakeClienteDAO clienteDAO = new FakeClienteDAO();
         FakeMotoDAO motoDAO = new FakeMotoDAO();
         ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
-        ContratoID id = new ContratoID(LocalDate.of(2026, 4, 19), 1);
+        Integer id = 99;
 
         ValidationException exception = null;
         try {
@@ -407,8 +406,20 @@ public class ContratoServiceContractTest extends TestCase {
         assertEquals(0, contratoDAO.deleteCount);
     }
 
+    public void testEliminarContratoValidoEliminaContrato() {
+        FakeContratoDAO contratoDAO = new FakeContratoDAO();
+        FakeClienteDAO clienteDAO = new FakeClienteDAO();
+        FakeMotoDAO motoDAO = new FakeMotoDAO();
+        contratoDAO.contrato = Optional.of(crearContrato(1, 1));
+        ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
+
+        contratoService.eliminarContrato(1);
+
+        assertEquals(1, contratoDAO.deleteCount);
+    }
+
     private Moto crearMoto(Integer idMoto, String matricula) {
-        return new Moto(idMoto, matricula, "MDL1", Situacion.DISPONIBLE, 0.0, "BLANCO");
+        return new Moto(idMoto, matricula, 1, Situacion.DISPONIBLE, 0.0, 1);
     }
 
     private Contrato crearContrato(Integer idCliente, Integer idMoto) {
@@ -449,12 +460,12 @@ public class ContratoServiceContractTest extends TestCase {
         }
 
         @Override
-        public void eliminar(ContratoID id) {
+        public void eliminar(Integer id) {
             deleteCount = deleteCount + 1;
         }
 
         @Override
-        public Optional<Contrato> buscarPorId(ContratoID id) {
+        public Optional<Contrato> buscarPorId(Integer id) {
             return contrato;
         }
 
