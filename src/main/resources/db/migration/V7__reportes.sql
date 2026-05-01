@@ -628,8 +628,66 @@ $$;
 
 
 
+--Listado de ingresos del año:
+-- Fecha (fecha en que se muestra el reporte)
+-- Ingreso total anual
+-- Y, para cada mes:
+-- Nombre del mes
+-- Ingreso mensual
 
 
+-- =============================================
+-- FUNCIONES AUXILIARES
+-- =============================================
+
+-- Ingreso de un mes especifico del anno actual
+CREATE OR REPLACE FUNCTION ingreso_mes(p_mes INT)
+RETURNS NUMERIC(10,2)
+LANGUAGE sql
+AS $$
+    SELECT COALESCE(SUM(calcular_monto_contrato(c.id_contrato)), 0)
+    FROM contrato c
+    WHERE c.fecha_entrega IS NOT NULL
+      AND c.fecha_entrega <= CURRENT_DATE
+      AND EXTRACT(YEAR FROM c.fecha_entrega) = EXTRACT(YEAR FROM CURRENT_DATE)
+      AND EXTRACT(MONTH FROM c.fecha_entrega) = p_mes;
+$$;
+
+-- Ingreso total del año actual
+CREATE OR REPLACE FUNCTION ingreso_anual()
+RETURNS NUMERIC(10,2)
+LANGUAGE sql
+AS $$
+    SELECT COALESCE(SUM(calcular_monto_contrato(c.id_contrato)), 0)
+    FROM contrato c
+    WHERE c.fecha_entrega IS NOT NULL
+      AND c.fecha_entrega <= CURRENT_DATE
+      AND EXTRACT(YEAR FROM c.fecha_entrega) = EXTRACT(YEAR FROM CURRENT_DATE);
+$$;
+
+-- =============================================
+-- FUNCION PRINCIPAL 
+-- =============================================
+CREATE OR REPLACE FUNCTION listado_ingresos_anuales()
+RETURNS TABLE (
+    "Fecha"              DATE,
+    "Ingreso total anual" NUMERIC(10,2),
+    "Mes"                TEXT,
+    "Ingreso mensual"    NUMERIC(10,2)
+)
+LANGUAGE sql
+AS $$
+    SELECT
+        CURRENT_DATE,
+        ingreso_anual(),
+        TRIM(TO_CHAR(TO_DATE(s.mes::text, 'MM'), 'Month')) AS nombre_mes,
+        ingreso_mes(s.mes)
+    FROM generate_series(1, 12) AS s(mes)
+    ORDER BY s.mes;
+$$;
+
+-- Como USAR:
+-- SELECT * FROM listado_ingresos_anuales();
 
 
 
