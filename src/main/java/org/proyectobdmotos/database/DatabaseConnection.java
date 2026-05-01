@@ -47,6 +47,12 @@ public class DatabaseConnection {
             Flyway flyway = Flyway.configure()
                     .dataSource(url, user, password)
                     .load();
+
+            // Usar este bloque de codigo cuando den error las migraciones        
+            /*Logger.log("Ejecutando repair...");
+            flyway.repair();
+            Logger.logInfo("✓ Repair completado");*/
+
             flyway.migrate();
             Logger.logInfo("✓ Migraciones completadas\n");
         } catch (Exception e) {
