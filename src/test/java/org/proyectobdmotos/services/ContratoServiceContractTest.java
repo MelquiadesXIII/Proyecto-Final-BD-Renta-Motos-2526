@@ -59,7 +59,7 @@ public class ContratoServiceContractTest extends TestCase {
         FakeContratoDAO contratoDAO = new FakeContratoDAO();
         FakeClienteDAO clienteDAO = new FakeClienteDAO();
         FakeMotoDAO motoDAO = new FakeMotoDAO();
-        clienteDAO.cliente = Optional.of(new Cliente(1, "C1", "Ana", "Perez", "Lopez", 30, Sexo.FEMENINO, "55512345", 1));
+        clienteDAO.cliente = Optional.of(new Cliente(1, "99123112345", "Ana", "Perez", "Lopez", 30, Sexo.FEMENINO, "65512345", 1));
         motoDAO.moto = Optional.of(crearMoto(1, "MO0001"));
         motoDAO.disponible = false;
         ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
@@ -81,7 +81,7 @@ public class ContratoServiceContractTest extends TestCase {
         FakeContratoDAO contratoDAO = new FakeContratoDAO();
         FakeClienteDAO clienteDAO = new FakeClienteDAO();
         FakeMotoDAO motoDAO = new FakeMotoDAO();
-        clienteDAO.cliente = Optional.of(new Cliente(1, "C1", "Ana", "Perez", "Lopez", 30, Sexo.FEMENINO, "55512345", 1));
+        clienteDAO.cliente = Optional.of(new Cliente(1, "99123112345", "Ana", "Perez", "Lopez", 30, Sexo.FEMENINO, "65512345", 1));
         motoDAO.moto = Optional.of(crearMoto(1, "MO0001"));
         motoDAO.disponible = true;
         ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
