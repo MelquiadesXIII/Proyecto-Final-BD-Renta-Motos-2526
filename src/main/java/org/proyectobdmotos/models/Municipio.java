@@ -1,12 +1,12 @@
 package org.proyectobdmotos.models;
 
-@SuppressWarnings("OverridableMethodCallDuringObjectConstruction")
+import org.proyectobdmotos.utils.Validator;
 
+@SuppressWarnings("OverridableMethodCallDuringObjectConstruction")
 public class Municipio {
 
     private int idMunicipio;
     private String nombreMunicipio;
-
 
     public Municipio(int idMunicipio, String nombreMunicipio) {
         setIdMunicipio(idMunicipio);
@@ -26,8 +26,7 @@ public class Municipio {
     }
 
     public void setNombreMunicipio(String nombreMunicipio) {
+        Validator.validateText(nombreMunicipio);
         this.nombreMunicipio = nombreMunicipio;
     }
-
-    
 }
