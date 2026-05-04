@@ -40,10 +40,10 @@ public class MotoServiceContractTest extends TestCase {
         FakeMotoDAO motoDAO = new FakeMotoDAO();
         MotoService motoService = new MotoService(motoDAO);
 
-        Optional<Moto> resultado = motoService.buscarPorMatricula("NO-EXISTE");
+        Optional<Moto> resultado = motoService.buscarPorMatricula("ZZZ999");
 
         assertFalse(resultado.isPresent());
-        assertEquals("NO-EXISTE", motoDAO.ultimaMatriculaBuscada);
+        assertEquals("ZZZ999", motoDAO.ultimaMatriculaBuscada);
     }
 
     public void testListarTodosRetornaColeccionDelDAO() {
@@ -68,7 +68,7 @@ public class MotoServiceContractTest extends TestCase {
         IllegalStateException excepcion = null;
 
         try {
-            motoService.buscarPorMatricula("XX");
+            motoService.buscarPorMatricula("AA0001");
         } catch (IllegalStateException ex) {
             excepcion = ex;
         }

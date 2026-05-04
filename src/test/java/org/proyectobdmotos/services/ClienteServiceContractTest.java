@@ -25,24 +25,24 @@ public class ClienteServiceContractTest extends TestCase {
 
     public void testBuscarPorCiRetornaResultadoDelDAO() {
         FakeClienteDAO clienteDAO = new FakeClienteDAO();
-        Cliente cliente = new Cliente(1, "123", "Ana", "Perez", "Lopez", 30, Sexo.FEMENINO, "55512345", 1);
+        Cliente cliente = new Cliente(1, "99123112345", "Ana", "Perez", "Lopez", 30, Sexo.FEMENINO, "55512345", 1);
         clienteDAO.clienteBuscado = java.util.Optional.of(cliente);
         ClienteService clienteService = new ClienteService(clienteDAO);
 
-        java.util.Optional<Cliente> resultado = clienteService.buscarPorCi("123");
+        java.util.Optional<Cliente> resultado = clienteService.buscarPorCi("99123112345");
 
         assertEquals(clienteDAO.clienteBuscado, resultado);
-        assertEquals("123", clienteDAO.ultimoCiBuscado);
+        assertEquals("99123112345", clienteDAO.ultimoCiBuscado);
     }
 
     public void testBuscarPorCiRetornaVacioCuandoNoExisteRegistro() {
         FakeClienteDAO clienteDAO = new FakeClienteDAO();
         ClienteService clienteService = new ClienteService(clienteDAO);
 
-        java.util.Optional<Cliente> resultado = clienteService.buscarPorCi("999");
+        java.util.Optional<Cliente> resultado = clienteService.buscarPorCi("00000000000");
 
         assertFalse(resultado.isPresent());
-        assertEquals("999", clienteDAO.ultimoCiBuscado);
+        assertEquals("00000000000", clienteDAO.ultimoCiBuscado);
     }
 
     public void testBuscarPorCiPropagaExcepcionDelDAO() {
