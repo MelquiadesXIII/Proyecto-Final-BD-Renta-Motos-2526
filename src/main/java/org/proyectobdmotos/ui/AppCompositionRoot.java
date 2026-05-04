@@ -6,7 +6,9 @@ import java.sql.SQLException;
 import org.proyectobdmotos.dao.ClienteDAO;
 import org.proyectobdmotos.dao.ContratoDAO;
 import org.proyectobdmotos.dao.MotoDAO;
+import org.proyectobdmotos.utils.IdGenerator;
 import org.proyectobdmotos.utils.Logger;
+import org.proyectobdmotos.utils.Validator;
 import org.proyectobdmotos.database.DatabaseConnection;
 import org.proyectobdmotos.services.AgenciaService;
 import org.proyectobdmotos.services.ClienteService;
@@ -24,6 +26,7 @@ public final class AppCompositionRoot {
 
     // Capa de infraestructura
     private final Connection connection;
+    private final IdGenerator idGenerator;
 
     // Capa de acceso a datos
     private final ClienteDAO clienteDAO;
@@ -49,14 +52,19 @@ public final class AppCompositionRoot {
         // 1. Connection
         Logger.log("✓ Creando Connection");
         this.connection = DatabaseConnection.getInstance();
+        Validator.setConnection(this.connection);
 
-        // 2. DAOs
+        // 2. IdGenerator
+        Logger.log("✓ Creando IdGenerator");
+        this.idGenerator = new IdGenerator(connection);
+
+        // 3. DAOs
         Logger.log("✓ Creando DAOs (ClienteDAO, MotoDAO, ContratoDAO)");
         this.clienteDAO = new ClienteDAO(connection);
         this.motoDAO = new MotoDAO(connection);
         this.contratoDAO = new ContratoDAO(connection);
 
-        // 3. Services
+        // 4. Services
         Logger.log("✓ Creando Services (ClienteService, MotoService, ContratoService)");
         this.clienteService = new ClienteService(clienteDAO);
         this.motoService = new MotoService(motoDAO);
@@ -65,12 +73,12 @@ public final class AppCompositionRoot {
         Logger.log("✓ Creando AgenciaService (fachada)");
         this.agenciaService = new AgenciaService(clienteService, motoService, contratoService);
 
-        // 4. Stores
+        // 5. Stores
         Logger.log("✓ Creando Stores (AgenciaStore, ReferenceDataStore)");
         this.agenciaStore = new AgenciaStore();
         this.referenceDataStore = new ReferenceDataStore();
 
-        // 5. ScreenLoader
+        // 6. ScreenLoader
         Logger.log("✓ Creando ScreenLoader");
         this.screenLoader = new ScreenLoader(this);
 
@@ -81,6 +89,10 @@ public final class AppCompositionRoot {
 
     public Connection getConnection() {
         return connection;
+    }
+
+    public IdGenerator getIdGenerator() {
+        return idGenerator;
     }
 
     public ClienteDAO getClienteDAO() {
