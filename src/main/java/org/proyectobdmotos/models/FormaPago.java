@@ -1,5 +1,8 @@
 package org.proyectobdmotos.models;
 
+import org.proyectobdmotos.services.exceptions.BusinessErrorCode;
+import org.proyectobdmotos.services.exceptions.ValidationException;
+
 public enum FormaPago {
   EFECTIVO(1, "efectivo"),
   CHEQUE(2, "cheque"),
@@ -22,16 +25,40 @@ public enum FormaPago {
   }
 
   public static FormaPago fromId(int id) {
+    FormaPago resultado = null;
+    boolean encontrado = false;
     for (FormaPago forma : values()) {
-      if (forma.id == id) return forma;
+      if (forma.id == id) {
+        resultado = forma;
+        encontrado = true;
+      }
     }
-    throw new IllegalArgumentException("ID de forma de pago inválido: " + id);
+
+    if (!encontrado) {
+      throw new ValidationException(
+          BusinessErrorCode.ID_INVALIDO,
+          "ID de forma de pago inválido: " + id);
+    }
+
+    return resultado;
   }
 
   public static FormaPago fromValor(String valor) {
+    FormaPago resultado = null;
+    boolean encontrado = false;
     for (FormaPago forma : values()) {
-      if (forma.valor.equalsIgnoreCase(valor)) return forma;
+      if (forma.valor.equalsIgnoreCase(valor)) {
+        resultado = forma;
+        encontrado = true;
+      }
     }
-    throw new IllegalArgumentException("Forma de pago inválida: " + valor);
+
+    if (!encontrado) {
+      throw new ValidationException(
+          BusinessErrorCode.FORMATO_INVALIDO,
+          "Forma de pago inválida: " + valor);
+    }
+
+    return resultado;
   }
 }

@@ -1,5 +1,8 @@
 package org.proyectobdmotos.models;
 
+import org.proyectobdmotos.services.exceptions.BusinessErrorCode;
+import org.proyectobdmotos.services.exceptions.ValidationException;
+
 public enum Sexo {
   MASCULINO(1, "masculino"),
   FEMENINO(2, "femenino");
@@ -21,16 +24,40 @@ public enum Sexo {
   }
 
   public static Sexo fromId(int id) {
+    Sexo resultado = null;
+    boolean encontrado = false;
     for (Sexo sexo : values()) {
-      if (sexo.id == id) return sexo;
+      if (sexo.id == id) {
+        resultado = sexo;
+        encontrado = true;
+      }
     }
-    throw new IllegalArgumentException("ID de sexo inválido: " + id);
+
+    if (!encontrado) {
+      throw new ValidationException(
+          BusinessErrorCode.ID_INVALIDO,
+          "ID de sexo inválido: " + id);
+    }
+
+    return resultado;
   }
 
   public static Sexo fromValor(String valor) {
+    Sexo resultado = null;
+    boolean encontrado = false;
     for (Sexo sexo : values()) {
-      if (sexo.valor.equalsIgnoreCase(valor)) return sexo;
+      if (sexo.valor.equalsIgnoreCase(valor)) {
+        resultado = sexo;
+        encontrado = true;
+      }
     }
-    throw new IllegalArgumentException("Sexo inválido: " + valor);
+
+    if (!encontrado) {
+      throw new ValidationException(
+          BusinessErrorCode.FORMATO_INVALIDO,
+          "Sexo inválido: " + valor);
+    }
+
+    return resultado;
   }
 }
