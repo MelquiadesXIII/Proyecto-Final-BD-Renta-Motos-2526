@@ -42,7 +42,6 @@ public class Cliente {
 
     public void setCiCliente(String ciCliente) {
         Validator.validateCI(ciCliente);
-        Validator.validateUniqueField("ci", ciCliente);
         this.ciCliente = ciCliente;
     }
 

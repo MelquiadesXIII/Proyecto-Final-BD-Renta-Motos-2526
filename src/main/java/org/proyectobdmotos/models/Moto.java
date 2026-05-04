@@ -36,7 +36,6 @@ public class Moto {
 
     public void setMatriculaMoto(String matriculaMoto) {
         Validator.validatePlate(matriculaMoto);
-        Validator.validateUniqueField("matricula", matriculaMoto);
         this.matriculaMoto = matriculaMoto;
     }
 
