@@ -3,6 +3,8 @@ package org.proyectobdmotos.models;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
+import org.proyectobdmotos.utils.Validator;
+
 @SuppressWarnings("OverridableMethodCallDuringObjectConstruction")
 
 public class Contrato {
@@ -52,6 +54,7 @@ public class Contrato {
     }
 
     public void setFechaInicio(LocalDate fechaInicio) {
+        Validator.validateLocalDate(fechaInicio);
         this.fechaInicio = fechaInicio;
     }
 
@@ -60,6 +63,7 @@ public class Contrato {
     }
 
     public void setIdMoto(Integer idMoto) {
+        Validator.nonNull(idMoto);
         this.idMoto = idMoto;
     }
 
@@ -68,6 +72,7 @@ public class Contrato {
     }
 
     public void setFechaFin(LocalDate fechaFin) {
+        Validator.validateLocalDate(fechaFin);
         this.fechaFin = fechaFin;
     }
 
@@ -76,6 +81,7 @@ public class Contrato {
     }
 
     public void setIdCliente(Integer idCliente) {
+        Validator.nonNull(idCliente);
         this.idCliente = idCliente;
     }
 
@@ -84,6 +90,7 @@ public class Contrato {
     }
 
     public void setFormaPago(FormaPago formaPago) {
+        Validator.nonNull(formaPago);
         this.formaPago = formaPago;
     }
 
@@ -92,6 +99,11 @@ public class Contrato {
     }
 
     public void setDiasProrroga(int diasProrroga) {
+        boolean valid = diasProrroga >= 0;
+        if (!valid) {
+            throw new IllegalArgumentException(
+                "Los días de prórroga no pueden ser negativos. Recibido: " + diasProrroga);
+        }
         this.diasProrroga = diasProrroga;
     }
 
@@ -108,6 +120,7 @@ public class Contrato {
     }
 
     public void setTarifaNormal(double tarifaNormal) {
+        Validator.validatePositive(tarifaNormal);
         this.tarifaNormal = tarifaNormal;
     }
 
@@ -116,6 +129,11 @@ public class Contrato {
     }
 
     public void setTarifaProrroga(double tarifaProrroga) {
+        boolean valid = tarifaProrroga >= 0;
+        if (!valid) {
+            throw new IllegalArgumentException(
+                "La tarifa de prórroga no puede ser negativa. Recibida: " + tarifaProrroga);
+        }
         this.tarifaProrroga = tarifaProrroga;
     }
 
@@ -132,6 +150,11 @@ public class Contrato {
     }
 
     public void setCantKmSalida(double cantKmSalida) {
+        boolean valid = cantKmSalida >= 0;
+        if (!valid) {
+            throw new IllegalArgumentException(
+                "Los km de salida no pueden ser negativos. Recibidos: " + cantKmSalida);
+        }
         this.cantKmSalida = cantKmSalida;
     }
 
@@ -140,6 +163,11 @@ public class Contrato {
     }
 
     public void setCantKmLlegada(double cantKmLlegada) {
+        boolean valid = cantKmLlegada >= 0;
+        if (!valid) {
+            throw new IllegalArgumentException(
+                "Los km de llegada no pueden ser negativos. Recibidos: " + cantKmLlegada);
+        }
         this.cantKmLlegada = cantKmLlegada;
     }
 

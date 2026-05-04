@@ -1,7 +1,8 @@
 package org.proyectobdmotos.models;
 
-@SuppressWarnings("OverridableMethodCallDuringObjectConstruction")
+import org.proyectobdmotos.utils.Validator;
 
+@SuppressWarnings("OverridableMethodCallDuringObjectConstruction")
 public class Cliente {
 
     private Integer idCliente;
@@ -38,49 +39,75 @@ public class Cliente {
     public String getCiCliente() {
         return ciCliente;
     }
+
     public void setCiCliente(String ciCliente) {
+        Validator.validateCI(ciCliente);
+        Validator.validateUniqueField("ci", ciCliente);
         this.ciCliente = ciCliente;
     }
+
     public String getNombreCliente() {
         return nombreCliente;
     }
+
     public void setNombreCliente(String nombreCliente) {
+        Validator.validateText(nombreCliente);
         this.nombreCliente = nombreCliente;
     }
+
     public String getPrimerApellido() {
         return primerApellido;
     }
+
     public void setPrimerApellido(String primerApellido) {
+        Validator.validateText(primerApellido);
         this.primerApellido = primerApellido;
     }
+
     public String getSegundoApellido() {
         return segundoApellido;
     }
+
     public void setSegundoApellido(String segundoApellido) {
+        if (segundoApellido != null) {
+            Validator.validateText(segundoApellido);
+        }
         this.segundoApellido = segundoApellido;
     }
+
     public int getEdad() {
         return edad;
     }
+
     public void setEdad(int edad) {
+        Validator.validateAge(edad);
         this.edad = edad;
     }
+
     public Sexo getSexo() {
         return sexo;
     }
+
     public void setSexo(Sexo sexo) {
+        Validator.nonNull(sexo);
         this.sexo = sexo;
     }
+
     public String getNumeroContacto() {
         return numeroContacto;
     }
+
     public void setNumeroContacto(String numeroContacto) {
+        Validator.validateTelephoneNumber(numeroContacto);
         this.numeroContacto = numeroContacto;
     }
+
     public Integer getIdMunicipio() {
         return idMunicipio;
     }
+
     public void setIdMunicipio(Integer idMunicipio) {
+        Validator.nonNull(idMunicipio);
         this.idMunicipio = idMunicipio;
     }
 }
