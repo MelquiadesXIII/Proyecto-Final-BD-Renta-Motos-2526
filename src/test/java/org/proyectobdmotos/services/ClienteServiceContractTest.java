@@ -25,7 +25,7 @@ public class ClienteServiceContractTest extends TestCase {
 
     public void testBuscarPorCiRetornaResultadoDelDAO() {
         FakeClienteDAO clienteDAO = new FakeClienteDAO();
-        Cliente cliente = new Cliente(1, "123", "Ana", "Perez", "Lopez", 30, Sexo.FEMENINO, "555", 1);
+        Cliente cliente = new Cliente(1, "123", "Ana", "Perez", "Lopez", 30, Sexo.FEMENINO, "55512345", 1);
         clienteDAO.clienteBuscado = java.util.Optional.of(cliente);
         ClienteService clienteService = new ClienteService(clienteDAO);
 
