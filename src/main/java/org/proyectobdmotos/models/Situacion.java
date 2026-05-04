@@ -1,5 +1,8 @@
 package org.proyectobdmotos.models;
 
+import org.proyectobdmotos.services.exceptions.BusinessErrorCode;
+import org.proyectobdmotos.services.exceptions.ValidationException;
+
 public enum Situacion {
   DISPONIBLE(1, "disponible"),
   ALQUILADA(2, "alquilada"),
@@ -22,16 +25,40 @@ public enum Situacion {
   }
 
   public static Situacion fromId(int id) {
+    Situacion resultado = null;
+    boolean encontrado = false;
     for (Situacion situacion : values()) {
-      if (situacion.id == id) return situacion;
+      if (situacion.id == id) {
+        resultado = situacion;
+        encontrado = true;
+      }
     }
-    throw new IllegalArgumentException("ID de situación inválido: " + id);
+
+    if (!encontrado) {
+      throw new ValidationException(
+          BusinessErrorCode.ID_INVALIDO,
+          "ID de situación inválido: " + id);
+    }
+
+    return resultado;
   }
 
   public static Situacion fromValor(String valor) {
+    Situacion resultado = null;
+    boolean encontrado = false;
     for (Situacion situacion : values()) {
-      if (situacion.valor.equalsIgnoreCase(valor)) return situacion;
+      if (situacion.valor.equalsIgnoreCase(valor)) {
+        resultado = situacion;
+        encontrado = true;
+      }
     }
-    throw new IllegalArgumentException("Situación inválida: " + valor);
+
+    if (!encontrado) {
+      throw new ValidationException(
+          BusinessErrorCode.FORMATO_INVALIDO,
+          "Situación inválida: " + valor);
+    }
+
+    return resultado;
   }
 }
