@@ -59,8 +59,8 @@ public class ContratoServiceContractTest extends TestCase {
         FakeContratoDAO contratoDAO = new FakeContratoDAO();
         FakeClienteDAO clienteDAO = new FakeClienteDAO();
         FakeMotoDAO motoDAO = new FakeMotoDAO();
-        clienteDAO.cliente = Optional.of(new Cliente(1, "C1", "Ana", "Perez", "Lopez", 30, Sexo.FEMENINO, "555", 1));
-        motoDAO.moto = Optional.of(crearMoto(1, "M1"));
+        clienteDAO.cliente = Optional.of(new Cliente(1, "C1", "Ana", "Perez", "Lopez", 30, Sexo.FEMENINO, "55512345", 1));
+        motoDAO.moto = Optional.of(crearMoto(1, "MO0001"));
         motoDAO.disponible = false;
         ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
         Contrato contrato = crearContrato(1, 1);
@@ -81,8 +81,8 @@ public class ContratoServiceContractTest extends TestCase {
         FakeContratoDAO contratoDAO = new FakeContratoDAO();
         FakeClienteDAO clienteDAO = new FakeClienteDAO();
         FakeMotoDAO motoDAO = new FakeMotoDAO();
-        clienteDAO.cliente = Optional.of(new Cliente(1, "C1", "Ana", "Perez", "Lopez", 30, Sexo.FEMENINO, "555", 1));
-        motoDAO.moto = Optional.of(crearMoto(1, "M1"));
+        clienteDAO.cliente = Optional.of(new Cliente(1, "C1", "Ana", "Perez", "Lopez", 30, Sexo.FEMENINO, "55512345", 1));
+        motoDAO.moto = Optional.of(crearMoto(1, "MO0001"));
         motoDAO.disponible = true;
         ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
         Contrato contrato = crearContrato(1, 1);
@@ -180,7 +180,7 @@ public class ContratoServiceContractTest extends TestCase {
             50.0
         );
         contratoDAO.contrato = Optional.of(contratoPersistido);
-        motoDAO.moto = Optional.of(crearMoto(1, "M1"));
+        motoDAO.moto = Optional.of(crearMoto(1, "MO0001"));
 
         ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
 
@@ -232,7 +232,7 @@ public class ContratoServiceContractTest extends TestCase {
             50.0
         );
         contratoDAO.contrato = Optional.of(contratoPersistido);
-        motoDAO.moto = Optional.of(crearMoto(1, "M1"));
+        motoDAO.moto = Optional.of(crearMoto(1, "MO0001"));
 
         ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
 
@@ -284,7 +284,7 @@ public class ContratoServiceContractTest extends TestCase {
             50.0
         );
         contratoDAO.contrato = Optional.of(contratoPersistido);
-        motoDAO.moto = Optional.of(crearMoto(1, "M1"));
+        motoDAO.moto = Optional.of(crearMoto(1, "MO0001"));
 
         ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
 
@@ -336,7 +336,7 @@ public class ContratoServiceContractTest extends TestCase {
             50.0
         );
         contratoDAO.contrato = Optional.of(contratoPersistido);
-        motoDAO.moto = Optional.of(crearMoto(1, "M1"));
+        motoDAO.moto = Optional.of(crearMoto(1, "MO0001"));
 
         ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
 
