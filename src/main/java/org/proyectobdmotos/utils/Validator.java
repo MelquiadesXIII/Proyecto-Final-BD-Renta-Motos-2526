@@ -6,6 +6,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 
+import org.proyectobdmotos.services.exceptions.BusinessErrorCode;
+import org.proyectobdmotos.services.exceptions.ValidationException;
+
 public abstract class Validator {
 
     private static Connection connection;
@@ -26,7 +29,10 @@ public abstract class Validator {
     public static boolean nonNull(Object o) {
         boolean valid = o != null;
         if (!valid) {
-            throw new IllegalArgumentException("El campo es requerido y no puede ser nulo.");
+            throw new ValidationException(
+                BusinessErrorCode.CAMPO_REQUERIDO,
+                "El campo es requerido y no puede ser nulo."
+            );
         }
         return valid;
     }
@@ -42,7 +48,8 @@ public abstract class Validator {
             valid = true;
         }
         if (!valid) {
-            throw new IllegalArgumentException(
+            throw new ValidationException(
+                BusinessErrorCode.FORMATO_INVALIDO,
                 "Texto inválido: debe tener entre 3 y 25 caracteres, sin números ni caracteres especiales."
                 + " Recibido: \"" + text + "\"");
         }
@@ -58,23 +65,25 @@ public abstract class Validator {
             valid = true;
         }
         if (!valid) {
-            throw new IllegalArgumentException(
+            throw new ValidationException(
+                BusinessErrorCode.RANGO_INVALIDO,
                 "Edad inválida: debe estar entre 18 y 99 años. Recibida: " + age);
         }
         return valid;
     }
 
     /**
-     * Valida número de teléfono cubano: exactamente 8 dígitos comenzando con 5.
+     * Valida número de teléfono cubano: exactamente 8 dígitos comenzando con 5 o 6.
      */
     public static boolean validateTelephoneNumber(String number) {
         boolean valid = false;
-        if (nonNull(number) && number.matches("^5\\d{7}$")) {
+        if (nonNull(number) && number.matches("^[56]\\d{7}$")) {
             valid = true;
         }
         if (!valid) {
-            throw new IllegalArgumentException(
-                "Número de teléfono inválido: debe tener 8 dígitos y comenzar con 5."
+            throw new ValidationException(
+                BusinessErrorCode.FORMATO_INVALIDO,
+                "Número de teléfono inválido: debe tener 8 dígitos y comenzar con 5 o 6."
                 + " Recibido: \"" + number + "\"");
         }
         return valid;
@@ -82,9 +91,21 @@ public abstract class Validator {
 
     /**
      * Valida carnet de identidad. La lógica completa se implementará posteriormente.
+     * El carnet de identidad cubano debe tener 11 digitos
      */
     public static boolean validateCI(String ci) {
-        return true;
+        boolean valid = false;
+        if (nonNull(ci) && ci.matches("^\\d{11}$")) {
+            valid = true;
+        }
+        if (!valid) {
+            throw new ValidationException(
+                BusinessErrorCode.FORMATO_INVALIDO,
+                "Carnet de identidad inválido: debe tener exactamente 11 dígitos."
+                + " Recibido: \"" + ci + "\""
+            );
+        }
+        return valid;
     }
 
     /**
@@ -93,7 +114,10 @@ public abstract class Validator {
     public static boolean validateLocalDate(LocalDate ld) {
         boolean valid = ld != null;
         if (!valid) {
-            throw new IllegalArgumentException("La fecha no puede ser nula.");
+            throw new ValidationException(
+                BusinessErrorCode.FECHA_INVALIDA,
+                "La fecha no puede ser nula."
+            );
         }
         return valid;
     }
@@ -107,7 +131,8 @@ public abstract class Validator {
             valid = true;
         }
         if (!valid) {
-            throw new IllegalArgumentException(
+            throw new ValidationException(
+                BusinessErrorCode.NUMERO_NO_POSITIVO,
                 "El número debe ser positivo (mayor que cero). Recibido: " + number);
         }
         return valid;
@@ -122,7 +147,8 @@ public abstract class Validator {
             valid = true;
         }
         if (!valid) {
-            throw new IllegalArgumentException(
+            throw new ValidationException(
+                BusinessErrorCode.FORMATO_INVALIDO,
                 "Matrícula inválida: debe tener exactamente 6 caracteres alfanuméricos."
                 + " Recibida: \"" + plate + "\"");
         }
@@ -147,7 +173,8 @@ public abstract class Validator {
         boolean isUnique = true;
 
         if (connection == null) {
-            throw new IllegalStateException(
+            throw new ValidationException(
+                BusinessErrorCode.SIN_CONEXION_BD,
                 "Validator: la conexión a la base de datos no fue inicializada. "
                 + "Llama a Validator.setConnection(conn) desde AppCompositionRoot.");
         }
@@ -165,7 +192,8 @@ public abstract class Validator {
 
         boolean fieldRecognized = sql != null;
         if (!fieldRecognized) {
-            throw new IllegalArgumentException(
+            throw new ValidationException(
+                BusinessErrorCode.UNICIDAD_INVALIDA,
                 "Campo de unicidad desconocido: \"" + field + "\". "
                 + "Valores aceptados: \"ci\", \"matricula\".");
         }
@@ -180,12 +208,16 @@ public abstract class Validator {
             }
         } catch (SQLException e) {
             Logger.logError("Error al verificar unicidad del campo \"" + field + "\": " + e.getMessage());
-            throw new RuntimeException(
-                "Error al verificar unicidad del campo \"" + field + "\": " + e.getMessage(), e);
+            throw new ValidationException(
+                BusinessErrorCode.SIN_CONEXION_BD,
+                "Error al verificar unicidad del campo \"" + field + "\": " + e.getMessage(),
+                e
+            );
         }
 
         if (!isUnique) {
-            throw new IllegalArgumentException(
+            throw new ValidationException(
+                BusinessErrorCode.UNICIDAD_INVALIDA,
                 fieldLabel + " \"" + value + "\" ya existe en el sistema.");
         }
 
