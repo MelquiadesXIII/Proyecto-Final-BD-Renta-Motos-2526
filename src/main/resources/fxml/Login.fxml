@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="728.0" prefWidth="1284.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
+   <stylesheets>
+      <URL value="@login.css" />
+   </stylesheets>
+   <children>
+      <ImageView fitHeight="735.0" fitWidth="1299.0" layoutX="-14.0" layoutY="-3.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@moto-login.jpg" />
+         </image></ImageView>
+      <!-- Título principal (cambiado el texto y centrado) -->
+      <Label alignment="CENTER" layoutX="467.0" layoutY="14.0" prefHeight="70.0" prefWidth="317.0" styleClass="login-title" stylesheets="@login.css" text="Iniciar sesión">
+         <font>
+            <Font name="System Bold" size="48.0" />
+         </font>
+      </Label>
+
+      <!-- Etiqueta Usuario (conservando posición y fuente) -->
+      <Label alignment="CENTER_RIGHT" layoutX="395.0" layoutY="135.0" prefHeight="47.0" prefWidth="115.0" styleClass="login-label" stylesheets="@login.css" text="Usuario">
+         <font>
+            <Font size="32.0" />
+         </font>
+      </Label>
+
+      <!-- Etiqueta Contraseña (conservando posición y fuente) -->
+      <Label alignment="CENTER_RIGHT" layoutX="315.0" layoutY="217.0" prefHeight="61.0" prefWidth="208.0" styleClass="login-label" stylesheets="@login.css" text="Contraseña">
+         <font>
+            <Font size="30.0" />
+         </font>
+      </Label>
+
+      <!-- Campo de usuario (igual que el tuyo) -->
+      <TextField layoutX="624.0" layoutY="140.0" prefHeight="37.0" prefWidth="213.0" promptText="Usuario" styleClass="login-text-field" stylesheets="@login.css" />
+
+      <!-- Botón de inicio de sesión (nuevo) -->
+      <Button layoutX="642.0" layoutY="334.0" prefHeight="46.0" prefWidth="177.0" styleClass="login-button" stylesheets="@login.css" text="Iniciar sesión" />
+
+      <!-- Tus dos Hyperlinks, ahora con posiciones fijas en la parte inferior -->
+      <Hyperlink layoutX="583.0" layoutY="477.0" onAction="#goToRegister" styleClass="link-register" stylesheets="@login.css" text="¿No tienes cuenta? Crear usuario">
+         <font>
+            <Font size="93.0" />
+         </font></Hyperlink>
+      <Hyperlink layoutX="321.0" layoutY="477.0" onAction="#goToTerms" styleClass="link-terms" stylesheets="@login.css" text="Condiciones y Servicios" />
+      <PasswordField layoutX="627.0" layoutY="229.0" prefHeight="37.0" prefWidth="208.0" promptText="Contraseña" styleClass="login-text-field" stylesheets="@login.css" />
+   </children>
+</AnchorPane>
