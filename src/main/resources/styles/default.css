@@ -1,0 +1,60 @@
+/*
+Esto se creo como una forma de tener estilos mas definidos
+Tambien lo uso principalmente para la parte de colocarlo en la app.
+*/
+/* Campos de texto (TextField, PasswordField) */
+.campo-texto {
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-text-fill: #2d3436;
+    -fx-font-size: 14px;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-width: 2px;
+    -fx-border-color: #dfe6e9;
+    -fx-padding: 8px 12px;
+}
+.campo-texto:focused {
+    -fx-border-color: #3498db;
+}
+
+/* Botones principales */
+.boton-accion {
+    -fx-background-color: #FF6B6B;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-padding: 10px 20px;
+}
+.boton-accion:hover {
+    -fx-background-color: #ee5a24;
+}
+
+/* Titulos grandes */
+.etiqueta-titulo {
+    -fx-text-fill: white;
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+}
+
+/* Etiquetas normales */
+.etiqueta-normal {
+    -fx-text-fill: #FFD700;   /* dorado para buen contraste */
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+/* Etiquetas secundarias  */
+.etiqueta-secundaria {
+    -fx-text-fill: white;
+    -fx-font-size: 18px;
+}
+
+/* Paneles con fondo semitransparente  */
+.panel-fondo {
+    -fx-background-color: rgba(0, 0, 0, 0.4);
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-padding: 20px;
+}
