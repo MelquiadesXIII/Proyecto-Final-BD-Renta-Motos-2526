@@ -17,7 +17,7 @@
    <children>
       <ImageView fitHeight="735.0" fitWidth="1299.0" layoutX="-14.0" layoutY="-3.0" pickOnBounds="true" preserveRatio="true">
          <image>
-            <Image url="@moto-login.jpg" />
+            <Image url="@../Utiles/moto-login.jpg" />
          </image></ImageView>
       <!-- Título principal (cambiado el texto y centrado) -->
       <Label alignment="CENTER" layoutX="467.0" layoutY="14.0" prefHeight="70.0" prefWidth="317.0" styleClass="login-title" stylesheets="@login.css" text="Iniciar sesión">
