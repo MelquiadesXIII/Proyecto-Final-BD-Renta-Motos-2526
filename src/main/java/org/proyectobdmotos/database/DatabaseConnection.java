@@ -46,6 +46,9 @@ public class DatabaseConnection {
             Logger.log("Iniciando migraciones de base de datos...");
             Flyway flyway = Flyway.configure()
                     .dataSource(url, user, password)
+                    // Si de pasa algo de que no te deja compilar el proyecto
+                    // y lo del repair no funciona... entonces descomenta la linea
+                    // de abajo. Es probable que te ayude.
                     //.baselineOnMigrate(true)
                     .load();
 

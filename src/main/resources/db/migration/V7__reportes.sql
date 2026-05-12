@@ -2,6 +2,9 @@
 
 -- ESTO de abajo es para que la zona horaria sea la de cuba.
 SET timezone = 'America/Havana';
+DROP FUNCTION IF EXISTS reporte_motos;
+
+
 
 --Listado de los clientes:
 -- Fecha (fecha en que se muestra el reporte)
@@ -136,6 +139,11 @@ $$;
 -- Color
 -- Cantidad de kilómetros recorridos
 
+
+DROP FUNCTION IF EXISTS reporte_motos();
+
+
+
 --===============================================
 --FUNCION: listado completo de motos
 --===============================================
@@ -184,6 +192,9 @@ $$;
 -- Prórroga (cantidad de días)
 -- Seguro adicional (sí o no)
 -- Importe total
+
+
+DROP FUNCTION IF EXISTS listado_contratos();
 
 CREATE OR REPLACE FUNCTION listado_contratos()
 RETURNS TABLE (
@@ -238,7 +249,7 @@ $$;
 -- En caso de estar alquilada, fecha de fin del contrato
 
 
-
+DROP FUNCTION IF EXISTS reporte_situacion_motos();
 
 CREATE OR REPLACE FUNCTION reporte_situacion_motos()
 RETURNS TABLE(
@@ -283,7 +294,7 @@ $$;
 -- Fecha de entrega de la moto
 
 
-
+DROP FUNCTION IF EXISTS lista_incumplidores();
 
 CREATE OR REPLACE FUNCTION lista_incumplidores()
 RETURNS TABLE (
@@ -445,6 +456,8 @@ $$;
 -- FUNCION PRINCIPAL:
 --================================================
 
+DROP FUNCTION IF EXISTS resumen_contratos_por_marcas_modelos();
+
 CREATE OR REPLACE FUNCTION resumen_contratos_por_marcas_modelos()
 RETURNS TABLE (
     "Fecha"                 DATE,
@@ -588,6 +601,9 @@ $$;
 -- =============================================
 -- FUNCION PRINCIPAL 
 -- =============================================
+
+DROP FUNCTION IF EXISTS resumen_contratos_por_municipios();
+
 CREATE OR REPLACE FUNCTION resumen_contratos_por_municipios()
 RETURNS TABLE (
     "Fecha"                DATE,
@@ -669,6 +685,9 @@ $$;
 -- =============================================
 -- FUNCION PRINCIPAL 
 -- =============================================
+
+DROP FUNCTION IF EXISTS listado_ingresos_anuales();
+
 CREATE OR REPLACE FUNCTION listado_ingresos_anuales()
 RETURNS TABLE (
     "Fecha"              DATE,

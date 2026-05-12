@@ -18,7 +18,7 @@ $$ LANGUAGE plpgsql;
 
 
 
--- DROP TRIGGER IF EXISTS trg_moto_alquilada ON contrato;
+DROP TRIGGER IF EXISTS trg_moto_alquilada ON contrato;
 
 
 CREATE TRIGGER trg_moto_alquilada
@@ -46,7 +46,7 @@ $$ LANGUAGE plpgsql;
 
 
 
--- DROP TRIGGER IF EXISTS trg_check_disponible ON contrato;
+DROP TRIGGER IF EXISTS trg_check_disponible ON contrato;
 
 
 
@@ -104,7 +104,7 @@ $$ LANGUAGE plpgsql;
 
 
 
--- DROP TRIGGER IF EXISTS trg_actualizar_km_entrega ON contrato;
+DROP TRIGGER IF EXISTS trg_actualizar_km_entrega ON contrato;
 
 
 CREATE TRIGGER trg_actualizar_km_entrega
