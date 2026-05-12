@@ -5,10 +5,10 @@ import java.io.IOException;
 import org.proyectobdmotos.controller.ClienteController;
 import org.proyectobdmotos.utils.Logger;
 import org.proyectobdmotos.controller.ContratoController;
+import org.proyectobdmotos.controller.LoginController;
 import org.proyectobdmotos.controller.MainController;
 import org.proyectobdmotos.controller.MotoController;
 import org.proyectobdmotos.ui.AppCompositionRoot;
-
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 
@@ -63,6 +63,10 @@ public final class ScreenLoader {
                     compositionRoot.getAgenciaStore(),
                     compositionRoot.getReferenceDataStore()
                 );
+            }
+            
+            if (controllerClass == LoginController.class) {
+                return new LoginController(this);  
             }
 
             if (controllerClass == MainController.class) {

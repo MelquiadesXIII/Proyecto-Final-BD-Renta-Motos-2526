@@ -34,7 +34,7 @@ public class FxApp extends Application {
 
         Parent root;
         try {
-            root = compositionRoot.getScreenLoader().load("/fxml/main.fxml");
+            root = compositionRoot.getScreenLoader().load("/fxml/login.fxml");
         } catch (Exception e) {
             Logger.logError("Error cargando main.fxml: " + e.getMessage());
             throw new RuntimeException("No se pudo cargar la interfaz principal", e);
@@ -46,7 +46,8 @@ public class FxApp extends Application {
 
         scene.getStylesheets().addAll(
                 getClass().getResource("/styles/app.css").toExternalForm(),
-                getClass().getResource("/styles/default.css").toExternalForm());
+                getClass().getResource("/styles/default.css").toExternalForm(),
+                getClass().getResource("/styles/login.css").toExternalForm());
 
         primaryStage.setTitle("Renta Motos - Sistema de Gestión");
         primaryStage.setScene(scene);
