@@ -46,6 +46,7 @@ public class DatabaseConnection {
             Logger.log("Iniciando migraciones de base de datos...");
             Flyway flyway = Flyway.configure()
                     .dataSource(url, user, password)
+                    //.baselineOnMigrate(true)
                     .load();
 
             // Usar este bloque de codigo cuando den error las migraciones 

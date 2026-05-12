@@ -7,6 +7,7 @@ import org.proyectobdmotos.utils.Logger;
 import javafx.application.Application;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 /**
@@ -39,19 +40,22 @@ public class FxApp extends Application {
             throw new RuntimeException("No se pudo cargar la interfaz principal", e);
         }
 
-        Scene scene = new Scene(root, 1200, 720);
-        scene.getStylesheets().add(getClass().getResource("/styles/app.css").toExternalForm());
-        
+        double screenWidth = Screen.getPrimary().getVisualBounds().getWidth();
+        double screenHeight = Screen.getPrimary().getVisualBounds().getHeight();
+        Scene scene = new Scene(root, screenWidth, screenHeight);
+
+        scene.getStylesheets().addAll(
+                getClass().getResource("/styles/app.css").toExternalForm(),
+                getClass().getResource("/styles/default.css").toExternalForm());
+
         primaryStage.setTitle("Renta Motos - Sistema de Gestión");
         primaryStage.setScene(scene);
+        primaryStage.setMaximized(true);
         primaryStage.show();
-
-        Logger.logInfo("Aplicación iniciada correctamente\n");
     }
 
     @Override
     public void stop() {
         Logger.log("\nCerrando aplicación...");
-        // Aquí se pueden cerrar recursos si es necesario (Connection, etc.)
     }
 }
