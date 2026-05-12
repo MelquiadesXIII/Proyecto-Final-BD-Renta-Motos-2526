@@ -16,10 +16,14 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+
+
+-- DROP TRIGGER IF EXISTS trg_moto_alquilada ON contrato;
+
+
 CREATE TRIGGER trg_moto_alquilada
 AFTER INSERT ON contrato
 FOR EACH ROW EXECUTE FUNCTION set_moto_alquilada();
-
 
 
 CREATE OR REPLACE FUNCTION check_moto_disponible()
@@ -39,6 +43,12 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
+
+
+-- DROP TRIGGER IF EXISTS trg_check_disponible ON contrato;
+
+
 
 CREATE TRIGGER trg_check_disponible
 BEFORE INSERT ON contrato
@@ -91,6 +101,11 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
+
+
+-- DROP TRIGGER IF EXISTS trg_actualizar_km_entrega ON contrato;
+
 
 CREATE TRIGGER trg_actualizar_km_entrega
 BEFORE UPDATE ON contrato
