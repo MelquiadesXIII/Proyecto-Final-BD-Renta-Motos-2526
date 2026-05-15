@@ -11,7 +11,7 @@ public class UsuarioDAO {
         try (Connection conn = DatabaseConnection.getInstance();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, usuario.getNombreUsuario());
-            ps.setString(2, usuario.getPassword());  // texto plano
+            ps.setString(2, usuario.getPassword());  
             ps.setString(3, usuario.getGmail());
             ps.setBoolean(4, usuario.isEsAdmin());
             try (ResultSet rs = ps.executeQuery()) {
