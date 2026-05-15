@@ -1,0 +1,32 @@
+.root {
+    -fx-background-color: #ffffff;
+    -fx-padding: 20;
+}
+
+.terms-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+    -fx-padding: 0 0 15 0;
+}
+
+.terms-text {
+    -fx-font-size: 14px;
+    -fx-control-inner-background: #f9f9f9;
+    -fx-border-color: #ddd;
+    -fx-border-radius: 5;
+}
+
+.btn-close {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5;
+    -fx-padding: 8 25;
+    -fx-margin: 15 0 0 0;
+}
+
+.btn-close:hover {
+    -fx-background-color: #2980b9;
+}
