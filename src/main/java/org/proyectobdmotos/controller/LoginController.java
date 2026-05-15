@@ -8,12 +8,12 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import org.proyectobdmotos.models.Usuario;
+import org.proyectobdmotos.services.UsuarioService;
 import org.proyectobdmotos.ui.navigation.ScreenLoader;
 import org.proyectobdmotos.utils.Logger;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 public class LoginController {
 
@@ -21,23 +21,11 @@ public class LoginController {
     @FXML private PasswordField campoContrasena;
 
     private final ScreenLoader screenLoader;
+    private final UsuarioService usuarioService;
 
-    // --- USUARIOS DE PRUEBA ---
-    private static final Map<String, String> USUARIOS_ADMIN = new HashMap<>();
-    static {
-        USUARIOS_ADMIN.put("Admin Lian", "admin123");
-        USUARIOS_ADMIN.put("Admin DarelL", "admin123");
-        USUARIOS_ADMIN.put("Admin Dario", "admin123");
-    }
-
-    private static final Map<String, String> USUARIOS_CLIENTE = new HashMap<>();
-    static {
-        USUARIOS_CLIENTE.put("Cliente1", "1234");
-        USUARIOS_CLIENTE.put("Dario", "1234");
-    }
-
-    public LoginController(ScreenLoader screenLoader) {
+    public LoginController(ScreenLoader screenLoader, UsuarioService usuarioService) {
         this.screenLoader = screenLoader;
+        this.usuarioService = usuarioService;
     }
 
     @FXML
@@ -55,19 +43,17 @@ public class LoginController {
             return;
         }
 
-        Logger.log("Intento de login: " + usuario);
+        try {
+            Usuario user = usuarioService.autenticar(usuario, pass);
+            Logger.logInfo("Login exitoso: " + user.getNombreUsuario());
 
-        // ¿Es administrador?
-        if (USUARIOS_ADMIN.containsKey(usuario) && USUARIOS_ADMIN.get(usuario).equals(pass)) {
-            irAPantallaPrincipal();
-        }
-        // ¿Es cliente?
-        else if (USUARIOS_CLIENTE.containsKey(usuario) && USUARIOS_CLIENTE.get(usuario).equals(pass)) {
-            irAPerfil(usuario);
-        }
-        // Credenciales incorrectas
-        else {
-            mostrarError("Credenciales inválidas", "Usuario o contraseña incorrectos.");
+            if (user.isEsAdmin()) {
+                irAPantallaPrincipal();
+            } else {
+                irAPerfil(user);
+            }
+        } catch (Exception e) {
+            mostrarError("Error de autenticación", e.getMessage());
         }
     }
 
@@ -90,23 +76,47 @@ public class LoginController {
         }
     }
 
-    private void irAPerfil(String nombreUsuario) {
+    private void irAPerfil(Usuario usuario) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/perfil.fxml"));
             Parent perfilRoot = loader.load();
             PerfilController perfilController = loader.getController();
-            perfilController.setNombreUsuario(nombreUsuario);
+            perfilController.setUsuario(usuario);
 
             Scene scene = new Scene(perfilRoot, 600, 400);
             Stage stage = (Stage) campoUsuario.getScene().getWindow();
             stage.setScene(scene);
-            stage.setTitle("Perfil de " + nombreUsuario);
+            stage.setTitle("Perfil de " + usuario.getNombreUsuario());
             stage.setMaximized(false);
-            Logger.logInfo("Login cliente exitoso: " + nombreUsuario);
+            Logger.logInfo("Login cliente exitoso: " + usuario.getNombreUsuario());
         } catch (IOException e) {
             Logger.logError("Error al cargar perfil.fxml: " + e.getMessage());
             mostrarError("Error", "No se pudo abrir el perfil.");
         }
+    }
+
+    @FXML
+    private void goToRegister() {
+        try {
+            Parent registerRoot = screenLoader.load("/fxml/registro.fxml");
+            Scene scene = new Scene(registerRoot);
+            scene.getStylesheets().add(getClass().getResource("/styles/register.css").toExternalForm());
+            Stage stage = (Stage) campoUsuario.getScene().getWindow();
+            stage.setScene(scene);
+            stage.setTitle("Crear cuenta");
+        } catch (IOException e) {
+            Logger.logError("Error al cargar registro: " + e.getMessage());
+            mostrarError("Error", "No se pudo abrir el registro.");
+        }
+    }
+
+    @FXML
+    private void goToTerms() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Términos y Condiciones");
+        alert.setHeaderText("Condiciones de uso del sistema de renta de motos");
+        alert.setContentText("Aquí el texto completo de los términos y condiciones...");
+        alert.showAndWait();
     }
 
     private void mostrarError(String titulo, String mensaje) {
@@ -115,17 +125,5 @@ public class LoginController {
         alerta.setHeaderText(null);
         alerta.setContentText(mensaje);
         alerta.showAndWait();
-    }
-
-    @FXML
-    private void goToRegister() {
-        Logger.log("Ir a registro");
-        // Aquí puedes cargar una pantalla de registro si la creas
-    }
-
-    @FXML
-    private void goToTerms() {
-        Logger.log("Ir a términos");
-        // Aquí puedes mostrar términos y condiciones
     }
 }

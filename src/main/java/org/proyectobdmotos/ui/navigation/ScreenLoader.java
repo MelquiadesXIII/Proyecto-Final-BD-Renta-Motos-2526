@@ -13,8 +13,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 
 /**
- * ScreenLoader: carga pantallas FXML y crea controllers con inyección de dependencias.
- * Usa FXMLLoader.setControllerFactory para evitar singletons y `new` en lugares arbitrarios.
+ * ScreenLoader: carga pantallas FXML y crea controllers con inyección de
+ * dependencias.
+ * Usa FXMLLoader.setControllerFactory para evitar singletons y `new` en lugares
+ * arbitrarios.
  */
 public final class ScreenLoader {
 
@@ -25,7 +27,8 @@ public final class ScreenLoader {
     }
 
     /**
-     * Carga una pantalla FXML y retorna el Parent para mostrarlo en un Stage o Scene.
+     * Carga una pantalla FXML y retorna el Parent para mostrarlo en un Stage o
+     * Scene.
      *
      * @param fxmlPath Ruta relativa al classpath (ej: "/fxml/clientes.fxml")
      * @return Parent cargado con su controller inyectado
@@ -43,41 +46,48 @@ public final class ScreenLoader {
             // Mapeo de controllers conocidos con sus dependencias
             if (controllerClass == ClienteController.class) {
                 return new ClienteController(
-                    compositionRoot.getClienteService(),
-                    compositionRoot.getAgenciaStore(),
-                    compositionRoot.getReferenceDataStore()
-                );
+                        compositionRoot.getClienteService(),
+                        compositionRoot.getAgenciaStore(),
+                        compositionRoot.getReferenceDataStore());
             }
 
             if (controllerClass == MotoController.class) {
                 return new MotoController(
-                    compositionRoot.getMotoService(),
-                    compositionRoot.getAgenciaStore(),
-                    compositionRoot.getReferenceDataStore()
-                );
+                        compositionRoot.getMotoService(),
+                        compositionRoot.getAgenciaStore(),
+                        compositionRoot.getReferenceDataStore());
             }
 
             if (controllerClass == ContratoController.class) {
                 return new ContratoController(
-                    compositionRoot.getContratoService(),
-                    compositionRoot.getAgenciaStore(),
-                    compositionRoot.getReferenceDataStore()
-                );
+                        compositionRoot.getContratoService(),
+                        compositionRoot.getAgenciaStore(),
+                        compositionRoot.getReferenceDataStore());
             }
-            
+
             if (controllerClass == LoginController.class) {
-                return new LoginController(this);  
+                return new LoginController(this);
             }
 
             if (controllerClass == MainController.class) {
                 return new MainController(this);
             }
 
+            if (controllerClass == LoginController.class) {
+                return new LoginController(this, compositionRoot.getUsuarioService());
+            }
+
+            if (controllerClass == RegistroController.class) {
+                return new RegistroController(this,
+                        compositionRoot.getUsuarioService(),
+                        compositionRoot.getClienteService(),
+                        compositionRoot.getReferenceDataStore());
+            }
+
             // Si llega aquí, el controller no está registrado
             throw new IllegalStateException(
-                "Controller desconocido: " + controllerClass.getName() +
-                ". Agrégalo al ScreenLoader.setControllerFactory"
-            );
+                    "Controller desconocido: " + controllerClass.getName() +
+                            ". Agrégalo al ScreenLoader.setControllerFactory");
         });
 
         Parent root = loader.load();
