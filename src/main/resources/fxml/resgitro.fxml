@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="700.0" prefWidth="900.0"
+            xmlns="http://javafx.com/javafx/19"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.proyectobdmotos.controller.RegistroController"
+            stylesheets="@/styles/register.css">
+
+    <Label layoutX="350.0" layoutY="14.0" text="Crear Cuenta"
+           styleClass="register-title" />
+
+    <!-- Columna izquierda: Datos de Usuario -->
+    <Label layoutX="50.0" layoutY="100.0" text="Usuario*" styleClass="form-label" />
+    <TextField fx:id="campoNombreUsuario" layoutX="50.0" layoutY="130.0" prefWidth="250"
+               promptText="Nombre de usuario" styleClass="form-field" />
+
+    <Label layoutX="50.0" layoutY="180.0" text="Correo electrónico*" styleClass="form-label" />
+    <TextField fx:id="campoGmail" layoutX="50.0" layoutY="210.0" prefWidth="250"
+               promptText="usuario@example.com" styleClass="form-field" />
+
+    <Label layoutX="50.0" layoutY="260.0" text="Contraseña*" styleClass="form-label" />
+    <PasswordField fx:id="campoPassword" layoutX="50.0" layoutY="290.0" prefWidth="250"
+                   promptText="Contraseña" styleClass="form-field" />
+
+    <Label layoutX="50.0" layoutY="340.0" text="Confirmar contraseña*" styleClass="form-label" />
+    <PasswordField fx:id="campoConfirmarPassword" layoutX="50.0" layoutY="370.0" prefWidth="250"
+                   promptText="Repetir contraseña" styleClass="form-field" />
+
+    <!-- Columna derecha: Datos de Cliente -->
+    <Label layoutX="500.0" layoutY="100.0" text="CI (11 dígitos)*" styleClass="form-label" />
+    <TextField fx:id="campoCI" layoutX="500.0" layoutY="130.0" prefWidth="250"
+               promptText="CI" styleClass="form-field" />
+
+    <Label layoutX="500.0" layoutY="180.0" text="Nombre*" styleClass="form-label" />
+    <TextField fx:id="campoNombreCliente" layoutX="500.0" layoutY="210.0" prefWidth="250"
+               promptText="Nombre" styleClass="form-field" />
+
+    <Label layoutX="500.0" layoutY="260.0" text="Primer apellido*" styleClass="form-label" />
+    <TextField fx:id="campoPrimerApellido" layoutX="500.0" layoutY="290.0" prefWidth="250"
+               promptText="Primer apellido" styleClass="form-field" />
+
+    <Label layoutX="500.0" layoutY="340.0" text="Segundo apellido" styleClass="form-label" />
+    <TextField fx:id="campoSegundoApellido" layoutX="500.0" layoutY="370.0" prefWidth="250"
+               promptText="Segundo apellido (opcional)" styleClass="form-field" />
+
+    <Label layoutX="500.0" layoutY="420.0" text="Edad (18-99)*" styleClass="form-label" />
+    <TextField fx:id="campoEdad" layoutX="500.0" layoutY="450.0" prefWidth="100"
+               promptText="Edad" styleClass="form-field" />
+
+    <Label layoutX="500.0" layoutY="500.0" text="Sexo*" styleClass="form-label" />
+    <ComboBox fx:id="comboSexo" layoutX="500.0" layoutY="530.0" prefWidth="150"
+              promptText="Seleccionar" styleClass="form-field" />
+
+    <Label layoutX="50.0" layoutY="440.0" text="Teléfono*" styleClass="form-label" />
+    <TextField fx:id="campoTelefono" layoutX="50.0" layoutY="470.0" prefWidth="250"
+               promptText="8 dígitos, empieza con 5 o 6" styleClass="form-field" />
+
+    <Label layoutX="50.0" layoutY="520.0" text="Municipio*" styleClass="form-label" />
+    <ComboBox fx:id="comboMunicipio" layoutX="50.0" layoutY="550.0" prefWidth="250"
+              promptText="Seleccionar" styleClass="form-field" />
+
+    <!-- Condiciones de uso -->
+    <CheckBox fx:id="checkTerminos" layoutX="50.0" layoutY="620.0"
+              text="Acepto los términos y condiciones" styleClass="terms-checkbox" />
+    <Hyperlink fx:id="linkTerminos" layoutX="300.0" layoutY="620.0"
+               text="Ver condiciones" styleClass="link-terms"
+               onAction="#mostrarTerminos" />
+
+    <!-- Botón de registro -->
+    <Button layoutX="375.0" layoutY="650.0" prefWidth="150"
+            text="Registrarse" styleClass="btn-register"
+            onAction="#registrar" />
+</AnchorPane>
