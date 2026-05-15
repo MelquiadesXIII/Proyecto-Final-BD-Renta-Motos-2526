@@ -4,7 +4,7 @@ package org.proyectobdmotos.models;
 public class Usuario {
     private Integer id;
     private String nombreUsuario;
-    private String password;   // texto plano
+    private String password;   
     private String gmail;
     private boolean esAdmin;
 
