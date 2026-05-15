@@ -8,6 +8,7 @@ import org.proyectobdmotos.controller.ContratoController;
 import org.proyectobdmotos.controller.LoginController;
 import org.proyectobdmotos.controller.MainController;
 import org.proyectobdmotos.controller.MotoController;
+import org.proyectobdmotos.controller.RegistroController;
 import org.proyectobdmotos.ui.AppCompositionRoot;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -66,7 +67,7 @@ public final class ScreenLoader {
             }
 
             if (controllerClass == LoginController.class) {
-                return new LoginController(this);
+                return new LoginController(this, compositionRoot.getUsuarioService());
             }
 
             if (controllerClass == MainController.class) {
