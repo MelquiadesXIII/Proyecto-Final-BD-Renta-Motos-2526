@@ -10,10 +10,12 @@ import org.proyectobdmotos.utils.IdGenerator;
 import org.proyectobdmotos.utils.Logger;
 import org.proyectobdmotos.utils.Validator;
 import org.proyectobdmotos.database.DatabaseConnection;
+import org.proyectobdmotos.dto.UsuarioDAO;
 import org.proyectobdmotos.services.AgenciaService;
 import org.proyectobdmotos.services.ClienteService;
 import org.proyectobdmotos.services.ContratoService;
 import org.proyectobdmotos.services.MotoService;
+import org.proyectobdmotos.services.UsuarioService;
 import org.proyectobdmotos.stores.AgenciaStore;
 import org.proyectobdmotos.stores.ReferenceDataStore;
 import org.proyectobdmotos.ui.navigation.ScreenLoader;
@@ -45,6 +47,9 @@ public final class AppCompositionRoot {
 
     // Navegación UI
     private final ScreenLoader screenLoader;
+
+    private final UsuarioDAO usuarioDAO;
+    private final UsuarioService usuarioService;
 
     public AppCompositionRoot() throws SQLException {
         Logger.log("Iniciando construcción del grafo de dependencias...");
@@ -83,6 +88,8 @@ public final class AppCompositionRoot {
         this.screenLoader = new ScreenLoader(this);
 
         Logger.logInfo("Grafo de dependencias completo\n");
+
+        
     }
 
     // Getters para acceso controlado desde ScreenLoader y otros componentes
@@ -133,5 +140,9 @@ public final class AppCompositionRoot {
 
     public ScreenLoader getScreenLoader() {
         return screenLoader;
+    }
+
+    public UsuarioService getUsuarioService() { 
+        return usuarioService; 
     }
 }

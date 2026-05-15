@@ -14,6 +14,8 @@ public class Cliente {
     private Sexo sexo;
     private String numeroContacto;
     private Integer idMunicipio;
+    private Integer idUsuario;
+
 
     public Cliente(Integer idCliente, String ciCliente, String nombreCliente, String primerApellido,
             String segundoApellido, int edad, Sexo sexo, String numeroContacto, Integer idMunicipio) {
@@ -108,5 +110,12 @@ public class Cliente {
     public void setIdMunicipio(Integer idMunicipio) {
         Validator.nonNull(idMunicipio);
         this.idMunicipio = idMunicipio;
+    }
+
+    public Integer getIdUsuario() { 
+        return idUsuario; 
+    }
+    public void setIdUsuario(Integer idUsuario) { 
+        this.idUsuario = idUsuario; 
     }
 }
