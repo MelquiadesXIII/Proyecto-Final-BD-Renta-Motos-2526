@@ -54,11 +54,13 @@ public class DatabaseConnection {
 
             // Usar este bloque de codigo cuando den error las migraciones 
              
-            /* 
-            Logger.log("Ejecutando repair...");
-            flyway.repair();
-            Logger.logInfo("✓ Repair completado");
-            */
+             /*
+             Logger.log("Ejecutando repair...");
+             flyway.repair();
+             Logger.logInfo("✓ Repair completado");
+             
+             */
+            
 
 
             flyway.migrate();
