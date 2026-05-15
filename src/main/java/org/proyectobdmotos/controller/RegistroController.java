@@ -6,21 +6,28 @@ import javafx.stage.Stage;
 import org.proyectobdmotos.models.*;
 import org.proyectobdmotos.services.*;
 import org.proyectobdmotos.stores.ReferenceDataStore;
+import org.proyectobdmotos.ui.navigation.NavigationHistory;
 import org.proyectobdmotos.ui.navigation.ScreenLoader;
 import org.proyectobdmotos.utils.Logger;
 import org.proyectobdmotos.exceptions.BusinessException;
+import org.proyectobdmotos.ui.navigation.NavigationHistory;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import java.io.IOException;
 
 public class RegistroController {
 
-    @FXML private TextField campoNombreUsuario, campoGmail, campoCI, campoNombreCliente,
-                           campoPrimerApellido, campoSegundoApellido, campoEdad, campoTelefono;
-    @FXML private PasswordField campoPassword, campoConfirmarPassword;
-    @FXML private ComboBox<String> comboSexo;      
-    @FXML private ComboBox<String> comboMunicipio; 
-    @FXML private CheckBox checkTerminos;
+    @FXML
+    private TextField campoNombreUsuario, campoGmail, campoCI, campoNombreCliente,
+            campoPrimerApellido, campoSegundoApellido, campoEdad, campoTelefono;
+    @FXML
+    private PasswordField campoPassword, campoConfirmarPassword;
+    @FXML
+    private ComboBox<String> comboSexo;
+    @FXML
+    private ComboBox<String> comboMunicipio;
+    @FXML
+    private CheckBox checkTerminos;
 
     private final ScreenLoader screenLoader;
     private final UsuarioService usuarioService;
@@ -28,9 +35,9 @@ public class RegistroController {
     private final ReferenceDataStore referenceDataStore;
 
     public RegistroController(ScreenLoader screenLoader,
-                              UsuarioService usuarioService,
-                              ClienteService clienteService,
-                              ReferenceDataStore referenceDataStore) {
+            UsuarioService usuarioService,
+            ClienteService clienteService,
+            ReferenceDataStore referenceDataStore) {
         this.screenLoader = screenLoader;
         this.usuarioService = usuarioService;
         this.clienteService = clienteService;
@@ -46,15 +53,15 @@ public class RegistroController {
     private void registrar() {
         // Validaciones básicas
         if (campoNombreUsuario.getText().trim().isEmpty() ||
-            campoGmail.getText().trim().isEmpty() ||
-            campoPassword.getText().trim().isEmpty() ||
-            campoCI.getText().trim().isEmpty() ||
-            campoNombreCliente.getText().trim().isEmpty() ||
-            campoPrimerApellido.getText().trim().isEmpty() ||
-            campoEdad.getText().trim().isEmpty() ||
-            campoTelefono.getText().trim().isEmpty() ||
-            comboSexo.getValue() == null ||
-            comboMunicipio.getValue() == null) {
+                campoGmail.getText().trim().isEmpty() ||
+                campoPassword.getText().trim().isEmpty() ||
+                campoCI.getText().trim().isEmpty() ||
+                campoNombreCliente.getText().trim().isEmpty() ||
+                campoPrimerApellido.getText().trim().isEmpty() ||
+                campoEdad.getText().trim().isEmpty() ||
+                campoTelefono.getText().trim().isEmpty() ||
+                comboSexo.getValue() == null ||
+                comboMunicipio.getValue() == null) {
             mostrarError("Todos los campos obligatorios (*) deben estar completos.");
             return;
         }
@@ -72,10 +79,9 @@ public class RegistroController {
         try {
             // 1. Crear usuario (contraseña en texto plano, por defecto no admin)
             Usuario nuevoUsuario = usuarioService.registrarUsuario(
-                campoNombreUsuario.getText().trim(),
-                campoPassword.getText().trim(),
-                campoGmail.getText().trim()
-            );
+                    campoNombreUsuario.getText().trim(),
+                    campoPassword.getText().trim(),
+                    campoGmail.getText().trim());
 
             // 2. Crear cliente asociado
             Cliente nuevoCliente = new Cliente();
@@ -87,7 +93,7 @@ public class RegistroController {
             nuevoCliente.setSexo(comboSexo.getValue().equals("Masculino") ? Sexo.MASCULINO : Sexo.FEMENINO);
             nuevoCliente.setNumeroContacto(campoTelefono.getText().trim());
             nuevoCliente.setMunicipio(comboMunicipio.getValue());
-            nuevoCliente.setIdUsuario(nuevoUsuario.getId());  // enlace
+            nuevoCliente.setIdUsuario(nuevoUsuario.getId()); // enlace
 
             clienteService.crearCliente(nuevoCliente);
 
