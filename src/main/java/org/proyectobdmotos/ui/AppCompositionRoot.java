@@ -6,11 +6,11 @@ import java.sql.SQLException;
 import org.proyectobdmotos.dao.ClienteDAO;
 import org.proyectobdmotos.dao.ContratoDAO;
 import org.proyectobdmotos.dao.MotoDAO;
+import org.proyectobdmotos.dao.UsuarioDAO;
 import org.proyectobdmotos.utils.IdGenerator;
 import org.proyectobdmotos.utils.Logger;
 import org.proyectobdmotos.utils.Validator;
 import org.proyectobdmotos.database.DatabaseConnection;
-import org.proyectobdmotos.dto.UsuarioDAO;
 import org.proyectobdmotos.services.AgenciaService;
 import org.proyectobdmotos.services.ClienteService;
 import org.proyectobdmotos.services.ContratoService;
@@ -20,10 +20,6 @@ import org.proyectobdmotos.stores.AgenciaStore;
 import org.proyectobdmotos.stores.ReferenceDataStore;
 import org.proyectobdmotos.ui.navigation.ScreenLoader;
 
-/**
- * Composition Root: construye y conecta el grafo completo de dependencias.
- * Esta es la única clase responsable de crear e inyectar dependencias.
- */
 public final class AppCompositionRoot {
 
     // Capa de infraestructura
@@ -48,6 +44,7 @@ public final class AppCompositionRoot {
     // Navegación UI
     private final ScreenLoader screenLoader;
 
+    // Nuevas dependencias para usuarios
     private final UsuarioDAO usuarioDAO;
     private final UsuarioService usuarioService;
 
@@ -64,16 +61,18 @@ public final class AppCompositionRoot {
         this.idGenerator = new IdGenerator(connection);
 
         // 3. DAOs
-        Logger.log("✓ Creando DAOs (ClienteDAO, MotoDAO, ContratoDAO)");
+        Logger.log("✓ Creando DAOs (ClienteDAO, MotoDAO, ContratoDAO, UsuarioDAO)");
         this.clienteDAO = new ClienteDAO(connection);
         this.motoDAO = new MotoDAO(connection);
         this.contratoDAO = new ContratoDAO(connection);
+        this.usuarioDAO = new UsuarioDAO();
 
         // 4. Services
-        Logger.log("✓ Creando Services (ClienteService, MotoService, ContratoService)");
+        Logger.log("✓ Creando Services (ClienteService, MotoService, ContratoService, UsuarioService)");
         this.clienteService = new ClienteService(clienteDAO);
         this.motoService = new MotoService(motoDAO);
         this.contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
+        this.usuarioService = new UsuarioService(usuarioDAO);
 
         Logger.log("✓ Creando AgenciaService (fachada)");
         this.agenciaService = new AgenciaService(clienteService, motoService, contratoService);
@@ -88,8 +87,6 @@ public final class AppCompositionRoot {
         this.screenLoader = new ScreenLoader(this);
 
         Logger.logInfo("Grafo de dependencias completo\n");
-
-        
     }
 
     // Getters para acceso controlado desde ScreenLoader y otros componentes
@@ -142,7 +139,7 @@ public final class AppCompositionRoot {
         return screenLoader;
     }
 
-    public UsuarioService getUsuarioService() { 
-        return usuarioService; 
+    public UsuarioService getUsuarioService() {
+        return usuarioService;
     }
 }
