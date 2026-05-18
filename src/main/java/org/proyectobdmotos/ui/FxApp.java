@@ -36,8 +36,8 @@ public class FxApp extends Application {
         try {
             root = compositionRoot.getScreenLoader().load("/fxml/login.fxml");
         } catch (Exception e) {
-            Logger.logError("Error cargando main.fxml: " + e.getMessage());
-            throw new RuntimeException("No se pudo cargar la interfaz principal", e);
+            Logger.logError("Error cargando login.fxml: " + e.getMessage());
+            throw new RuntimeException("No se pudo cargar la interfaz principal login", e);
         }
 
         double screenWidth = Screen.getPrimary().getVisualBounds().getWidth();
