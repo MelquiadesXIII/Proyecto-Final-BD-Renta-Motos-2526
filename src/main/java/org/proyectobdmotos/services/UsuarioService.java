@@ -2,8 +2,8 @@ package org.proyectobdmotos.services;
 
 import org.proyectobdmotos.dao.UsuarioDAO;
 import org.proyectobdmotos.models.Usuario;
-import org.proyectobdmotos.exceptions.BusinessException;
-import org.proyectobdmotos.exceptions.BusinessErrorCode;
+import org.proyectobdmotos.services.exceptions.BusinessErrorCode;
+import org.proyectobdmotos.services.exceptions.ValidationException;
 import java.sql.SQLException;
 
 public class UsuarioService {
@@ -14,36 +14,35 @@ public class UsuarioService {
         this.usuarioDAO = usuarioDAO;
     }
 
-    public Usuario registrarUsuario(String nombreUsuario, String password, String gmail) throws BusinessException {
+    public Usuario registrarUsuario(String nombreUsuario, String password, String gmail) throws ValidationException {
         try {
             if (usuarioDAO.findByUsername(nombreUsuario) != null) {
-                throw new BusinessException("El nombre de usuario ya existe", BusinessErrorCode.DUPLICATE_USERNAME);
+                throw new ValidationException(BusinessErrorCode.USUARIO_YA_EXISTE, "El nombre de usuario ya existe");
             }
             if (usuarioDAO.findByEmail(gmail) != null) {
-                throw new BusinessException("El correo electrónico ya está registrado", BusinessErrorCode.DUPLICATE_EMAIL);
+                throw new ValidationException(BusinessErrorCode.EMAIL_YA_EXISTE, "El correo electrónico ya está registrado");
             }
         } catch (SQLException e) {
-            throw new BusinessException("Error al verificar unicidad", e, BusinessErrorCode.DATABASE_ERROR);
+            throw new ValidationException(BusinessErrorCode.SIN_CONEXION_BD, "Error al verificar unicidad", e);
         }
 
-        // Por defecto NO es administrador
         Usuario nuevo = new Usuario(null, nombreUsuario, password, gmail, false);
         try {
             return usuarioDAO.insert(nuevo);
         } catch (SQLException e) {
-            throw new BusinessException("Error al guardar usuario", e, BusinessErrorCode.DATABASE_ERROR);
+            throw new ValidationException(BusinessErrorCode.SIN_CONEXION_BD, "Error al guardar usuario", e);
         }
     }
 
-    public Usuario autenticar(String nombreUsuario, String password) throws BusinessException {
+    public Usuario autenticar(String nombreUsuario, String password) throws ValidationException {
         try {
             Usuario u = usuarioDAO.findByUsername(nombreUsuario);
             if (u == null || !u.getPassword().equals(password)) {
-                throw new BusinessException("Usuario o contraseña incorrectos", BusinessErrorCode.INVALID_CREDENTIALS);
+                throw new ValidationException(BusinessErrorCode.CREDENCIALES_INVALIDAS, "Usuario o contraseña incorrectos");
             }
             return u;
         } catch (SQLException e) {
-            throw new BusinessException("Error al autenticar", e, BusinessErrorCode.DATABASE_ERROR);
+            throw new ValidationException(BusinessErrorCode.SIN_CONEXION_BD, "Error al autenticar", e);
         }
     }
 }
