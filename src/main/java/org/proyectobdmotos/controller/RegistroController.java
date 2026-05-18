@@ -1,7 +1,9 @@
 package org.proyectobdmotos.controller;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.proyectobdmotos.models.*;
 import org.proyectobdmotos.services.*;
@@ -9,11 +11,14 @@ import org.proyectobdmotos.stores.ReferenceDataStore;
 import org.proyectobdmotos.ui.navigation.NavigationHistory;
 import org.proyectobdmotos.ui.navigation.ScreenLoader;
 import org.proyectobdmotos.utils.Logger;
-import org.proyectobdmotos.exceptions.BusinessException;
-import org.proyectobdmotos.ui.navigation.NavigationHistory;
+import org.proyectobdmotos.services.exceptions.ValidationException;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import org.proyectobdmotos.utils.ScreenUtils;
+import org.proyectobdmotos.utils.TermsWindow;
 
 public class RegistroController {
 
@@ -33,6 +38,25 @@ public class RegistroController {
     private final UsuarioService usuarioService;
     private final ClienteService clienteService;
     private final ReferenceDataStore referenceDataStore;
+    // Dentro de la clase RegistroController, añade esto como atributo estático:
+    private static final Map<String, Integer> municipiosMap = new HashMap<>();
+    static {
+        municipiosMap.put("Playa", 1);
+        municipiosMap.put("Plaza de la Revolución", 2);
+        municipiosMap.put("Centro Habana", 3);
+        municipiosMap.put("La Habana Vieja", 4);
+        municipiosMap.put("Regla", 5);
+        municipiosMap.put("La Habana del Este", 6);
+        municipiosMap.put("Guanabacoa", 7);
+        municipiosMap.put("San Miguel del Padrón", 8);
+        municipiosMap.put("Diez de Octubre", 9);
+        municipiosMap.put("Cerro", 10);
+        municipiosMap.put("Marianao", 11);
+        municipiosMap.put("La Lisa", 12);
+        municipiosMap.put("Boyeros", 13);
+        municipiosMap.put("Arroyo Naranjo", 14);
+        municipiosMap.put("Cotorro", 15);
+    }
 
     public RegistroController(ScreenLoader screenLoader,
             UsuarioService usuarioService,
@@ -47,6 +71,23 @@ public class RegistroController {
     @FXML
     private void initialize() {
         comboSexo.getItems().addAll("Masculino", "Femenino");
+
+        comboMunicipio.getItems().addAll(
+                "Playa",
+                "Plaza de la Revolución",
+                "Centro Habana",
+                "La Habana Vieja",
+                "Regla",
+                "La Habana del Este",
+                "Guanabacoa",
+                "San Miguel del Padrón",
+                "Diez de Octubre",
+                "Cerro",
+                "Marianao",
+                "La Lisa",
+                "Boyeros",
+                "Arroyo Naranjo",
+                "Cotorro");
     }
 
     @FXML
@@ -77,30 +118,31 @@ public class RegistroController {
         }
 
         try {
-            // 1. Crear usuario (contraseña en texto plano, por defecto no admin)
+            // 1. Crear usuario
             Usuario nuevoUsuario = usuarioService.registrarUsuario(
                     campoNombreUsuario.getText().trim(),
                     campoPassword.getText().trim(),
                     campoGmail.getText().trim());
 
-            // 2. Crear cliente asociado
-            Cliente nuevoCliente = new Cliente();
-            nuevoCliente.setCi(campoCI.getText().trim());
-            nuevoCliente.setNombreCliente(campoNombreCliente.getText().trim());
-            nuevoCliente.setPrimerApellido(campoPrimerApellido.getText().trim());
-            nuevoCliente.setSegundoApellido(campoSegundoApellido.getText().trim());
-            nuevoCliente.setEdad(Integer.parseInt(campoEdad.getText().trim()));
-            nuevoCliente.setSexo(comboSexo.getValue().equals("Masculino") ? Sexo.MASCULINO : Sexo.FEMENINO);
-            nuevoCliente.setNumeroContacto(campoTelefono.getText().trim());
-            nuevoCliente.setMunicipio(comboMunicipio.getValue());
-            nuevoCliente.setIdUsuario(nuevoUsuario.getId()); // enlace
+            // 2. Crear cliente asociado usando el constructor real de Cliente
+            Cliente nuevoCliente = new Cliente(
+                    null,
+                    campoCI.getText().trim(),
+                    campoNombreCliente.getText().trim(),
+                    campoPrimerApellido.getText().trim(),
+                    campoSegundoApellido.getText().trim(),
+                    Integer.parseInt(campoEdad.getText().trim()),
+                    comboSexo.getValue().equals("Masculino") ? Sexo.MASCULINO : Sexo.FEMENINO,
+                    campoTelefono.getText().trim(),
+                    municipiosMap.getOrDefault(comboMunicipio.getValue(), -1));
+            nuevoCliente.setIdUsuario(nuevoUsuario.getId());
 
             clienteService.crearCliente(nuevoCliente);
 
             mostrarInfo("Registro exitoso", "La cuenta se ha creado correctamente. Ya puede iniciar sesión.");
             volverAlLogin();
 
-        } catch (BusinessException e) {
+        } catch (ValidationException e) {
             mostrarError(e.getMessage());
         } catch (NumberFormatException e) {
             mostrarError("La edad debe ser un número válido.");
@@ -112,20 +154,18 @@ public class RegistroController {
 
     @FXML
     private void mostrarTerminos() {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Términos y Condiciones");
-        alert.setHeaderText("Condiciones de uso del sistema de renta de motos");
-        alert.setContentText("Aquí el texto completo de los términos y condiciones...");
-        alert.showAndWait();
+        TermsWindow.show((Stage) campoNombreUsuario.getScene().getWindow());
     }
 
+    @FXML
     private void volverAlLogin() {
-        try {
-            Parent loginRoot = screenLoader.load("/fxml/login.fxml");
+        Parent anterior = NavigationHistory.goBack(screenLoader);
+        if (anterior != null) {
             Stage stage = (Stage) campoNombreUsuario.getScene().getWindow();
-            stage.setScene(new Scene(loginRoot));
-        } catch (IOException e) {
-            Logger.logError("Error al volver al login: " + e.getMessage());
+            stage.setScene(new Scene(anterior));
+        } else {
+            // Si no hay historial, simplemente no hace nada o podrías mostrar un mensaje
+            Logger.logInfo("No hay pantalla anterior para retroceder.");
         }
     }
 
