@@ -22,8 +22,8 @@ public class DatabaseConnection {
                 .getClassLoader().getResourceAsStream("config.properties")) {
             Properties props = new Properties();
             props.load(input);
-            url      = props.getProperty("db.url");
-            user     = props.getProperty("db.user");
+            url = props.getProperty("db.url");
+            user = props.getProperty("db.user");
             password = props.getProperty("db.password");
             Logger.logInfo("✓ config.properties cargado");
         } catch (IOException e) {
@@ -32,7 +32,8 @@ public class DatabaseConnection {
         }
     }
 
-    private DatabaseConnection() {}
+    private DatabaseConnection() {
+    }
 
     public static Connection getInstance() throws SQLException {
         if (instance == null || instance.isClosed()) {
@@ -49,19 +50,16 @@ public class DatabaseConnection {
                     // Si de pasa algo de que no te deja compilar el proyecto
                     // y lo del repair no funciona... entonces descomenta la linea
                     // de abajo. Es probable que te ayude.
-                    //.baselineOnMigrate(true)
+                    // .baselineOnMigrate(true)
                     .load();
 
-            // Usar este bloque de codigo cuando den error las migraciones 
-             
-             /*
-             Logger.log("Ejecutando repair...");
-             flyway.repair();
-             Logger.logInfo("✓ Repair completado");
-             
-             */
-            
+            // Usar este bloque de codigo cuando den error las migraciones
 
+            /*
+             * Logger.log("Ejecutando repair...");
+             * flyway.repair();
+             * Logger.logInfo("✓ Repair completado");A
+             */
 
             flyway.migrate();
             Logger.logInfo("✓ Migraciones completadas\n");
