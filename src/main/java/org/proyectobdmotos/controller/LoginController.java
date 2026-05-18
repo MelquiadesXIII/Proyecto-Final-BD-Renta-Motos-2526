@@ -10,15 +10,19 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.proyectobdmotos.models.Usuario;
 import org.proyectobdmotos.services.UsuarioService;
+import org.proyectobdmotos.ui.navigation.NavigationHistory;
 import org.proyectobdmotos.ui.navigation.ScreenLoader;
 import org.proyectobdmotos.utils.Logger;
-
+import org.proyectobdmotos.utils.ScreenUtils;
+import org.proyectobdmotos.utils.TermsWindow;
 import java.io.IOException;
 
 public class LoginController {
 
-    @FXML private TextField campoUsuario;
-    @FXML private PasswordField campoContrasena;
+    @FXML
+    private TextField campoUsuario;
+    @FXML
+    private PasswordField campoContrasena;
 
     private final ScreenLoader screenLoader;
     private final UsuarioService usuarioService;
@@ -60,11 +64,10 @@ public class LoginController {
     private void irAPantallaPrincipal() {
         try {
             Parent mainRoot = screenLoader.load("/fxml/main.fxml");
-            Scene scene = new Scene(mainRoot);
+            Scene scene = new Scene(mainRoot, ScreenUtils.getWidth(), ScreenUtils.getHeight());
             scene.getStylesheets().addAll(
-                getClass().getResource("/styles/app.css").toExternalForm(),
-                getClass().getResource("/styles/default.css").toExternalForm()
-            );
+                    getClass().getResource("/styles/app.css").toExternalForm(),
+                    getClass().getResource("/styles/default.css").toExternalForm());
             Stage stage = (Stage) campoUsuario.getScene().getWindow();
             stage.setScene(scene);
             stage.setTitle("Renta Motos - Sistema de Gestión");
@@ -98,12 +101,16 @@ public class LoginController {
     @FXML
     private void goToRegister() {
         try {
+            NavigationHistory.push("/fxml/login.fxml");
             Parent registerRoot = screenLoader.load("/fxml/registro.fxml");
-            Scene scene = new Scene(registerRoot);
+
+            Scene scene = new Scene(registerRoot, ScreenUtils.getWidth(), ScreenUtils.getHeight());
             scene.getStylesheets().add(getClass().getResource("/styles/register.css").toExternalForm());
+
             Stage stage = (Stage) campoUsuario.getScene().getWindow();
             stage.setScene(scene);
             stage.setTitle("Crear cuenta");
+            stage.setMaximized(true);
         } catch (IOException e) {
             Logger.logError("Error al cargar registro: " + e.getMessage());
             mostrarError("Error", "No se pudo abrir el registro.");
@@ -112,11 +119,7 @@ public class LoginController {
 
     @FXML
     private void goToTerms() {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Términos y Condiciones");
-        alert.setHeaderText("Condiciones de uso del sistema de renta de motos");
-        alert.setContentText("Aquí el texto completo de los términos y condiciones...");
-        alert.showAndWait();
+        TermsWindow.show((Stage) campoUsuario.getScene().getWindow());
     }
 
     private void mostrarError(String titulo, String mensaje) {
