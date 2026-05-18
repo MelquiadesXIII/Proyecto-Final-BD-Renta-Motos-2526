@@ -1,7 +1,7 @@
 package org.proyectobdmotos.ui.navigation;
 
 import java.util.Stack;
-
+import javafx.scene.Parent;
 /**
  * Historial global de navegación entre pantallas.
  * Permite volver a la pantalla anterior desde cualquier controlador.
