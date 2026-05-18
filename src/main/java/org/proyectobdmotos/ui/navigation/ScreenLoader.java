@@ -1,7 +1,6 @@
 package org.proyectobdmotos.ui.navigation;
 
 import java.io.IOException;
-
 import org.proyectobdmotos.controller.ClienteController;
 import org.proyectobdmotos.utils.Logger;
 import org.proyectobdmotos.controller.ContratoController;
@@ -11,11 +10,8 @@ import org.proyectobdmotos.controller.MotoController;
 import org.proyectobdmotos.controller.RegistroController;
 import org.proyectobdmotos.controller.TerminosController;
 import org.proyectobdmotos.ui.AppCompositionRoot;
-import org.proyectobdmotos.ui.navigation.NavigationHistory;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 
 /**
  * ScreenLoader: carga pantallas FXML y crea controllers con inyección de
@@ -70,10 +66,6 @@ public final class ScreenLoader {
                         compositionRoot.getReferenceDataStore());
             }
 
-            if (controllerClass == TerminosController.class) {
-                return new TerminosController(this);
-            }
-
             if (controllerClass == LoginController.class) {
                 return new LoginController(this, compositionRoot.getUsuarioService());
             }
@@ -82,16 +74,16 @@ public final class ScreenLoader {
                 return new MainController(this);
             }
 
-            if (controllerClass == LoginController.class) {
-                return new LoginController(this, compositionRoot.getUsuarioService());
-            }
-
             if (controllerClass == RegistroController.class) {
                 return new RegistroController(this,
                         compositionRoot.getUsuarioService(),
                         compositionRoot.getClienteService(),
                         compositionRoot.getReferenceDataStore());
             }
+
+            if (controllerClass == TerminosController.class) {
+    return new TerminosController(this);
+}
 
             // Si llega aquí, el controller no está registrado
             throw new IllegalStateException(
@@ -104,34 +96,4 @@ public final class ScreenLoader {
 
         return root;
     }
-
-    private void goToRegister() {
-    try {
-        NavigationHistory.push("/fxml/login.fxml");   // guardamos login
-        Parent registerRoot = screenLoader.load("/fxml/registro.fxml");
-        Scene scene = new Scene(registerRoot);
-        scene.getStylesheets().add(getClass().getResource("/styles/register.css").toExternalForm());
-        Stage stage = (Stage) campoUsuario.getScene().getWindow();
-        stage.setScene(scene);
-        stage.setTitle("Crear cuenta");
-    } catch (IOException e) {
-        Logger.logError("Error al cargar registro: " + e.getMessage());
-        mostrarError("Error", "No se pudo abrir el registro.");
-    }
-}
-
-@FXML
-private void goToTerms() {
-    try {
-        NavigationHistory.push("/fxml/login.fxml");   // guardamos login
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/terminos.fxml"));
-        Parent termsRoot = loader.load();
-        Stage stage = new Stage();
-        stage.setScene(new Scene(termsRoot));
-        stage.setTitle("Términos y Condiciones");
-        stage.show();
-    } catch (IOException e) {
-        Logger.logError("Error al cargar términos: " + e.getMessage());
-    }
-}
 }
