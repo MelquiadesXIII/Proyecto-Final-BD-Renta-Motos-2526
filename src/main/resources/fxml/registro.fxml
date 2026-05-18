@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.image.*?>
+
+<StackPane xmlns="http://javafx.com/javafx/19"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="org.proyectobdmotos.controller.RegistroController"
+           stylesheets="@/styles/register.css">
+
+    <!-- Imagen de fondo FIJA (no se mueve) -->
+    <ImageView fitWidth="1920" fitHeight="1080" preserveRatio="false" pickOnBounds="true">
+        <image>
+            <Image url="@../Utiles/registro.jpg" />
+        </image>
+    </ImageView>
+
+    <!-- Scroll independiente para el formulario -->
+    <ScrollPane fitToWidth="true" fitToHeight="true"
+                style="-fx-background-color: transparent;">
+        <StackPane alignment="CENTER">
+            <VBox alignment="CENTER" maxWidth="900" spacing="15"
+                  style="-fx-background-color: rgba(0,0,0,0.6); -fx-background-radius: 15; -fx-padding: 30;">
+
+                <Label text="Crear Cuenta" styleClass="register-title" />
+
+                <!-- Primera fila: Usuario / CI -->
+                <GridPane hgap="40" vgap="15" alignment="CENTER">
+                    <Label text="Usuario*" styleClass="form-label" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                    <TextField fx:id="campoNombreUsuario" promptText="Nombre de usuario" styleClass="form-field"
+                               GridPane.rowIndex="1" GridPane.columnIndex="0" />
+
+                    <Label text="CI (11 dígitos)*" styleClass="form-label" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+                    <TextField fx:id="campoCI" promptText="CI" styleClass="form-field"
+                               GridPane.rowIndex="1" GridPane.columnIndex="1" />
+                </GridPane>
+
+                <!-- Segunda fila: Correo / Nombre -->
+                <GridPane hgap="40" vgap="15" alignment="CENTER">
+                    <Label text="Correo electrónico*" styleClass="form-label" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                    <TextField fx:id="campoGmail" promptText="usuario@example.com" styleClass="form-field"
+                               GridPane.rowIndex="1" GridPane.columnIndex="0" />
+
+                    <Label text="Nombre*" styleClass="form-label" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+                    <TextField fx:id="campoNombreCliente" promptText="Nombre" styleClass="form-field"
+                               GridPane.rowIndex="1" GridPane.columnIndex="1" />
+                </GridPane>
+
+                <!-- Tercera fila: Contraseña / Primer apellido -->
+                <GridPane hgap="40" vgap="15" alignment="CENTER">
+                    <Label text="Contraseña*" styleClass="form-label" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                    <PasswordField fx:id="campoPassword" promptText="Contraseña" styleClass="form-field"
+                                   GridPane.rowIndex="1" GridPane.columnIndex="0" />
+
+                    <Label text="Primer apellido*" styleClass="form-label" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+                    <TextField fx:id="campoPrimerApellido" promptText="Primer apellido" styleClass="form-field"
+                               GridPane.rowIndex="1" GridPane.columnIndex="1" />
+                </GridPane>
+
+                <!-- Cuarta fila: Confirmar contraseña / Segundo apellido -->
+                <GridPane hgap="40" vgap="15" alignment="CENTER">
+                    <Label text="Confirmar contraseña*" styleClass="form-label" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                    <PasswordField fx:id="campoConfirmarPassword" promptText="Repetir contraseña" styleClass="form-field"
+                                   GridPane.rowIndex="1" GridPane.columnIndex="0" />
+
+                    <Label text="Segundo apellido" styleClass="form-label" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+                    <TextField fx:id="campoSegundoApellido" promptText="Segundo apellido (opcional)" styleClass="form-field"
+                               GridPane.rowIndex="1" GridPane.columnIndex="1" />
+                </GridPane>
+
+                <!-- Quinta fila: Edad / Sexo -->
+                <GridPane hgap="40" vgap="15" alignment="CENTER">
+                    <Label text="Edad (18-99)*" styleClass="form-label" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                    <TextField fx:id="campoEdad" promptText="Edad" prefWidth="100" styleClass="form-field"
+                               GridPane.rowIndex="1" GridPane.columnIndex="0" />
+
+                    <Label text="Sexo*" styleClass="form-label" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+                    <ComboBox fx:id="comboSexo" promptText="Seleccionar" prefWidth="150" styleClass="form-field"
+                              GridPane.rowIndex="1" GridPane.columnIndex="1" />
+                </GridPane>
+
+                <!-- Sexta fila: Teléfono / Municipio -->
+                <GridPane hgap="40" vgap="15" alignment="CENTER">
+                    <Label text="Teléfono*" styleClass="form-label" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                    <TextField fx:id="campoTelefono" promptText="8 dígitos, empieza con 5 o 6" styleClass="form-field"
+                               GridPane.rowIndex="1" GridPane.columnIndex="0" />
+
+                    <Label text="Municipio*" styleClass="form-label" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+                    <ComboBox fx:id="comboMunicipio" promptText="Seleccionar" prefWidth="250" styleClass="form-field"
+                              GridPane.rowIndex="1" GridPane.columnIndex="1" />
+                </GridPane>
+
+                <CheckBox fx:id="checkTerminos" text="Acepto los términos y condiciones" styleClass="terms-checkbox" />
+
+                <Hyperlink text="Ver condiciones" styleClass="link-terms" onAction="#mostrarTerminos" />
+
+                <HBox alignment="CENTER" spacing="20">
+                    <Button onAction="#volverAlLogin" styleClass="btn-back">
+                        <graphic>
+                            <ImageView>
+                                <image>
+                                    <Image url="@../Utiles/flecha.jpg" />
+                                </image>
+                            </ImageView>
+                        </graphic>
+                    </Button>
+                    <Button text="Registrarse" onAction="#registrar" styleClass="btn-register" />
+                </HBox>
+            </VBox>
+        </StackPane>
+    </ScrollPane>
+</StackPane>
