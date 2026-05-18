@@ -1,8 +1,8 @@
 package org.proyectobdmotos.services;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
-
 import org.proyectobdmotos.dao.IClienteDAO;
 import org.proyectobdmotos.dto.ClienteDTO;
 import org.proyectobdmotos.models.Cliente;
@@ -18,10 +18,11 @@ public class ClienteService {
         this.clienteDAO = clienteDAO;
     }
 
-    public void crearCliente(Cliente cliente) {
-        Logger.log("Creando cliente: " + cliente.getCiCliente());
+    public void crearCliente(Cliente cliente) 
+    {
         clienteDAO.insertar(cliente);
     }
+
 
     public void actualizarCliente(Cliente cliente) {
         Logger.log("Actualizando cliente id=" + cliente.getIdCliente() + " ci=" + cliente.getCiCliente());
@@ -37,9 +38,8 @@ public class ClienteService {
         if (!clienteExiste) {
             Logger.logError("Cliente no encontrado para eliminar: " + ci);
             validationException = new ValidationException(
-                BusinessErrorCode.CLIENTE_NO_ENCONTRADO,
-                "No se puede eliminar el cliente: no existe"
-            );
+                    BusinessErrorCode.CLIENTE_NO_ENCONTRADO,
+                    "No se puede eliminar el cliente: no existe");
         }
 
         if (clienteExiste) {
@@ -60,9 +60,8 @@ public class ClienteService {
         if (!clienteExiste) {
             Logger.logError("Cliente no encontrado para eliminar en cascada: " + ci);
             validationException = new ValidationException(
-                BusinessErrorCode.CLIENTE_NO_ENCONTRADO,
-                "No se puede eliminar el cliente: no existe"
-            );
+                    BusinessErrorCode.CLIENTE_NO_ENCONTRADO,
+                    "No se puede eliminar el cliente: no existe");
         }
 
         if (clienteExiste) {
