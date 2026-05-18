@@ -225,15 +225,15 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
         String sql = "INSERT INTO cliente (ci_cliente, nombre_cliente, primer_apellido, segundo_apellido, edad, sexo, numero_contacto, municipio, id_usuario) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id_cliente";
         try (Connection conn = DatabaseConnection.getInstance();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, cliente.getCi());
+            ps.setString(1, cliente.getCiCliente());
+            ps.setInt(8, cliente.getIdMunicipio());
             ps.setString(2, cliente.getNombreCliente());
             ps.setString(3, cliente.getPrimerApellido());
             ps.setString(4, cliente.getSegundoApellido());
             ps.setInt(5, cliente.getEdad());
-            ps.setString(6, cliente.getSexo().name()); // si es enum
+            ps.setString(6, cliente.getSexo().name()); 
             ps.setString(7, cliente.getNumeroContacto());
-            ps.setString(8, cliente.getMunicipio());
-            ps.setInt(9, cliente.getIdUsuario()); // <-- NUEVO
+            ps.setInt(9, cliente.getIdUsuario()); 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     cliente.setIdCliente(rs.getInt("id_cliente"));
