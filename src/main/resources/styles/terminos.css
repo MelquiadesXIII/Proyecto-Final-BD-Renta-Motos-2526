@@ -13,8 +13,10 @@
 .terms-text {
     -fx-font-size: 14px;
     -fx-control-inner-background: #f9f9f9;
-    -fx-border-color: #ddd;
+    -fx-border-color: #ccc;
     -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-padding: 10;
 }
 
 .btn-close {
