@@ -1,33 +1,43 @@
 .root {
     -fx-background-color: #f4f4f4;
 }
+
 .register-title {
     -fx-font-size: 36px;
     -fx-font-weight: bold;
-    -fx-text-fill: #2c3e50;
+    -fx-text-fill: #ffffff;
 }
+
 .form-label {
     -fx-font-size: 14px;
     -fx-font-weight: bold;
-    -fx-text-fill: #555;
+    -fx-text-fill: #ffffff;
 }
+
 .form-field {
     -fx-background-radius: 5;
     -fx-border-radius: 5;
     -fx-border-color: #ccc;
     -fx-padding: 8;
     -fx-font-size: 14px;
+    -fx-text-fill: #333333;
+    -fx-prompt-text-fill: #999999;
 }
+
 .form-field:focused {
     -fx-border-color: #3498db;
 }
+
 .terms-checkbox {
     -fx-font-size: 13px;
+    -fx-text-fill: #ffffff;
 }
+
 .link-terms {
     -fx-text-fill: #2980b9;
     -fx-underline: true;
 }
+
 .btn-register {
     -fx-background-color: #27ae60;
     -fx-text-fill: white;
@@ -36,6 +46,16 @@
     -fx-background-radius: 8;
     -fx-padding: 10 30;
 }
+
 .btn-register:hover {
     -fx-background-color: #219a52;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.btn-back {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
 }
