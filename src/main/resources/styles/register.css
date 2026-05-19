@@ -1,5 +1,15 @@
-.root {
-    -fx-background-color: #f4f4f4;
+.transparent-scroll {
+    -fx-background-color: transparent;
+}
+
+.transparent-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.register-box {
+    -fx-background-color: rgba(0,0,0,0.6);
+    -fx-background-radius: 15;
+    -fx-padding: 30;
 }
 
 .register-title {
@@ -33,9 +43,10 @@
     -fx-text-fill: #ffffff;
 }
 
-.link-terms {
+.register-link {
     -fx-text-fill: #2980b9;
     -fx-underline: true;
+    -fx-font-size: 13px;
 }
 
 .btn-register {
@@ -49,10 +60,6 @@
 
 .btn-register:hover {
     -fx-background-color: #219a52;
-}
-
-.scroll-pane > .viewport {
-    -fx-background-color: transparent;
 }
 
 .btn-back {
