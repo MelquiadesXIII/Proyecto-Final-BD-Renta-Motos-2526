@@ -11,7 +11,7 @@ public class PerfilController {
     @FXML
     private Label labelNombreUsuario;
     @FXML
-    private ImageView fondoPerfil;   // para el binding
+    private ImageView fondoPerfil;
 
     private Usuario usuarioActual;
 
