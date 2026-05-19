@@ -1,0 +1,16 @@
+.perfil-box {
+    -fx-background-color: rgba(0,0,0,0.7);
+    -fx-background-radius: 15;
+    -fx-padding: 40;
+}
+
+.perfil-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.perfil-label {
+    -fx-font-size: 20px;
+    -fx-text-fill: white;
+}
