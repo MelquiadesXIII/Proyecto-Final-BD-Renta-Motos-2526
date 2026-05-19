@@ -1,5 +1,6 @@
 package org.proyectobdmotos.controller;
-
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -7,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import org.proyectobdmotos.models.Usuario;
 import org.proyectobdmotos.services.UsuarioService;
@@ -23,6 +25,8 @@ public class LoginController {
     private TextField campoUsuario;
     @FXML
     private PasswordField campoContrasena;
+    @FXML
+    private ImageView fondoLogin;
 
     private final ScreenLoader screenLoader;
     private final UsuarioService usuarioService;
@@ -35,6 +39,11 @@ public class LoginController {
     @FXML
     public void initialize() {
         Logger.log("LoginController inicializado");
+         if (fondoLogin != null) {
+            StackPane parent = (StackPane) fondoLogin.getParent();
+            fondoLogin.fitWidthProperty().bind(parent.widthProperty());
+            fondoLogin.fitHeightProperty().bind(parent.heightProperty());
+        }
     }
 
     @FXML
@@ -129,4 +138,6 @@ public class LoginController {
         alerta.setContentText(mensaje);
         alerta.showAndWait();
     }
+
+    
 }
