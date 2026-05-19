@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0"
-            xmlns="http://javafx.com/javafx/19"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="org.proyectobdmotos.controller.PerfilController">
+<StackPane xmlns="http://javafx.com/javafx/19"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="org.proyectobdmotos.controller.PerfilController"
+           stylesheets="@/styles/perfil.css">
 
-    <Label fx:id="labelNombreUsuario"
-           layoutX="200.0" layoutY="180.0"
-           text="Bienvenido"
-           style="-fx-font-size: 24px;" />
-</AnchorPane>
+    <VBox alignment="CENTER" spacing="20" maxWidth="600" maxHeight="400"
+          styleClass="perfil-box">
+        <Label text="Perfil de Usuario" styleClass="perfil-title" />
+        <Label fx:id="labelNombreUsuario" text="Bienvenido" styleClass="perfil-label" />
+    </VBox>
+</StackPane>
