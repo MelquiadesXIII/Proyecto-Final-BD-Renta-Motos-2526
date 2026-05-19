@@ -1,76 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Hyperlink?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.PasswordField?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.image.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-            prefHeight="728.0" prefWidth="1284.0"
-            xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="org.proyectobdmotos.controller.LoginController"
-            styleClass="login-pane"
-            stylesheets="@/styles/login.css">
-   <children>
-      <ImageView fitHeight="735.0" fitWidth="1299.0" layoutX="-14.0" layoutY="-3.0"
-                 pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@../Utiles/moto-login.jpg" />
-         </image>
-      </ImageView>
+<StackPane xmlns="http://javafx.com/javafx/19"
+   xmlns:fx="http://javafx.com/fxml/1"
+   fx:controller="org.proyectobdmotos.controller.LoginController"
+   stylesheets="@/styles/login.css">
 
-      <!-- Título principal -->
-      <Label alignment="CENTER" layoutX="467.0" layoutY="14.0" prefHeight="70.0" prefWidth="317.0"
-             styleClass="login-title" text="Iniciar sesión">
-         <font>
-            <Font name="System Bold" size="48.0" />
-         </font>
-      </Label>
+   <!-- Imagen de fondo -->
+   <ImageView fx:id="fondoLogin" fitWidth="1920" fitHeight="1080" preserveRatio="false"
+      pickOnBounds="true">
+      <image>
+         <Image url="@../Utiles/moto-login.jpg" />
+      </image>
+   </ImageView>
 
-      <!-- Etiqueta Usuario -->
-      <Label alignment="CENTER_RIGHT" layoutX="395.0" layoutY="135.0" prefHeight="47.0" prefWidth="115.0"
-             styleClass="login-label"  text="Usuario">
-         <font>
-            <Font size="32.0" />
-         </font>
-      </Label>
+   <!-- Contenedor del formulario -->
+   <VBox alignment="CENTER" maxWidth="500" spacing="15"
+      styleClass="login-box">
 
-      <!-- Etiqueta Contraseña -->
-      <Label alignment="CENTER_RIGHT" layoutX="315.0" layoutY="217.0" prefHeight="61.0" prefWidth="208.0"
-             styleClass="login-label"  text="Contraseña">
-         <font>
-            <Font size="30.0" />
-         </font>
-      </Label>
+      <Label text="Iniciar sesión" styleClass="login-title" />
 
-      <!-- Campo de usuario -->
-      <TextField fx:id="campoUsuario" layoutX="624.0" layoutY="140.0" prefHeight="37.0" prefWidth="213.0"
-                 promptText="Usuario" styleClass="login-text-field"  />
+      <GridPane hgap="10" vgap="15" alignment="CENTER">
+         <columnConstraints>
+            <ColumnConstraints percentWidth="30" />
+            <ColumnConstraints percentWidth="70" />
+         </columnConstraints>
+         <Label text="Usuario" styleClass="login-label"
+            GridPane.rowIndex="0" GridPane.columnIndex="0" />
+         <TextField fx:id="campoUsuario" promptText="Usuario" styleClass="login-text-field"
+            GridPane.rowIndex="0" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" />
 
-      <!-- Botón de inicio de sesión -->
-      <Button layoutX="642.0" layoutY="334.0" prefHeight="46.0" prefWidth="177.0"
-              styleClass="login-button" text="Iniciar sesión"
-              onAction="#onIngresar" />
+         <Label text="Contraseña" styleClass="login-label"
+            GridPane.rowIndex="1" GridPane.columnIndex="0" />
+         <PasswordField fx:id="campoContrasena" promptText="Contraseña"
+            styleClass="login-text-field"
+            GridPane.rowIndex="1" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" />
+      </GridPane>
 
-      <!-- Hipervínculos -->
-      <Hyperlink layoutX="583.0" layoutY="477.0" onAction="#goToRegister"
-                 styleClass="link-register" 
-                 text="¿No tienes cuenta? Crear usuario">
-         <font>
-            <Font size="93.0" />
-         </font>
-      </Hyperlink>
-      <Hyperlink layoutX="321.0" layoutY="477.0" onAction="#goToTerms"
-                 styleClass="link-terms" 
-                 text="Condiciones y Servicios" />
+      <Button text="Iniciar sesión" onAction="#onIngresar" styleClass="login-button" />
 
-      <!-- Campo de contraseña -->
-      <PasswordField fx:id="campoContrasena" layoutX="627.0" layoutY="229.0" prefHeight="37.0" prefWidth="208.0"
-                     promptText="Contraseña" styleClass="login-text-field"  />
-   </children>
-</AnchorPane>
+      <Hyperlink onAction="#goToRegister" styleClass="login-link"
+         text="¿No tienes cuenta? Crear usuario" />
+      <Hyperlink onAction="#goToTerms" styleClass="login-link"
+         text="Condiciones y Servicios" />
+   </VBox>
+</StackPane>
