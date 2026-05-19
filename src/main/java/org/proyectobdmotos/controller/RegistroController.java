@@ -1,5 +1,7 @@
 package org.proyectobdmotos.controller;
 
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
@@ -33,12 +35,14 @@ public class RegistroController {
     private ComboBox<String> comboMunicipio;
     @FXML
     private CheckBox checkTerminos;
+    @FXML
+    private ImageView fondoRegistro;
 
     private final ScreenLoader screenLoader;
     private final UsuarioService usuarioService;
     private final ClienteService clienteService;
     private final ReferenceDataStore referenceDataStore;
-    // Dentro de la clase RegistroController, añade esto como atributo estático:
+
     private static final Map<String, Integer> municipiosMap = new HashMap<>();
     static {
         municipiosMap.put("Playa", 1);
@@ -88,6 +92,11 @@ public class RegistroController {
                 "Boyeros",
                 "Arroyo Naranjo",
                 "Cotorro");
+        if (fondoRegistro != null) {
+            StackPane parent = (StackPane) fondoRegistro.getParent();
+            fondoRegistro.fitWidthProperty().bind(parent.widthProperty());
+            fondoRegistro.fitHeightProperty().bind(parent.heightProperty());
+        }
     }
 
     @FXML
