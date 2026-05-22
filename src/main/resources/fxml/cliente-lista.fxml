@@ -6,17 +6,21 @@
 <?import javafx.scene.layout.VBox?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="org.proyectobdmotos.controller.ClienteController"
-      spacing="10.0"
-      styleClass="list-screen">
+    fx:controller="org.proyectobdmotos.controller.ClienteController"
+    spacing="10.0"
+    styleClass="list-screen">
     <children>
-        <Label text="Listado de Clientes" styleClass="screen-title"/>
+        <Label text="Listado de Clientes" styleClass="screen-title" />
         <TableView fx:id="clientesTable" prefHeight="600.0">
             <columns>
-                <TableColumn fx:id="ciColumn" text="CI" prefWidth="160.0"/>
-                <TableColumn fx:id="nombreColumn" text="Nombre" prefWidth="260.0"/>
-                <TableColumn fx:id="municipioColumn" text="Municipio" prefWidth="180.0"/>
-                <TableColumn fx:id="telefonoColumn" text="Teléfono" prefWidth="180.0"/>
+                <TableColumn fx:id="ciColumn" text="CI" prefWidth="160.0" />
+                <TableColumn fx:id="nombreColumn" text="Nombre" prefWidth="260.0" />
+                <TableColumn fx:id="municipioColumn" text="Municipio" prefWidth="180.0" />
+                <TableColumn fx:id="telefonoColumn" text="Teléfono" prefWidth="180.0" />
+                <Button text="Nuevo Cliente" onAction="#onCrearCliente" />
+                <Button text="Editar" onAction="#onEditarCliente" />
+                <Button text="Eliminar" onAction="#onEliminarCliente" />
+                <Button text="Actualizar" onAction="#onActualizarLista" />
             </columns>
         </TableView>
     </children>
