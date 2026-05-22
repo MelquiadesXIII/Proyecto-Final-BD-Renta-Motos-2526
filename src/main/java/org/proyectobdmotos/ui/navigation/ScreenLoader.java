@@ -22,6 +22,7 @@ import javafx.scene.Parent;
 public final class ScreenLoader {
 
     private final AppCompositionRoot compositionRoot;
+    private Object lastController;
 
     public ScreenLoader(AppCompositionRoot compositionRoot) {
         this.compositionRoot = compositionRoot;
@@ -46,7 +47,7 @@ public final class ScreenLoader {
 
             // Mapeo de controllers conocidos con sus dependencias
             if (controllerClass == ClienteController.class) {
-                return new ClienteController(
+                return new ClienteController(this,
                         compositionRoot.getClienteService(),
                         compositionRoot.getAgenciaStore(),
                         compositionRoot.getReferenceDataStore());
@@ -82,8 +83,8 @@ public final class ScreenLoader {
             }
 
             if (controllerClass == TerminosController.class) {
-    return new TerminosController(this);
-}
+                return new TerminosController(this);
+            }
 
             // Si llega aquí, el controller no está registrado
             throw new IllegalStateException(
@@ -95,5 +96,9 @@ public final class ScreenLoader {
         Logger.logInfo("✓ Pantalla cargada: " + fxmlPath + "\n");
 
         return root;
+    }
+
+    public Object getLastController() {
+        return lastController;
     }
 }
