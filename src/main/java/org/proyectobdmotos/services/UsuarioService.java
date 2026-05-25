@@ -45,4 +45,20 @@ public class UsuarioService {
             throw new ValidationException(BusinessErrorCode.SIN_CONEXION_BD, "Error al autenticar", e);
         }
     }
+
+
+    public Usuario registrarUsuarioConRol(String nombreUsuario, String password, String gmail, boolean esAdmin) throws ValidationException {
+        Usuario nuevo = new Usuario(null, nombreUsuario, password, gmail, esAdmin);
+        try {
+            if (usuarioDAO.findByUsername(nombreUsuario) != null) {
+                throw new ValidationException(BusinessErrorCode.USUARIO_YA_EXISTE, "El nombre de usuario ya existe");
+            }
+            if (usuarioDAO.findByEmail(gmail) != null) {
+                throw new ValidationException(BusinessErrorCode.EMAIL_YA_EXISTE, "El correo electrónico ya está registrado");
+            }
+            return usuarioDAO.insert(nuevo);
+        } catch (SQLException e) {
+            throw new ValidationException(BusinessErrorCode.SIN_CONEXION_BD, "Error al guardar usuario", e);
+        }
+    }
 }
