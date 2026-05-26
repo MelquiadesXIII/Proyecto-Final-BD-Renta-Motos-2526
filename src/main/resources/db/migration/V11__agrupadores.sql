@@ -1,4 +1,4 @@
--- SELECT nombre_color FROM Color;
+SELECT nombre_color FROM Color;
 
 SELECT matricula_moto, model.nombre_modelo, sit.nombre_situacion, col.nombre_color, cant_km_recorridos
 FROM Moto m
