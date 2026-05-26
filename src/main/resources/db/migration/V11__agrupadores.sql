@@ -1,9 +1,13 @@
 -- Función que devuelve el nombre de todos los colores
 CREATE OR REPLACE FUNCTION obtener_colores()
 RETURNS TABLE (nombre_color VARCHAR)
-LANGUAGE SQL
+LANGUAGE plpgsql
 AS $$
-    SELECT nombre_color FROM Color;
+BEGIN
+    RETURN QUERY
+    SELECT c.nombre_color
+    FROM Color c;
+END;
 $$;
 
 -- SELECT * FROM obtener_colores();
@@ -12,23 +16,26 @@ $$;
 -- Funcion que devuelve los detalles de las motos
 CREATE OR REPLACE FUNCTION obtener_detalles_motos()
 RETURNS TABLE (
-    matricula_moto  VARCHAR,
-    nombre_modelo   VARCHAR,
+    matricula_moto   VARCHAR,
+    nombre_modelo    VARCHAR,
     nombre_situacion VARCHAR,
-    nombre_color    VARCHAR,
+    nombre_color     VARCHAR,
     cant_km_recorridos INTEGER
 )
-LANGUAGE SQL
+LANGUAGE plpgsql
 AS $$
+BEGIN
+    RETURN QUERY
     SELECT m.matricula_moto,
-           model.nombre_modelo,
-           sit.nombre_situacion,
-           col.nombre_color,
+           mo.nombre_modelo,
+           s.nombre_situacion,
+           co.nombre_color,
            m.cant_km_recorridos
     FROM Moto m
-    JOIN color col     ON m.id_color = col.id_color
-    JOIN modelo model  ON m.id_modelo = model.id_modelo
-    JOIN situacion sit ON m.id_situacion = sit.id_situacion;
+    JOIN color co     ON m.id_color = co.id_color
+    JOIN modelo mo    ON m.id_modelo = mo.id_modelo
+    JOIN situacion s  ON m.id_situacion = s.id_situacion;
+END;
 $$;
 
 -- SELECT * FROM obtener_detalles_motos();
