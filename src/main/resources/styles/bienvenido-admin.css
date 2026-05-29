@@ -1,0 +1,16 @@
+.root-pane {
+    -fx-background-image: url('/Utiles/admin-bg.jpg');
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+    -fx-background-repeat: no-repeat;
+}
+
+.welcome-label {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.7), 10, 0.2, 2, 2);
+    -fx-background-color: rgba(0, 0, 0, 0.4);
+    -fx-padding: 15 30;
+    -fx-background-radius: 10;
+}
