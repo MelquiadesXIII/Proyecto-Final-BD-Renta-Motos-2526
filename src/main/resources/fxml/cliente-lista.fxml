@@ -1,27 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<VBox xmlns:fx="http://javafx.com/fxml"
-    fx:controller="org.proyectobdmotos.controller.ClienteController"
-    spacing="10.0"
-    styleClass="list-screen">
-    <children>
-        <Label text="Listado de Clientes" styleClass="screen-title" />
-        <TableView fx:id="clientesTable" prefHeight="600.0">
-            <columns>
-                <TableColumn fx:id="ciColumn" text="CI" prefWidth="160.0" />
-                <TableColumn fx:id="nombreColumn" text="Nombre" prefWidth="260.0" />
-                <TableColumn fx:id="municipioColumn" text="Municipio" prefWidth="180.0" />
-                <TableColumn fx:id="telefonoColumn" text="Teléfono" prefWidth="180.0" />
-                <Button text="Nuevo Cliente" onAction="#onCrearCliente" />
-                <Button text="Editar" onAction="#onEditarCliente" />
-                <Button text="Eliminar" onAction="#onEliminarCliente" />
-                <Button text="Actualizar" onAction="#onActualizarLista" />
-            </columns>
-        </TableView>
-    </children>
+<VBox xmlns="http://javafx.com/javafx/19"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.proyectobdmotos.controller.ClienteController"
+      stylesheets="@/styles/cliente-lista.css"
+      spacing="10"
+      styleClass="root-vbox">
+
+    <TableView fx:id="clientesTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn text="CI" fx:id="ciColumn" />
+            <TableColumn text="Nombre" fx:id="nombreColumn" />
+            <TableColumn text="Municipio" fx:id="municipioColumn" />
+            <TableColumn text="Teléfono" fx:id="telefonoColumn" />
+        </columns>
+    </TableView>
+
+    <HBox alignment="CENTER" spacing="15" styleClass="botonera">
+        <Button text="Nuevo Cliente" onAction="#onCrearCliente" styleClass="btn-accion" />
+        <Button text="Editar" onAction="#onEditarCliente" styleClass="btn-accion" />
+        <Button text="Eliminar" onAction="#onEliminarCliente" styleClass="btn-accion" />
+        <Button text="Actualizar" onAction="#onActualizarLista" styleClass="btn-accion" />
+    </HBox>
 </VBox>
