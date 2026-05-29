@@ -18,18 +18,17 @@ import javafx.scene.layout.StackPane;
 public class MainController {
 
     private final ScreenLoader screenLoader;
-    // Historial de paginas a las que entro el usuario, ademas de 
+    // Historial de paginas a las que entro el usuario, ademas de
     // en la que se encuentra ahora mismo.
-    private String fxmlActual;                  
-    private final Stack<String> historial;      
-   
+    private String fxmlActual;
+    private final Stack<String> historial;
 
     @FXML
     private StackPane contentContainer;
 
     public MainController(ScreenLoader screenLoader) {
         this.screenLoader = screenLoader;
-        this.historial = new Stack<>();        
+        this.historial = new Stack<>();
     }
 
     @FXML
@@ -77,7 +76,7 @@ public class MainController {
         String fxmlAnterior = historial.pop();
         try {
             Parent vista = screenLoader.load(fxmlAnterior);
-            fxmlActual = fxmlAnterior;                    
+            fxmlActual = fxmlAnterior;
             contentContainer.getChildren().setAll(vista);
             Logger.logInfo("Retrocediendo a: " + fxmlAnterior);
         } catch (IOException e) {
@@ -87,8 +86,8 @@ public class MainController {
     }
 
     private void showInitialView() {
-        historial.clear(); 
-        loadView("/fxml/nuevo-contrato.fxml", "Nuevo Contrato");
+        historial.clear();
+        loadView("/fxml/bienvenido-admin.fxml", "Bienvenida");
     }
 
     private void loadView(String fxmlPath, String viewName) {
@@ -108,10 +107,15 @@ public class MainController {
         }
 
         if (loadedSuccessfully) {
-            fxmlActual = fxmlPath;                       
+            fxmlActual = fxmlPath;
             contentContainer.getChildren().setAll(viewRoot);
             Logger.logInfo("Vista activa: " + viewName);
         }
+    }
+
+    @FXML
+    private void onShowMotos() {
+        loadView("/fxml/moto-lista.fxml", "Motos");
     }
 
     private void showLoadError(String viewName, Exception exception) {
