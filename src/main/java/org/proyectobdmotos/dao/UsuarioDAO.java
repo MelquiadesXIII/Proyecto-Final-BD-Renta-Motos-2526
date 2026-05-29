@@ -16,7 +16,7 @@ public class UsuarioDAO {
             ps.setBoolean(4, usuario.isEsAdmin());
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    usuario.setId(rs.getInt("id"));
+                    usuario.setId(rs.getInt("id_usuario"));
                 }
             }
         }
@@ -24,7 +24,7 @@ public class UsuarioDAO {
     }
 
     public Usuario findByUsername(String nombreUsuario) throws SQLException {
-        String sql = "SELECT id, nombre_usuario, password, gmail, es_admin FROM usuario WHERE nombre_usuario = ?";
+        String sql = "SELECT id_usuario, nombre_usuario, password, gmail, es_admin FROM usuario WHERE nombre_usuario = ?";
         try (Connection conn = DatabaseConnection.getInstance();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, nombreUsuario);
@@ -38,7 +38,7 @@ public class UsuarioDAO {
     }
 
     public Usuario findByEmail(String gmail) throws SQLException {
-        String sql = "SELECT id, nombre_usuario, password, gmail, es_admin FROM usuario WHERE gmail = ?";
+        String sql = "SELECT id_usuario, nombre_usuario, password, gmail, es_admin FROM usuario WHERE gmail = ?";
         try (Connection conn = DatabaseConnection.getInstance();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, gmail);
@@ -53,7 +53,7 @@ public class UsuarioDAO {
 
     private Usuario mapRow(ResultSet rs) throws SQLException {
         Usuario u = new Usuario();
-        u.setId(rs.getInt("id"));
+        u.setId(rs.getInt("id_usuario"));
         u.setNombreUsuario(rs.getString("nombre_usuario"));
         u.setPassword(rs.getString("password"));
         u.setGmail(rs.getString("gmail"));
