@@ -10,10 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.proyectobdmotos.database.DatabaseConnection;
 import org.proyectobdmotos.dto.MotoDTO;
 import org.proyectobdmotos.dto.SituacionMotoDTO;
-import org.proyectobdmotos.models.Moto;
-import org.proyectobdmotos.models.Situacion;
+import org.proyectobdmotos.models.*;
 import org.proyectobdmotos.utils.Logger;
 
 public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoDAO {
@@ -226,8 +226,155 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
             }
         } catch (SQLException e) {
             Logger.logError("Error al verificar disponibilidad: " + e.getMessage());
+            Logger.logError("Error en la funcion de estaDisponible en MotoDAO " + e.getMessage());
             throw new RuntimeException("Error al verificar disponibilidad: " + e.getMessage(), e);
         }
         return disponible;
     }
+
+    // Nota: Respetare como se colocaron las cosas en las anteriores
+    // lineas
+    public ArrayList<Color> obtenerColores() throws SQLException {
+        String sql = "SELECT * FROM obtener_colores()";
+        ArrayList<Color> colores = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                // Construir el objeto Color con los datos completos
+                Color color = new Color(
+                        rs.getInt("id_color"),
+                        rs.getString("nombre_color")
+                );
+                colores.add(color);
+            }
+        } catch (SQLException e) {
+            Logger.logError("Error en obtenerColores: " + e.getMessage());
+            throw new RuntimeException("Error al cargar los colores", e);
+        }
+        return colores;
+    }
+
+    // ===== MÉTODOS PARA MARCAS Y MODELOS =====
+
+
+
+    public ArrayList<Marca> obtenerMarcas() throws SQLException {
+        String sql = "SELECT * FROM obtener_marcas()";
+        ArrayList<Marca> marcas = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                marcas.add(new Marca(
+                        rs.getInt("id_marca"),
+                        rs.getString("nombre_marca")
+                ));
+            }
+        } catch (SQLException e) {
+            Logger.logError("Error al obtener marcas: " + e.getMessage());
+            throw new RuntimeException("Error al obtener marcas", e);
+        }
+        return marcas;
+    }
+
+
+    public ArrayList<Modelo> obtenerModelosPorMarca(int idMarca) throws SQLException {
+        String sql = "SELECT * FROM obtener_modelos_por_marca(?)";
+        ArrayList<Modelo> modelos = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, idMarca);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    modelos.add(new Modelo(
+                            rs.getInt("id_modelo"),
+                            rs.getInt("id_marca"),
+                            rs.getString("nombre_modelo")
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            Logger.logError("Error al obtener modelos por marca: " + e.getMessage());
+            throw new RuntimeException("Error al obtener modelos por marca", e);
+        }
+        return modelos;
+    }
+
+    public Modelo obtenerModeloPorId(int idModelo) throws SQLException {
+        String sql = "SELECT * FROM obtener_modelo_por_id(?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, idModelo);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new Modelo(
+                            rs.getInt("id_modelo"),
+                            rs.getInt("id_marca"),
+                            rs.getString("nombre_modelo")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            Logger.logError("Error al obtener modelo por id: " + e.getMessage());
+            throw new RuntimeException("Error al obtener modelo por id", e);
+        }
+        return null;
+    }
+
+    public Marca obtenerMarcaPorId(int idMarca) throws SQLException {
+        String sql = "SELECT * FROM obtener_marca_por_id(?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, idMarca);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new Marca(
+                            rs.getInt("id_marca"),
+                            rs.getString("nombre_marca")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            Logger.logError("Error al obtener marca por id: " + e.getMessage());
+            throw new RuntimeException("Error al obtener marca por id", e);
+        }
+        return null;
+    }
+
+    public int obtenerIdColorPorNombre(String nombreColor) throws SQLException {
+        String sql = "SELECT obtener_id_color_por_nombre(?) AS id_color";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, nombreColor);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    int id = rs.getInt("id_color");
+                    if (rs.wasNull()) {
+                        throw new RuntimeException("Color no encontrado: " + nombreColor);
+                    }
+                    return id;
+                }
+            }
+        } catch (SQLException e) {
+            Logger.logError("Error al obtener id color por nombre: " + e.getMessage());
+            throw new RuntimeException("Error al obtener id color por nombre", e);
+        }
+        throw new RuntimeException("Color no encontrado: " + nombreColor);
+    }
+
+    public String obtenerNombreColorPorId(int idColor) throws SQLException {
+        String sql = "SELECT obtener_nombre_color_por_id(?) AS nombre_color";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, idColor);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    String nombre = rs.getString("nombre_color");
+                    if (rs.wasNull()) {
+                        throw new RuntimeException("Color no encontrado con id: " + idColor);
+                    }
+                    return nombre;
+                }
+            }
+        } catch (SQLException e) {
+            Logger.logError("Error al obtener nombre color por id: " + e.getMessage());
+            throw new RuntimeException("Error al obtener nombre color por id", e);
+        }
+        throw new RuntimeException("Color no encontrado con id: " + idColor);
+    }
+
 }
