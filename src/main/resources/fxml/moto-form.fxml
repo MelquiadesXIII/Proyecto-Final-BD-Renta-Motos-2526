@@ -35,12 +35,16 @@
             <TextField fx:id="campoMatricula" promptText="Ej: ABC123" styleClass="form-field"
                        GridPane.rowIndex="0" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" />
 
+            <!-- Marca -->
+            <Label text="Marca*" styleClass="form-label"
+                   GridPane.rowIndex="1" GridPane.columnIndex="0" />
+            <ComboBox fx:id="comboMarca" promptText="Selecciona la marca"/>
+
             <!-- Modelo -->
             <Label text="Modelo*" styleClass="form-label"
                    GridPane.rowIndex="1" GridPane.columnIndex="0" />
             <ComboBox fx:id="comboModelo" promptText="Seleccionar modelo" styleClass="form-field"
                       GridPane.rowIndex="1" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" />
-
             <!-- Color -->
             <Label text="Color*" styleClass="form-label"
                    GridPane.rowIndex="2" GridPane.columnIndex="0" />
