@@ -1,13 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<VBox xmlns:fx="http://javafx.com/fxml"
-      spacing="10.0"
-      styleClass="list-screen">
-    <children>
-        <Label text="Inventario" styleClass="screen-title"/>
-        <Label text="Pantalla base L4 para catálogo/inventario de motos."/>
-    </children>
+<VBox xmlns="http://javafx.com/javafx/19"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.proyectobdmotos.controller.InventarioController"
+      stylesheets="@/styles/inventario.css"
+      spacing="10"
+      styleClass="root-vbox">
+
+    <TableView fx:id="tablaInventario" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn text="Matrícula" fx:id="colMatriculaInv" />
+            <TableColumn text="Modelo" fx:id="colModeloInv" />
+            <TableColumn text="Color" fx:id="colColorInv" />
+            <TableColumn text="Situación" fx:id="colSituacionInv" />
+        </columns>
+    </TableView>
 </VBox>
