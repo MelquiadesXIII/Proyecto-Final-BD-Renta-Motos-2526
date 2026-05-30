@@ -49,6 +49,7 @@ public final class ScreenLoader {
             if (controllerClass == ClienteController.class) {
                 return new ClienteController(this,
                         compositionRoot.getClienteService(),
+                        compositionRoot.getUsuarioService(),
                         compositionRoot.getAgenciaStore(),
                         compositionRoot.getReferenceDataStore());
             }
