@@ -30,6 +30,10 @@ public class Cliente {
         setIdMunicipio(idMunicipio);
     }
 
+    public Cliente() {
+
+    }
+
     public Integer getIdCliente() {
         return idCliente;
     }
