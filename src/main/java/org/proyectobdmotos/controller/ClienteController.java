@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.proyectobdmotos.models.Cliente;
 import org.proyectobdmotos.models.Usuario;
 import org.proyectobdmotos.services.ClienteService;
+import org.proyectobdmotos.services.UsuarioService;
 import org.proyectobdmotos.services.exceptions.BusinessException;
 import org.proyectobdmotos.services.exceptions.ValidationException;
 import org.proyectobdmotos.stores.AgenciaStore;
@@ -14,26 +15,23 @@ import org.proyectobdmotos.stores.ReferenceDataStore;
 import org.proyectobdmotos.ui.navigation.ScreenLoader;
 import org.proyectobdmotos.utils.Logger;
 
-import javafx.stage.Stage; 
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.concurrent.Task;
 
-/**
- * ClienteController: maneja eventos de la UI de clientes.
- * Delega operaciones a ClienteService y actualiza/observa AgenciaStore.
- */
 public class ClienteController {
 
     private final ClienteService clienteService;
+    private final UsuarioService usuarioService;       // ← NUEVO: necesario para el formulario
     private final AgenciaStore agenciaStore;
     private final ReferenceDataStore referenceDataStore;
     private final ScreenLoader screenLoader;
@@ -54,11 +52,13 @@ public class ClienteController {
     private TableColumn<Cliente, String> telefonoColumn;
 
     public ClienteController(ScreenLoader screenLoader,
-            ClienteService clienteService,
-            AgenciaStore agenciaStore,
-            ReferenceDataStore referenceDataStore) {
+                             ClienteService clienteService,
+                             UsuarioService usuarioService,
+                             AgenciaStore agenciaStore,
+                             ReferenceDataStore referenceDataStore) {
         this.screenLoader = screenLoader;
         this.clienteService = clienteService;
+        this.usuarioService = usuarioService;
         this.agenciaStore = agenciaStore;
         this.referenceDataStore = referenceDataStore;
     }
@@ -76,19 +76,12 @@ public class ClienteController {
         abrirFormulario(null, null);
     }
 
-    // Funciona de la siguiente forma:
-    // el admin puede seleccionarlo
-    // en la tabla y de ahi empezar a editarlo
     @FXML
-    private void onEditarCliente()
-    {
+    private void onEditarCliente() {
         Cliente cliente = clientesTable.getSelectionModel().getSelectedItem();
-        if(cliente == null)
-        {
-            mostrarAlerta("No ha seleccionado ningun cliente");
-        }
-        else
-        {
+        if (cliente == null) {
+            mostrarAlerta("No ha seleccionado ningún cliente");
+        } else {
             abrirFormulario(cliente, null);
         }
     }
@@ -98,15 +91,15 @@ public class ClienteController {
         Cliente cliente = clientesTable.getSelectionModel().getSelectedItem();
         if (cliente == null) {
             mostrarAlerta("Seleccione un cliente de la tabla para eliminar.");
-        }
+        } else {
+            Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmacion.setTitle("Confirmar Eliminación");
+            confirmacion.setHeaderText("¿Eliminar al cliente " + cliente.getNombreCliente() + "?");
+            confirmacion.setContentText("CI: " + cliente.getCiCliente());
+            Optional<ButtonType> resultado = confirmacion.showAndWait();
 
-        else {
-            Alert entro = new Alert(AlertType.CONFIRMATION);
-            entro.setTitle("Confirmar Eliminación");
-            entro.setHeaderText("¿Eliminar al cliente " + cliente.getNombreCliente() + "?");
-            entro.setContentText("CI: " + cliente.getCiCliente());
-            Optional<ButtonType> resultado = entro.showAndWait();
-            if (resultado.isPresent() && resultado.get() == ButtonType.OK) {
+            boolean eliminarConfirmado = resultado.isPresent() && resultado.get() == ButtonType.OK;
+            if (eliminarConfirmado) {
                 try {
                     clienteService.eliminarCliente(cliente.getCiCliente());
                     loadClientes();
@@ -134,28 +127,16 @@ public class ClienteController {
     }
 
     private void loadClientes() {
-        Task<List<Cliente>> loadTask = createLoadClientesTask();
-        configureLoadClientesTask(loadTask);
-
-        Thread loadThread = new Thread(loadTask);
-        loadThread.setDaemon(true);
-        loadThread.start();
-    }
-
-    private Task<List<Cliente>> createLoadClientesTask() {
-        return new Task<>() {
+        Task<List<Cliente>> loadTask = new Task<>() {
             @Override
             protected List<Cliente> call() {
                 return clienteService.listarTodos();
             }
         };
-    }
 
-    private void configureLoadClientesTask(Task<List<Cliente>> loadTask) {
         loadTask.setOnSucceeded(event -> {
             List<Cliente> clientes = loadTask.getValue();
             boolean loadedSuccessfully = clientes != null;
-
             if (loadedSuccessfully) {
                 agenciaStore.setClientes(clientes);
                 Logger.logInfo("Clientes cargados: " + clientes.size());
@@ -166,7 +147,6 @@ public class ClienteController {
             Throwable throwable = loadTask.getException();
             String message = throwable != null ? throwable.getMessage() : "Sin detalle";
             boolean isBusinessError = throwable instanceof BusinessException;
-
             if (isBusinessError) {
                 Logger.logError("Error de negocio cargando clientes: " + message);
                 showError("No se pudieron cargar los clientes", message);
@@ -175,19 +155,28 @@ public class ClienteController {
                 showError("Error cargando clientes", message);
             }
         });
+
+        Thread loadThread = new Thread(loadTask);
+        loadThread.setDaemon(true);
+        loadThread.start();
     }
 
-    private void abrirFormulario(Cliente c, Usuario u) {
+    private void abrirFormulario(Cliente cliente, Usuario usuario) {
         try {
-            Parent root = screenLoader.load("/fxml/cliente-form.fxml");
-            ClienteFormController formController = (ClienteFormController) screenLoader.getLastController();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/cliente-form.fxml"));
+            ClienteFormController formController = new ClienteFormController(
+                    clienteService, usuarioService, referenceDataStore);
+            loader.setController(formController);
 
-            if (c != null) {
-                formController.setModoEdicion(c, u);
+            Parent root = loader.load();
+
+            if (cliente != null) {
+                formController.setModoEdicion(cliente, usuario);
             }
+
             Stage stage = new Stage();
             stage.setScene(new Scene(root));
-            stage.setTitle(c == null ? "Nuevo Cliente" : "Editar Cliente");
+            stage.setTitle(cliente == null ? "Nuevo Cliente" : "Editar Cliente");
             stage.initModality(Modality.WINDOW_MODAL);
             stage.initOwner(clientesTable.getScene().getWindow());
             stage.showAndWait();
@@ -196,7 +185,6 @@ public class ClienteController {
             Logger.logError("Error al cargar formulario de cliente: " + e.getMessage());
             mostrarAlerta("No se pudo abrir el formulario.");
         }
-
     }
 
     private void showError(String headerText, String contentText) {
