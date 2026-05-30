@@ -40,11 +40,12 @@ public class MotoController {
     private final AgenciaStore agenciaStore;
     private final ReferenceDataStore referenceDataStore;
 
-    @FXML private TableView<Moto> motosTable;
-    @FXML private TableColumn<Moto, String> matriculaColumn;
-    @FXML private TableColumn<Moto, Integer> modeloColumn;
-    @FXML private TableColumn<Moto, Integer> colorColumn;
-    @FXML private TableColumn<Moto, String> situacionColumn;
+    // Nombres coincidentes con moto-lista.fxml
+    @FXML private TableView<Moto> tablaMotos;
+    @FXML private TableColumn<Moto, String> colMatricula;
+    @FXML private TableColumn<Moto, Integer> colModelo;
+    @FXML private TableColumn<Moto, Integer> colColor;
+    @FXML private TableColumn<Moto, Double> colKilometros;
 
     public MotoController(
             MotoService motoService,
@@ -73,7 +74,7 @@ public class MotoController {
 
     @FXML
     private void onEditarMoto() {
-        Moto motoSeleccionada = motosTable.getSelectionModel().getSelectedItem();
+        Moto motoSeleccionada = tablaMotos.getSelectionModel().getSelectedItem();
         if (motoSeleccionada == null) {
             mostrarAlerta("Seleccione una moto de la tabla para editar.");
         } else {
@@ -83,7 +84,7 @@ public class MotoController {
 
     @FXML
     private void onEliminarMoto() {
-        Moto motoSeleccionada = motosTable.getSelectionModel().getSelectedItem();
+        Moto motoSeleccionada = tablaMotos.getSelectionModel().getSelectedItem();
         if (motoSeleccionada == null) {
             mostrarAlerta("Seleccione una moto de la tabla para eliminar.");
             return;
@@ -114,20 +115,14 @@ public class MotoController {
     // ===================== MÉTODOS PRIVADOS =====================
 
     private void configureTableColumns() {
-        matriculaColumn.setCellValueFactory(new PropertyValueFactory<>("matriculaMoto"));
-        modeloColumn.setCellValueFactory(new PropertyValueFactory<>("idModelo"));
-        colorColumn.setCellValueFactory(new PropertyValueFactory<>("idColor"));
-        situacionColumn.setCellValueFactory(cellData -> {
-            String situacionValue = "";
-            if (cellData.getValue().getSituacion() != null) {
-                situacionValue = cellData.getValue().getSituacion().getValor();
-            }
-            return new SimpleStringProperty(situacionValue);
-        });
+        colMatricula.setCellValueFactory(new PropertyValueFactory<>("matriculaMoto"));
+        colModelo.setCellValueFactory(new PropertyValueFactory<>("idModelo"));
+        colColor.setCellValueFactory(new PropertyValueFactory<>("idColor"));
+        colKilometros.setCellValueFactory(new PropertyValueFactory<>("cantKmRecorridos"));
     }
 
     private void bindStore() {
-        motosTable.setItems(agenciaStore.getMotos());
+        tablaMotos.setItems(agenciaStore.getMotos());
     }
 
     private void loadMotos() {
@@ -180,10 +175,10 @@ public class MotoController {
             stage.setScene(new Scene(root));
             stage.setTitle(moto == null ? "Nueva Moto" : "Editar Moto");
             stage.initModality(Modality.WINDOW_MODAL);
-            stage.initOwner(motosTable.getScene().getWindow());
+            stage.initOwner(tablaMotos.getScene().getWindow());
             stage.showAndWait();
 
-            loadMotos(); // Refrescar tabla al cerrar el modal
+            loadMotos();
         } catch (IOException e) {
             Logger.logError("Error al cargar formulario de moto: " + e.getMessage());
             mostrarAlerta("No se pudo abrir el formulario.");

@@ -2,28 +2,27 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.scene.image.*?>
 
 <StackPane xmlns="http://javafx.com/javafx/19"
-    xmlns:fx="http://javafx.com/fxml/1"
-    fx:controller="org.proyectobdmotos.controller.ClienteFormController"
-    stylesheets="@/styles/cliente-form.css">
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="org.proyectobdmotos.controller.ClienteFormController"
+           stylesheets="@/styles/cliente-form.css">
 
+    <!-- Imagen de fondo decorativa -->
     <ImageView fx:id="fondoLogin" fitWidth="1920" fitHeight="1080" preserveRatio="false"
-        pickOnBounds="true">
+               pickOnBounds="true">
         <image>
             <Image url="@../Utiles/registrar-usuario-admin.jpg" />
         </image>
     </ImageView>
-    
+
     <VBox alignment="CENTER" maxWidth="600" spacing="15"
           styleClass="form-box">
 
         <Label text="Nuevo Cliente" styleClass="form-title" />
 
-        <!-- ============================================================ -->
-        <!-- SECCIÓN 1: DATOS DEL USUARIO                                  -->
-        <!-- ============================================================ -->
+        <!-- SECCIÓN 1: DATOS DEL USUARIO -->
         <Label text="Datos de la cuenta" styleClass="section-title" />
 
         <GridPane hgap="10" vgap="15" alignment="CENTER">
@@ -55,12 +54,9 @@
                       GridPane.rowIndex="3" GridPane.columnIndex="1" />
         </GridPane>
 
-        <!-- Separador visual -->
         <Separator styleClass="separator" />
 
-        <!-- ============================================================ -->
-        <!-- SECCIÓN 2: DATOS DEL CLIENTE                                  -->
-        <!-- ============================================================ -->
+        <!-- SECCIÓN 2: DATOS DEL CLIENTE -->
         <Label text="Datos del cliente" styleClass="section-title" />
 
         <GridPane hgap="10" vgap="15" alignment="CENTER">
