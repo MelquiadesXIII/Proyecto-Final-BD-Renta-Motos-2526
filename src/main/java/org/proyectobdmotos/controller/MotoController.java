@@ -1,10 +1,15 @@
 package org.proyectobdmotos.controller;
 
+
+
+import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 import org.proyectobdmotos.models.Moto;
 import org.proyectobdmotos.services.MotoService;
 import org.proyectobdmotos.services.exceptions.BusinessException;
+import org.proyectobdmotos.services.exceptions.ValidationException;
 import org.proyectobdmotos.stores.AgenciaStore;
 import org.proyectobdmotos.stores.ReferenceDataStore;
 import org.proyectobdmotos.utils.Logger;
@@ -12,40 +17,39 @@ import org.proyectobdmotos.utils.Logger;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+
 
 /**
  * MotoController: maneja eventos de la UI de motos.
  * Delega operaciones a MotoService y actualiza/observa AgenciaStore.
  */
+
 public class MotoController {
 
     private final MotoService motoService;
     private final AgenciaStore agenciaStore;
     private final ReferenceDataStore referenceDataStore;
 
-    @FXML
-    private TableView<Moto> motosTable;
-
-    @FXML
-    private TableColumn<Moto, String> matriculaColumn;
-
-    @FXML
-    private TableColumn<Moto, Integer> modeloColumn;
-
-    @FXML
-    private TableColumn<Moto, Integer> colorColumn;
-
-    @FXML
-    private TableColumn<Moto, String> situacionColumn;
+    @FXML private TableView<Moto> motosTable;
+    @FXML private TableColumn<Moto, String> matriculaColumn;
+    @FXML private TableColumn<Moto, Integer> modeloColumn;
+    @FXML private TableColumn<Moto, Integer> colorColumn;
+    @FXML private TableColumn<Moto, String> situacionColumn;
 
     public MotoController(
-        MotoService motoService,
-        AgenciaStore agenciaStore,
-        ReferenceDataStore referenceDataStore
+            MotoService motoService,
+            AgenciaStore agenciaStore,
+            ReferenceDataStore referenceDataStore
     ) {
         this.motoService = motoService;
         this.agenciaStore = agenciaStore;
@@ -60,18 +64,64 @@ public class MotoController {
         loadMotos();
     }
 
+    // ===================== MÉTODOS DE LOS BOTONES =====================
+
+    @FXML
+    private void onCrearMoto() {
+        abrirFormulario(null);
+    }
+
+    @FXML
+    private void onEditarMoto() {
+        Moto motoSeleccionada = motosTable.getSelectionModel().getSelectedItem();
+        if (motoSeleccionada == null) {
+            mostrarAlerta("Seleccione una moto de la tabla para editar.");
+        } else {
+            abrirFormulario(motoSeleccionada);
+        }
+    }
+
+    @FXML
+    private void onEliminarMoto() {
+        Moto motoSeleccionada = motosTable.getSelectionModel().getSelectedItem();
+        if (motoSeleccionada == null) {
+            mostrarAlerta("Seleccione una moto de la tabla para eliminar.");
+            return;
+        }
+
+        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmacion.setTitle("Confirmar Eliminación");
+        confirmacion.setHeaderText("¿Eliminar la moto con matrícula " + motoSeleccionada.getMatriculaMoto() + "?");
+        confirmacion.setContentText("Esta acción no se puede deshacer.");
+        Optional<ButtonType> resultado = confirmacion.showAndWait();
+
+        if (resultado.isPresent() && resultado.get() == ButtonType.OK) {
+            try {
+                motoService.eliminarMoto(motoSeleccionada.getMatriculaMoto());
+                loadMotos();
+                mostrarAlerta("Moto eliminada correctamente.");
+            } catch (ValidationException e) {
+                mostrarAlerta("Error al eliminar: " + e.getMessage());
+            }
+        }
+    }
+
+    @FXML
+    private void onActualizarLista() {
+        loadMotos();
+    }
+
+    // ===================== MÉTODOS PRIVADOS =====================
+
     private void configureTableColumns() {
         matriculaColumn.setCellValueFactory(new PropertyValueFactory<>("matriculaMoto"));
         modeloColumn.setCellValueFactory(new PropertyValueFactory<>("idModelo"));
         colorColumn.setCellValueFactory(new PropertyValueFactory<>("idColor"));
         situacionColumn.setCellValueFactory(cellData -> {
             String situacionValue = "";
-            boolean hasSituacion = cellData.getValue().getSituacion() != null;
-
-            if (hasSituacion) {
+            if (cellData.getValue().getSituacion() != null) {
                 situacionValue = cellData.getValue().getSituacion().getValor();
             }
-
             return new SimpleStringProperty(situacionValue);
         });
     }
@@ -81,29 +131,16 @@ public class MotoController {
     }
 
     private void loadMotos() {
-        Task<List<Moto>> loadTask = createLoadMotosTask();
-        configureLoadMotosTask(loadTask);
-
-        Thread loadThread = new Thread(loadTask);
-        loadThread.setDaemon(true);
-        loadThread.start();
-    }
-
-    private Task<List<Moto>> createLoadMotosTask() {
-        return new Task<>() {
+        Task<List<Moto>> loadTask = new Task<>() {
             @Override
             protected List<Moto> call() {
                 return motoService.listarTodos();
             }
         };
-    }
 
-    private void configureLoadMotosTask(Task<List<Moto>> loadTask) {
         loadTask.setOnSucceeded(event -> {
             List<Moto> motos = loadTask.getValue();
-            boolean loadedSuccessfully = motos != null;
-
-            if (loadedSuccessfully) {
+            if (motos != null) {
                 agenciaStore.setMotos(motos);
                 Logger.logInfo("Motos cargadas: " + motos.size());
             }
@@ -113,7 +150,6 @@ public class MotoController {
             Throwable throwable = loadTask.getException();
             String message = throwable != null ? throwable.getMessage() : "Sin detalle";
             boolean isBusinessError = throwable instanceof BusinessException;
-
             if (isBusinessError) {
                 Logger.logError("Error de negocio cargando motos: " + message);
                 showError("No se pudieron cargar las motos", message);
@@ -122,6 +158,36 @@ public class MotoController {
                 showError("Error cargando motos", message);
             }
         });
+
+        Thread loadThread = new Thread(loadTask);
+        loadThread.setDaemon(true);
+        loadThread.start();
+    }
+
+    private void abrirFormulario(Moto moto) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/moto-form.fxml"));
+            MotoFormController formController = new MotoFormController(motoService, agenciaStore, referenceDataStore);
+            loader.setController(formController);
+
+            Parent root = loader.load();
+
+            if (moto != null) {
+                formController.setModoEdicion(moto);
+            }
+
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.setTitle(moto == null ? "Nueva Moto" : "Editar Moto");
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.initOwner(motosTable.getScene().getWindow());
+            stage.showAndWait();
+
+            loadMotos(); // Refrescar tabla al cerrar el modal
+        } catch (IOException e) {
+            Logger.logError("Error al cargar formulario de moto: " + e.getMessage());
+            mostrarAlerta("No se pudo abrir el formulario.");
+        }
     }
 
     private void showError(String headerText, String contentText) {
@@ -129,6 +195,14 @@ public class MotoController {
         alert.setTitle("Error");
         alert.setHeaderText(headerText);
         alert.setContentText(contentText);
+        alert.showAndWait();
+    }
+
+    private void mostrarAlerta(String mensaje) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Información");
+        alert.setHeaderText(null);
+        alert.setContentText(mensaje);
         alert.showAndWait();
     }
 }
