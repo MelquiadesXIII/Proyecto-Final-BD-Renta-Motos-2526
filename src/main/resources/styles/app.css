@@ -29,3 +29,14 @@
 .content-area {
     -fx-background-color: #ecf0f1;
 }
+
+.back-button {
+    -fx-background-color: transparent;
+    -fx-padding: 5;
+    -fx-cursor: hand;
+}
+
+.back-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+    -fx-background-radius: 5;
+}
