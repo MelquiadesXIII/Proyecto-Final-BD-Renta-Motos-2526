@@ -3,7 +3,9 @@ package org.proyectobdmotos.dao;
 import java.util.List;
 import java.util.Optional;
 
+import org.proyectobdmotos.dto.CliRepDTO;
 import org.proyectobdmotos.dto.ClienteDTO;
+import org.proyectobdmotos.dto.IncumpDTO;
 import org.proyectobdmotos.models.Cliente;
 
 public interface IClienteDAO extends GenericDAO<Cliente, Integer> {
@@ -15,4 +17,8 @@ public interface IClienteDAO extends GenericDAO<Cliente, Integer> {
     void eliminarConCascada(Integer idCliente);
 
     Optional<Cliente> buscarPorCi(String ci);
+
+    List<CliRepDTO> listarClientesReporte();
+
+    List<IncumpDTO> listarIncumplidores();
 }
