@@ -11,7 +11,16 @@
 
     <!-- Barra superior -->
     <top>
-        <HBox styleClass="top-bar" spacing="20" alignment="CENTER_LEFT">
+        <HBox styleClass="top-bar" spacing="10" alignment="CENTER_LEFT">
+            <Button onAction="#onGoBack" styleClass="back-button">
+                <graphic>
+                    <ImageView fitWidth="24" fitHeight="24">
+                        <image>
+                            <Image url="@/Utiles/flecha.jpg" />
+                        </image>
+                    </ImageView>
+                </graphic>
+            </Button>
             <Label text="Renta Motos - Administración" styleClass="top-title" />
         </HBox>
     </top>
@@ -19,14 +28,12 @@
     <!-- Barra lateral izquierda -->
     <left>
         <VBox styleClass="sidebar" spacing="10" fillWidth="true">
-        
             <Button text="Clientes" onAction="#onShowClientes" styleClass="sidebar-button" maxWidth="Infinity" />
             <Button text="Motos" onAction="#onShowMotos" styleClass="sidebar-button" maxWidth="Infinity" />
             <Button text="Contratos" onAction="#onShowContratos" styleClass="sidebar-button" maxWidth="Infinity" />
             <Button text="Inventario" onAction="#onShowInventario" styleClass="sidebar-button" maxWidth="Infinity" />
             <Button text="Reportes" onAction="#onShowReportes" styleClass="sidebar-button" maxWidth="Infinity" />
             <Button text="Ayuda" onAction="#onShowAyuda" styleClass="sidebar-button" maxWidth="Infinity" />
-            <Button text="← Atrás" onAction="#onGoBack" styleClass="sidebar-button" maxWidth="Infinity" />
         </VBox>
     </left>
 
