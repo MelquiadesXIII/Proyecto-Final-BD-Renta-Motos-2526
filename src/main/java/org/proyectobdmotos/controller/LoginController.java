@@ -66,7 +66,7 @@ public class LoginController {
                 irAPerfil(user);
             }
         } catch (Exception e) {
-    e.printStackTrace(); // Muestra toda la traza en la terminal
+    e.printStackTrace(); 
     mostrarError("Error de autenticación", e.getMessage());
 }
     }

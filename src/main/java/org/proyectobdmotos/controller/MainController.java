@@ -9,17 +9,17 @@ import org.proyectobdmotos.utils.Logger;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.StackPane;
 
 /**
  * MainController: controla la navegación principal del shell UI.
  * Solo maneja eventos de UI y delega la carga de vistas al ScreenLoader.
  */
+
 public class MainController {
 
     private final ScreenLoader screenLoader;
-    // Historial de paginas a las que entro el usuario, ademas de
-    // en la que se encuentra ahora mismo.
     private String fxmlActual;
     private final Stack<String> historial;
 
@@ -35,7 +35,10 @@ public class MainController {
     private void initialize() {
         Logger.log("Inicializando MainController...");
         showInitialView();
+        setupKeyboardShortcut();
     }
+
+    // ==================== NAVEGACIÓN ====================
 
     @FXML
     private void onShowClientes() {
@@ -43,8 +46,13 @@ public class MainController {
     }
 
     @FXML
-    private void onShowNuevoContrato() {
-        loadView("/fxml/nuevo-contrato.fxml", "Nuevo Contrato");
+    private void onShowMotos() {
+        loadView("/fxml/moto-lista.fxml", "Motos");
+    }
+
+    @FXML
+    private void onShowContratos() {
+        loadView("/fxml/contrato-lista.fxml", "Contratos");
     }
 
     @FXML
@@ -63,8 +71,8 @@ public class MainController {
     }
 
     @FXML
-    private void onShowContratos() {
-        loadView("/fxml/contrato-lista.fxml", "Contratos");
+    private void onShowNuevoContrato() {
+        loadView("/fxml/contrato-formulario.fxml", "Nuevo Contrato");
     }
 
     @FXML
@@ -84,6 +92,8 @@ public class MainController {
             showLoadError("Retroceder", e);
         }
     }
+
+    // ==================== MÉTODOS PRIVADOS ====================
 
     private void showInitialView() {
         historial.clear();
@@ -113,16 +123,26 @@ public class MainController {
         }
     }
 
-    @FXML
-    private void onShowMotos() {
-        loadView("/fxml/moto-lista.fxml", "Motos");
-    }
-
     private void showLoadError(String viewName, Exception exception) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error de navegación");
         alert.setHeaderText("No se pudo abrir la vista de " + viewName);
         alert.setContentText(exception.getMessage());
         alert.showAndWait();
+    }
+
+    // ==================== ATAJO DE TECLADO ====================
+
+    private void setupKeyboardShortcut() {
+        contentContainer.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                newScene.setOnKeyPressed(event -> {
+                    if (event.isControlDown() && event.getCode() == KeyCode.BACK_SPACE) {
+                        onGoBack();
+                        event.consume();
+                    }
+                });
+            }
+        });
     }
 }
