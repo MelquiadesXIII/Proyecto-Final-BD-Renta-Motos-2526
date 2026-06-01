@@ -7,6 +7,10 @@ import java.util.Optional;
 import org.proyectobdmotos.dao.IClienteDAO;
 import org.proyectobdmotos.dao.IContratoDAO;
 import org.proyectobdmotos.dao.IMotoDAO;
+import org.proyectobdmotos.dto.ContRepDTO;
+import org.proyectobdmotos.dto.IngAnualDTO;
+import org.proyectobdmotos.dto.ResMarModDTO;
+import org.proyectobdmotos.dto.ResMunDTO;
 import org.proyectobdmotos.models.Contrato;
 import org.proyectobdmotos.models.Situacion;
 import org.proyectobdmotos.services.exceptions.BusinessErrorCode;
@@ -49,8 +53,8 @@ public class ContratoService {
         if (!clienteExiste) {
             Logger.logError("Cliente no encontrado: id=" + idCliente);
             validationException = new ValidationException(
-                BusinessErrorCode.CLIENTE_NO_ENCONTRADO,
-                "No se puede crear el contrato: cliente no encontrado"
+                    BusinessErrorCode.CLIENTE_NO_ENCONTRADO,
+                    "No se puede crear el contrato: cliente no encontrado"
             );
         }
 
@@ -61,8 +65,8 @@ public class ContratoService {
         if (clienteExiste && !motoExiste) {
             Logger.logError("Moto no encontrada: id=" + idMoto);
             validationException = new ValidationException(
-                BusinessErrorCode.MOTO_NO_ENCONTRADA,
-                "No se puede crear el contrato: moto no encontrada"
+                    BusinessErrorCode.MOTO_NO_ENCONTRADA,
+                    "No se puede crear el contrato: moto no encontrada"
             );
         }
 
@@ -71,8 +75,8 @@ public class ContratoService {
             if (!motoDisponible) {
                 Logger.logError("Moto no disponible: id=" + idMoto);
                 validationException = new ValidationException(
-                    BusinessErrorCode.MOTO_NO_DISPONIBLE,
-                    "No se puede crear el contrato: moto no disponible"
+                        BusinessErrorCode.MOTO_NO_DISPONIBLE,
+                        "No se puede crear el contrato: moto no disponible"
                 );
             }
         }
@@ -89,8 +93,8 @@ public class ContratoService {
         if (!puedeCrear) {
             if (validationException == null) {
                 validationException = new ValidationException(
-                    BusinessErrorCode.CONTRATO_VALIDACION_FALLIDA,
-                    "No se puede crear el contrato: validaciones fallidas"
+                        BusinessErrorCode.CONTRATO_VALIDACION_FALLIDA,
+                        "No se puede crear el contrato: validaciones fallidas"
                 );
             }
             throw validationException;
@@ -126,8 +130,8 @@ public class ContratoService {
         if (!contratoExiste) {
             Logger.logError("Contrato no encontrado: " + contrato.getFechaInicio() + " / idMoto=" + idMoto);
             validationException = new ValidationException(
-                BusinessErrorCode.CONTRATO_NO_ENCONTRADO,
-                "No se puede finalizar el contrato: no existe"
+                    BusinessErrorCode.CONTRATO_NO_ENCONTRADO,
+                    "No se puede finalizar el contrato: no existe"
             );
         }
 
@@ -141,8 +145,8 @@ public class ContratoService {
             if (contratoYaFinalizado) {
                 Logger.logError("Contrato ya finalizado: " + contrato.getFechaInicio() + " / idMoto=" + idMoto);
                 validationException = new ValidationException(
-                    BusinessErrorCode.CONTRATO_YA_FINALIZADO,
-                    "No se puede finalizar el contrato: ya está finalizado"
+                        BusinessErrorCode.CONTRATO_YA_FINALIZADO,
+                        "No se puede finalizar el contrato: ya está finalizado"
                 );
             }
         }
@@ -154,8 +158,8 @@ public class ContratoService {
         if (contratoExiste && !contratoYaFinalizado && !motoExiste) {
             Logger.logError("Moto no encontrada: id=" + idMoto);
             validationException = new ValidationException(
-                BusinessErrorCode.MOTO_NO_ENCONTRADA,
-                "No se puede finalizar el contrato: moto no encontrada"
+                    BusinessErrorCode.MOTO_NO_ENCONTRADA,
+                    "No se puede finalizar el contrato: moto no encontrada"
             );
         }
 
@@ -170,10 +174,10 @@ public class ContratoService {
 
             if (!fechaEntregaValida) {
                 Logger.logError("Fecha de entrega inválida para contrato: "
-                    + contrato.getFechaInicio() + " / idMoto=" + idMoto);
+                        + contrato.getFechaInicio() + " / idMoto=" + idMoto);
                 validationException = new ValidationException(
-                    BusinessErrorCode.CONTRATO_FECHA_ENTREGA_INVALIDA,
-                    "No se puede finalizar el contrato: fecha de entrega inválida"
+                        BusinessErrorCode.CONTRATO_FECHA_ENTREGA_INVALIDA,
+                        "No se puede finalizar el contrato: fecha de entrega inválida"
                 );
             }
         }
@@ -183,10 +187,10 @@ public class ContratoService {
                 rangoFechasContratoValido = true;
             } else {
                 Logger.logError("Rango de fechas del contrato inválido para finalización: "
-                    + contrato.getFechaInicio() + " / idMoto=" + idMoto);
+                        + contrato.getFechaInicio() + " / idMoto=" + idMoto);
                 validationException = new ValidationException(
-                    BusinessErrorCode.CONTRATO_FECHA_ENTREGA_INVALIDA,
-                    "No se puede finalizar el contrato: fechas del contrato inválidas"
+                        BusinessErrorCode.CONTRATO_FECHA_ENTREGA_INVALIDA,
+                        "No se puede finalizar el contrato: fechas del contrato inválidas"
                 );
             }
         }
@@ -198,10 +202,10 @@ public class ContratoService {
 
             if (!kilometrajeValido) {
                 Logger.logError("Kilometraje inválido para contrato: "
-                    + contrato.getFechaInicio() + " / idMoto=" + idMoto);
+                        + contrato.getFechaInicio() + " / idMoto=" + idMoto);
                 validationException = new ValidationException(
-                    BusinessErrorCode.CONTRATO_KM_INVALIDO,
-                    "No se puede finalizar el contrato: kilometraje inválido"
+                        BusinessErrorCode.CONTRATO_KM_INVALIDO,
+                        "No se puede finalizar el contrato: kilometraje inválido"
                 );
             }
         }
@@ -223,9 +227,9 @@ public class ContratoService {
 
         if (puedeFinalizar) {
             Logger.log("Finalizando contrato: idMoto=" + idMoto
-                + " | dias_prorroga=" + diasProrrogaReal
-                + " | recargo_prorroga=" + recargoProrroga
-                + " | total_teorico=" + importeTotalTeorico);
+                    + " | dias_prorroga=" + diasProrrogaReal
+                    + " | recargo_prorroga=" + recargoProrroga
+                    + " | total_teorico=" + importeTotalTeorico);
             contratoDAO.actualizar(contratoParaFinalizar);
             motoDAO.cambiarEstado(idMoto, Situacion.DISPONIBLE);
         }
@@ -233,8 +237,8 @@ public class ContratoService {
         if (!puedeFinalizar) {
             if (validationException == null) {
                 validationException = new ValidationException(
-                    BusinessErrorCode.CONTRATO_VALIDACION_FALLIDA,
-                    "No se puede finalizar el contrato: validaciones fallidas"
+                        BusinessErrorCode.CONTRATO_VALIDACION_FALLIDA,
+                        "No se puede finalizar el contrato: validaciones fallidas"
                 );
             }
             throw validationException;
@@ -248,11 +252,11 @@ public class ContratoService {
 
         if (!contratoExiste) {
             Logger.logError("Contrato no encontrado para actualizar: "
-                + contrato.getFechaInicio() + " / idMoto="
-                + contrato.getIdMoto());
+                    + contrato.getFechaInicio() + " / idMoto="
+                    + contrato.getIdMoto());
             validationException = new ValidationException(
-                BusinessErrorCode.CONTRATO_NO_ENCONTRADO,
-                "No se puede actualizar el contrato: no existe"
+                    BusinessErrorCode.CONTRATO_NO_ENCONTRADO,
+                    "No se puede actualizar el contrato: no existe"
             );
         }
 
@@ -268,8 +272,8 @@ public class ContratoService {
         if (!puedeActualizar) {
             if (validationException == null) {
                 validationException = new ValidationException(
-                    BusinessErrorCode.CONTRATO_VALIDACION_FALLIDA,
-                    "No se puede actualizar el contrato: validaciones fallidas"
+                        BusinessErrorCode.CONTRATO_VALIDACION_FALLIDA,
+                        "No se puede actualizar el contrato: validaciones fallidas"
                 );
             }
             throw validationException;
@@ -296,8 +300,8 @@ public class ContratoService {
         if (!contratoExiste) {
             Logger.logError("Contrato no encontrado para eliminar: id=" + idContrato);
             validationException = new ValidationException(
-                BusinessErrorCode.CONTRATO_NO_ENCONTRADO,
-                "No se puede eliminar el contrato: no existe"
+                    BusinessErrorCode.CONTRATO_NO_ENCONTRADO,
+                    "No se puede eliminar el contrato: no existe"
             );
         }
 
@@ -313,11 +317,29 @@ public class ContratoService {
         if (!puedeEliminar) {
             if (validationException == null) {
                 validationException = new ValidationException(
-                    BusinessErrorCode.CONTRATO_VALIDACION_FALLIDA,
-                    "No se puede eliminar el contrato: validaciones fallidas"
+                        BusinessErrorCode.CONTRATO_VALIDACION_FALLIDA,
+                        "No se puede eliminar el contrato: validaciones fallidas"
                 );
             }
             throw validationException;
         }
+    }
+
+    // ===================== REPORTES =====================
+
+    public List<ContRepDTO> listarContratosReporte() {
+        return contratoDAO.listarContratosReporte();
+    }
+
+    public List<ResMarModDTO> resumenMarcasModelos() {
+        return contratoDAO.resumenMarcasModelos();
+    }
+
+    public List<ResMunDTO> resumenMunicipios() {
+        return contratoDAO.resumenMunicipios();
+    }
+
+    public List<IngAnualDTO> ingresosAnuales() {
+        return contratoDAO.ingresosAnuales();
     }
 }
