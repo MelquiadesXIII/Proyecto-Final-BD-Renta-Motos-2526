@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.proyectobdmotos.dto.MotoDTO;
+import org.proyectobdmotos.dto.MotoRepDTO;
+import org.proyectobdmotos.dto.SitMotoRepDTO;
 import org.proyectobdmotos.dto.SituacionMotoDTO;
 import org.proyectobdmotos.models.*;
 
@@ -24,4 +26,8 @@ public interface IMotoDAO extends GenericDAO<Moto, Integer> {
     Marca obtenerMarcaPorId(int idMarca) throws SQLException;
     int obtenerIdColorPorNombre(String nombreColor) throws SQLException;
     String obtenerNombreColorPorId(int idColor) throws SQLException;
+
+    List<MotoRepDTO> listarMotosReporte();
+
+    List<SitMotoRepDTO> listarSituacionMotosReporte();
 }
