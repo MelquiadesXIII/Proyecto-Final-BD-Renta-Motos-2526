@@ -10,7 +10,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.proyectobdmotos.database.DatabaseConnection;
+import org.proyectobdmotos.dto.CliRepDTO;
 import org.proyectobdmotos.dto.ClienteDTO;
+import org.proyectobdmotos.dto.IncumpDTO;
 import org.proyectobdmotos.models.Cliente;
 import org.proyectobdmotos.models.Sexo;
 import org.proyectobdmotos.utils.Logger;
@@ -242,4 +244,56 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
         }
         return cliente;
     }
+
+
+    // ===================== REPORTES =====================
+
+    public List<CliRepDTO> listarClientesReporte() {
+        String sql = "SELECT * FROM listado_clientes()";
+        List<CliRepDTO> lista = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            boolean hayFila = rs.next();
+            while (hayFila) {
+                lista.add(new CliRepDTO(
+                        rs.getDate("Fecha de hoy") != null ? rs.getDate("Fecha de hoy").toLocalDate() : null,
+                        rs.getString("Municipio"),
+                        rs.getString("Nombre"),
+                        rs.getString("CI"),
+                        rs.getInt("Cantidad de Contratos contratados"),
+                        rs.getDouble("Total de Dinero gastado")
+                ));
+                hayFila = rs.next();
+            }
+        } catch (SQLException e) {
+            Logger.logError("Error al listar clientes reporte: " + e.getMessage());
+            throw new RuntimeException("Error al listar clientes reporte", e);
+        }
+        return lista;
+    }
+
+    public List<IncumpDTO> listarIncumplidores() {
+        String sql = "SELECT * FROM lista_incumplidores()";
+        List<IncumpDTO> lista = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            boolean hayFila = rs.next();
+            while (hayFila) {
+                lista.add(new IncumpDTO(
+                        rs.getDate("Fecha actual") != null ? rs.getDate("Fecha actual").toLocalDate() : null,
+                        rs.getString("Nombres y apellidos"),
+                        rs.getDate("Fecha fin del contrato") != null ? rs.getDate("Fecha fin del contrato").toLocalDate() : null,
+                        rs.getDate("Fecha de entrega") != null ? rs.getDate("Fecha de entrega").toLocalDate() : null
+                ));
+                hayFila = rs.next();
+            }
+        } catch (SQLException e) {
+            Logger.logError("Error al listar incumplidores: " + e.getMessage());
+            throw new RuntimeException("Error al listar incumplidores", e);
+        }
+        return lista;
+    }
+
+
+
 }
