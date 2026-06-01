@@ -1,17 +1,13 @@
 package org.proyectobdmotos.ui.navigation;
 
 import java.io.IOException;
-import org.proyectobdmotos.controller.ClienteController;
+
+import org.proyectobdmotos.controller.*;
 import org.proyectobdmotos.utils.Logger;
-import org.proyectobdmotos.controller.ContratoController;
-import org.proyectobdmotos.controller.LoginController;
-import org.proyectobdmotos.controller.MainController;
-import org.proyectobdmotos.controller.MotoController;
-import org.proyectobdmotos.controller.RegistroController;
-import org.proyectobdmotos.controller.TerminosController;
 import org.proyectobdmotos.ui.AppCompositionRoot;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import org.proyectobdmotos.controller.ReportesController;
 
 /**
  * ScreenLoader: carga pantallas FXML y crea controllers con inyección de
@@ -83,8 +79,22 @@ public final class ScreenLoader {
                         compositionRoot.getReferenceDataStore());
             }
 
+            if (controllerClass == ContratoFormController.class) {
+                return new ContratoFormController(
+                        compositionRoot.getContratoService(),
+                        compositionRoot.getClienteService(),
+                        compositionRoot.getMotoService());
+            }
+
             if (controllerClass == TerminosController.class) {
                 return new TerminosController(this);
+            }
+
+            if (controllerClass == ReportesController.class) {
+                return new ReportesController(
+                        compositionRoot.getClienteService(),
+                        compositionRoot.getMotoService(),
+                        compositionRoot.getContratoService());
             }
 
             // Si llega aquí, el controller no está registrado
