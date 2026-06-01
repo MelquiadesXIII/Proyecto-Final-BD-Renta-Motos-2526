@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.proyectobdmotos.dao.IClienteDAO;
+import org.proyectobdmotos.dto.CliRepDTO;
 import org.proyectobdmotos.dto.ClienteDTO;
+import org.proyectobdmotos.dto.IncumpDTO;
 import org.proyectobdmotos.models.Cliente;
 import org.proyectobdmotos.models.Sexo;
 
@@ -153,6 +155,17 @@ public class ClienteServiceContractTest extends TestCase {
 
         @Override
         public void eliminarConCascada(Integer idCliente) {
+        }
+
+        // ===================== REPORTES =====================
+        @Override
+        public List<CliRepDTO> listarClientesReporte() {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public List<IncumpDTO> listarIncumplidores() {
+            return new ArrayList<>();
         }
     }
 }
