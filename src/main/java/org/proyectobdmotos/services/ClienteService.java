@@ -4,7 +4,9 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import org.proyectobdmotos.dao.IClienteDAO;
+import org.proyectobdmotos.dto.CliRepDTO;
 import org.proyectobdmotos.dto.ClienteDTO;
+import org.proyectobdmotos.dto.IncumpDTO;
 import org.proyectobdmotos.models.Cliente;
 import org.proyectobdmotos.services.exceptions.BusinessErrorCode;
 import org.proyectobdmotos.services.exceptions.ValidationException;
@@ -88,4 +90,14 @@ public class ClienteService {
     public List<Cliente> obtenerClientesIncumplidores() {
         return clienteDAO.obtenerClientesIncumplidores();
     }
+
+
+    public List<CliRepDTO> listarClientesReporte() {
+        return clienteDAO.listarClientesReporte();
+    }
+
+    public List<IncumpDTO> listarIncumplidores() {
+        return clienteDAO.listarIncumplidores();
+    }
+
 }
