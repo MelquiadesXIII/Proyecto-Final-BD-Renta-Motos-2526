@@ -1,14 +1,16 @@
 package org.proyectobdmotos.services;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.proyectobdmotos.dao.IMotoDAO;
 import org.proyectobdmotos.dto.MotoDTO;
+import org.proyectobdmotos.dto.MotoRepDTO;
+import org.proyectobdmotos.dto.SitMotoRepDTO;
 import org.proyectobdmotos.dto.SituacionMotoDTO;
-import org.proyectobdmotos.models.Moto;
-import org.proyectobdmotos.models.Situacion;
+import org.proyectobdmotos.models.*;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -187,6 +189,53 @@ public class MotoServiceContractTest extends TestCase {
         @Override
         public boolean estaDisponible(Integer idMoto) {
             return false;
+        }
+
+
+        // ===================== REPORTES Y OTROS =====================
+        @Override
+        public List<MotoRepDTO> listarMotosReporte() {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public List<SitMotoRepDTO> listarSituacionMotosReporte() {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public ArrayList<Color> obtenerColores() throws SQLException {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public ArrayList<Marca> obtenerMarcas() throws SQLException {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public ArrayList<Modelo> obtenerModelosPorMarca(int idMarca) throws SQLException {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public Modelo obtenerModeloPorId(int idModelo) throws SQLException {
+            return null;
+        }
+
+        @Override
+        public Marca obtenerMarcaPorId(int idMarca) throws SQLException {
+            return null;
+        }
+
+        @Override
+        public int obtenerIdColorPorNombre(String nombreColor) throws SQLException {
+            return 0;
+        }
+
+        @Override
+        public String obtenerNombreColorPorId(int idColor) throws SQLException {
+            return null;
         }
     }
 }
