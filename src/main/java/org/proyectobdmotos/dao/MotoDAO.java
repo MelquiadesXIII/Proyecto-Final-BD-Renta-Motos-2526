@@ -12,6 +12,8 @@ import java.util.Optional;
 
 import org.proyectobdmotos.database.DatabaseConnection;
 import org.proyectobdmotos.dto.MotoDTO;
+import org.proyectobdmotos.dto.MotoRepDTO;
+import org.proyectobdmotos.dto.SitMotoRepDTO;
 import org.proyectobdmotos.dto.SituacionMotoDTO;
 import org.proyectobdmotos.models.*;
 import org.proyectobdmotos.utils.Logger;
@@ -27,13 +29,13 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
     @Override
     protected String getInsertSQL() {
         return "INSERT INTO moto (matricula_moto, id_modelo, id_situacion, "
-             + "cant_km_recorridos, id_color) VALUES (?, ?, ?, ?, ?)";
+                + "cant_km_recorridos, id_color) VALUES (?, ?, ?, ?, ?)";
     }
 
     @Override
     protected String getUpdateSQL() {
         return "UPDATE moto SET matricula_moto = ?, id_modelo = ?, id_situacion = ?, "
-             + "cant_km_recorridos = ?, id_color = ? WHERE id_moto = ?";
+                + "cant_km_recorridos = ?, id_color = ? WHERE id_moto = ?";
     }
 
     @Override
@@ -78,12 +80,12 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
     @Override
     protected Moto mapResultSetToEntity(ResultSet rs) throws SQLException {
         return new Moto(
-            rs.getInt("id_moto"),
-            rs.getString("matricula_moto"),
-            rs.getInt("id_modelo"),
-            Situacion.fromId(rs.getInt("id_situacion")),
-            rs.getDouble("cant_km_recorridos"),
-            rs.getInt("id_color")
+                rs.getInt("id_moto"),
+                rs.getString("matricula_moto"),
+                rs.getInt("id_modelo"),
+                Situacion.fromId(rs.getInt("id_situacion")),
+                rs.getDouble("cant_km_recorridos"),
+                rs.getInt("id_color")
         );
     }
 
@@ -145,10 +147,10 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
             boolean hasMore = rs.next();
             while (hasMore) {
                 lista.add(new MotoDTO(
-                    rs.getString("matricula_moto"),
-                    rs.getString("nombre_marca"),
-                    rs.getString("nombre_modelo"),
-                    rs.getDouble("cant_km_recorridos")
+                        rs.getString("matricula_moto"),
+                        rs.getString("nombre_marca"),
+                        rs.getString("nombre_modelo"),
+                        rs.getDouble("cant_km_recorridos")
                 ));
                 hasMore = rs.next();
             }
@@ -186,10 +188,10 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
                     fechaFin = fechaFinSql.toLocalDate();
                 }
                 lista.add(new SituacionMotoDTO(
-                    rs.getString("matricula_moto"),
-                    rs.getString("nombre_marca"),
-                    Situacion.fromValor(rs.getString("situacion_nombre")),
-                    fechaFin
+                        rs.getString("matricula_moto"),
+                        rs.getString("nombre_marca"),
+                        Situacion.fromValor(rs.getString("situacion_nombre")),
+                        fechaFin
                 ));
                 hasMore = rs.next();
             }
@@ -375,6 +377,54 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
             throw new RuntimeException("Error al obtener nombre color por id", e);
         }
         throw new RuntimeException("Color no encontrado con id: " + idColor);
+    }
+
+    // ===================== REPORTES =====================
+
+    public List<MotoRepDTO> listarMotosReporte() {
+        String sql = "SELECT * FROM reporte_motos()";
+        List<MotoRepDTO> lista = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            boolean hayFila = rs.next();
+            while (hayFila) {
+                lista.add(new MotoRepDTO(
+                        rs.getDate("fecha_reporte") != null ? rs.getDate("fecha_reporte").toLocalDate() : null,
+                        rs.getString("matricula_moto"),
+                        rs.getString("marca"),
+                        rs.getString("modelo"),
+                        rs.getString("color"),
+                        rs.getDouble("cant_km_recorridos")
+                ));
+                hayFila = rs.next();
+            }
+        } catch (SQLException e) {
+            Logger.logError("Error al listar motos reporte: " + e.getMessage());
+            throw new RuntimeException("Error al listar motos reporte", e);
+        }
+        return lista;
+    }
+
+    public List<SitMotoRepDTO> listarSituacionMotosReporte() {
+        String sql = "SELECT * FROM reporte_situacion_motos()";
+        List<SitMotoRepDTO> lista = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            boolean hayFila = rs.next();
+            while (hayFila) {
+                lista.add(new SitMotoRepDTO(
+                        rs.getDate("fecha_reporte") != null ? rs.getDate("fecha_reporte").toLocalDate() : null,
+                        rs.getString("matricula_marca"),
+                        rs.getString("situacion"),
+                        rs.getDate("fecha_fin_contrato") != null ? rs.getDate("fecha_fin_contrato").toLocalDate() : null
+                ));
+                hayFila = rs.next();
+            }
+        } catch (SQLException e) {
+            Logger.logError("Error al listar situación motos reporte: " + e.getMessage());
+            throw new RuntimeException("Error al listar situación motos reporte", e);
+        }
+        return lista;
     }
 
 }
