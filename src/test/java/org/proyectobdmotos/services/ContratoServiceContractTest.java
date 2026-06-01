@@ -1,5 +1,6 @@
 package org.proyectobdmotos.services;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,15 +9,8 @@ import java.util.Optional;
 import org.proyectobdmotos.dao.IClienteDAO;
 import org.proyectobdmotos.dao.IContratoDAO;
 import org.proyectobdmotos.dao.IMotoDAO;
-import org.proyectobdmotos.dto.ClienteDTO;
-import org.proyectobdmotos.dto.MotoDTO;
-import org.proyectobdmotos.dto.SituacionMotoDTO;
-import org.proyectobdmotos.models.Cliente;
-import org.proyectobdmotos.models.Contrato;
-import org.proyectobdmotos.models.FormaPago;
-import org.proyectobdmotos.models.Moto;
-import org.proyectobdmotos.models.Sexo;
-import org.proyectobdmotos.models.Situacion;
+import org.proyectobdmotos.dto.*;
+import org.proyectobdmotos.models.*;
 import org.proyectobdmotos.services.exceptions.BusinessErrorCode;
 import org.proyectobdmotos.services.exceptions.ValidationException;
 
@@ -478,6 +472,27 @@ public class ContratoServiceContractTest extends TestCase {
         public List<Contrato> listarContratosCompletos() {
             return new ArrayList<Contrato>();
         }
+
+        // ===================== REPORTES =====================
+        @Override
+        public List<ContRepDTO> listarContratosReporte() {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public List<ResMarModDTO> resumenMarcasModelos() {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public List<ResMunDTO> resumenMunicipios() {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public List<IngAnualDTO> ingresosAnuales() {
+            return new ArrayList<>();
+        }
     }
 
     private static final class FakeClienteDAO implements IClienteDAO {
@@ -522,6 +537,17 @@ public class ContratoServiceContractTest extends TestCase {
 
         @Override
         public void eliminarConCascada(Integer idCliente) {
+        }
+
+        // ===================== REPORTES =====================
+        @Override
+        public List<CliRepDTO> listarClientesReporte() {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public List<IncumpDTO> listarIncumplidores() {
+            return new ArrayList<>();
         }
     }
 
@@ -578,5 +604,52 @@ public class ContratoServiceContractTest extends TestCase {
         public boolean estaDisponible(Integer idMoto) {
             return disponible;
         }
+
+        // ===================== REPORTES Y OTROS =====================
+        @Override
+        public List<MotoRepDTO> listarMotosReporte() {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public List<SitMotoRepDTO> listarSituacionMotosReporte() {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public ArrayList<Color> obtenerColores() throws SQLException {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public ArrayList<Marca> obtenerMarcas() throws SQLException {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public ArrayList<Modelo> obtenerModelosPorMarca(int idMarca) throws SQLException {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public Modelo obtenerModeloPorId(int idModelo) throws SQLException {
+            return null;
+        }
+
+        @Override
+        public Marca obtenerMarcaPorId(int idMarca) throws SQLException {
+            return null;
+        }
+
+        @Override
+        public int obtenerIdColorPorNombre(String nombreColor) throws SQLException {
+            return 0;
+        }
+
+        @Override
+        public String obtenerNombreColorPorId(int idColor) throws SQLException {
+            return null;
+        }
+
     }
 }
