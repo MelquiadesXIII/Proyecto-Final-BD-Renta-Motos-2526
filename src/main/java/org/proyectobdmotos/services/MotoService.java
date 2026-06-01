@@ -7,6 +7,8 @@ import java.util.Optional;
 
 import org.proyectobdmotos.dao.IMotoDAO;
 import org.proyectobdmotos.dto.MotoDTO;
+import org.proyectobdmotos.dto.MotoRepDTO;
+import org.proyectobdmotos.dto.SitMotoRepDTO;
 import org.proyectobdmotos.dto.SituacionMotoDTO;
 import org.proyectobdmotos.models.*;
 import org.proyectobdmotos.services.exceptions.BusinessErrorCode;
@@ -156,12 +158,12 @@ public class MotoService {
             );
         }
     }
-
-    public List<MotoDTO> listarMotosConKilometraje() {
-        return motoDAO.listarMotosConKilometraje();
+    public List<MotoRepDTO> listarMotosReporte() {
+        return motoDAO.listarMotosReporte();
     }
 
-    public List<SituacionMotoDTO> listarSituacionMotos() {
-        return motoDAO.listarSituacionMotos();
+    public List<SitMotoRepDTO> listarSituacionMotosReporte() {
+        return motoDAO.listarSituacionMotosReporte();
     }
+
 }
