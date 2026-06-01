@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<StackPane xmlns="http://javafx.com/javafx/19"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="org.proyectobdmotos.controller.ContratoFormController"
+           stylesheets="@/styles/contrato-form.css">
+
+    <VBox alignment="CENTER" maxWidth="500" spacing="15"
+          styleClass="form-box">
+
+        <Label text="Nuevo Contrato" styleClass="form-title" />
+
+        <GridPane hgap="10" vgap="15" alignment="CENTER">
+            <columnConstraints>
+                <ColumnConstraints percentWidth="30" />
+                <ColumnConstraints percentWidth="70" />
+            </columnConstraints>
+
+            <!-- Cliente -->
+            <Label text="Cliente*" styleClass="form-label"
+                   GridPane.rowIndex="0" GridPane.columnIndex="0" />
+            <ComboBox fx:id="comboCliente" promptText="Seleccionar cliente" styleClass="form-field"
+                      GridPane.rowIndex="0" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" />
+
+            <!-- Moto -->
+            <Label text="Moto*" styleClass="form-label"
+                   GridPane.rowIndex="1" GridPane.columnIndex="0" />
+            <ComboBox fx:id="comboMoto" promptText="Seleccionar moto disponible" styleClass="form-field"
+                      GridPane.rowIndex="1" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" />
+
+            <!-- Fecha Inicio -->
+            <Label text="Fecha Inicio*" styleClass="form-label"
+                   GridPane.rowIndex="2" GridPane.columnIndex="0" />
+            <DatePicker fx:id="dateInicio" promptText="dd/mm/aaaa" styleClass="form-field"
+                        GridPane.rowIndex="2" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" />
+
+            <!-- Fecha Fin -->
+            <Label text="Fecha Fin*" styleClass="form-label"
+                   GridPane.rowIndex="3" GridPane.columnIndex="0" />
+            <DatePicker fx:id="dateFin" promptText="dd/mm/aaaa" styleClass="form-field"
+                        GridPane.rowIndex="3" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" />
+
+            <!-- Forma de Pago -->
+            <Label text="Forma de pago*" styleClass="form-label"
+                   GridPane.rowIndex="4" GridPane.columnIndex="0" />
+            <ComboBox fx:id="comboPago" promptText="Seleccionar" styleClass="form-field"
+                      GridPane.rowIndex="4" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" />
+
+            <!-- Precio Estimado (solo visualización) -->
+            <Label text="Precio Estimado" styleClass="form-label"
+                   GridPane.rowIndex="5" GridPane.columnIndex="0" />
+            <Label fx:id="labelPrecio" text="0.00 CUP" styleClass="precio-label"
+                   GridPane.rowIndex="5" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" />
+        </GridPane>
+
+        <!-- Botones -->
+        <HBox alignment="CENTER" spacing="20">
+            <Button text="Guardar" onAction="#onGuardar" styleClass="btn-guardar" />
+            <Button text="Cancelar" onAction="#onCancelar" styleClass="btn-cancelar" />
+        </HBox>
+    </VBox>
+</StackPane>
