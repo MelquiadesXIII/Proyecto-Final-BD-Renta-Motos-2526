@@ -3,6 +3,7 @@ package org.proyectobdmotos.controller;
 import java.io.IOException;
 import java.util.Stack;
 
+import javafx.scene.layout.Region;
 import org.proyectobdmotos.ui.navigation.ScreenLoader;
 import org.proyectobdmotos.utils.Logger;
 
@@ -118,11 +119,18 @@ public class MainController {
 
         if (loadedSuccessfully) {
             fxmlActual = fxmlPath;
+            configurarEscalado(viewRoot);
             contentContainer.getChildren().setAll(viewRoot);
             Logger.logInfo("Vista activa: " + viewName);
         }
     }
-
+    private void configurarEscalado(Parent root) {
+        if (root instanceof Region) {
+            Region region = (Region) root;
+            region.setMaxWidth(Double.MAX_VALUE);
+            region.setMaxHeight(Double.MAX_VALUE);
+        }
+    }
     private void showLoadError(String viewName, Exception exception) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error de navegación");
