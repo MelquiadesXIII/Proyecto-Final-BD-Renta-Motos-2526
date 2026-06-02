@@ -3,6 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
+<?import javafx.scene.image.*?>
 
 <BorderPane xmlns="http://javafx.com/javafx/19"
             xmlns:fx="http://javafx.com/fxml/1"
@@ -16,7 +17,7 @@
                 <graphic>
                     <ImageView fitWidth="24" fitHeight="24">
                         <image>
-                            <Image url="@/Utiles/flecha.jpg" />
+                            <Image url="@../Utiles/flecha.jpg" />
                         </image>
                     </ImageView>
                 </graphic>
