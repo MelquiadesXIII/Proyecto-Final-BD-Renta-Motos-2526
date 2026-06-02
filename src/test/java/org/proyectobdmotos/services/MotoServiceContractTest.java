@@ -5,6 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.proyectobdmotos.dto.MotoRepDTO;
+import org.proyectobdmotos.dto.SitMotoRepDTO;
+import org.proyectobdmotos.models.Color;
+import org.proyectobdmotos.models.Marca;
+import org.proyectobdmotos.models.Modelo;
+import java.sql.SQLException;
 import org.proyectobdmotos.dao.IMotoDAO;
 import org.proyectobdmotos.dto.MotoDTO;
 import org.proyectobdmotos.dto.MotoRepDTO;
