@@ -12,10 +12,10 @@
 
     <TableView fx:id="tablaInventario" VBox.vgrow="ALWAYS">
         <columns>
-            <TableColumn text="Matrícula" fx:id="colMatriculaInv" />
-            <TableColumn text="Modelo" fx:id="colModeloInv" />
-            <TableColumn text="Color" fx:id="colColorInv" />
-            <TableColumn text="Situación" fx:id="colSituacionInv" />
+            <TableColumn text="Matrícula" fx:id="colMatriculaInv" prefWidth="100" />
+            <TableColumn text="Marca" fx:id="colMarcaInv" prefWidth="120" />
+            <TableColumn text="Situación" fx:id="colSituacionInv" prefWidth="100" />
+            <TableColumn text="Fin Contrato" fx:id="colFechaFinInv" prefWidth="120" />
         </columns>
     </TableView>
 </VBox>
