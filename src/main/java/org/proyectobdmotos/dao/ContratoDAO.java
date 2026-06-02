@@ -141,7 +141,7 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
             """;
 
         List<Contrato> lista = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(sql);
+        try (PreparedStatement ps = getConnection().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             boolean hasMore = rs.next();
             while (hasMore) {
@@ -160,7 +160,7 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
     public List<ContRepDTO> listarContratosReporte() {
         String sql = "SELECT * FROM listado_contratos()";
         List<ContRepDTO> lista = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(sql);
+        try (PreparedStatement ps = getConnection().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             boolean hayFila = rs.next();
             while (hayFila) {
@@ -188,7 +188,7 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
     public List<ResMarModDTO> resumenMarcasModelos() {
         String sql = "SELECT * FROM resumen_contratos_por_marcas_modelos()";
         List<ResMarModDTO> lista = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(sql);
+        try (PreparedStatement ps = getConnection().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             boolean hayFila = rs.next();
             while (hayFila) {
@@ -216,7 +216,7 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
     public List<ResMunDTO> resumenMunicipios() {
         String sql = "SELECT * FROM resumen_contratos_por_municipios()";
         List<ResMunDTO> lista = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(sql);
+        try (PreparedStatement ps = getConnection().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             boolean hayFila = rs.next();
             while (hayFila) {
@@ -242,7 +242,7 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
     public List<IngAnualDTO> ingresosAnuales() {
         String sql = "SELECT * FROM listado_ingresos_anuales()";
         List<IngAnualDTO> lista = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(sql);
+        try (PreparedStatement ps = getConnection().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             boolean hayFila = rs.next();
             while (hayFila) {
@@ -260,5 +260,4 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
         }
         return lista;
     }
-
 }

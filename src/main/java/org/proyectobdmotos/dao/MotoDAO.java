@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.proyectobdmotos.database.DatabaseConnection;
 import org.proyectobdmotos.dto.MotoDTO;
 import org.proyectobdmotos.dto.MotoRepDTO;
 import org.proyectobdmotos.dto.SitMotoRepDTO;
@@ -89,12 +88,9 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
         );
     }
 
-    /**
-     * Override para capturar el id_moto generado (SERIAL) tras el INSERT.
-     */
     @Override
     public void insertar(Moto moto) {
-        try (PreparedStatement ps = connection.prepareStatement(getInsertSQL(), Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement ps = getConnection().prepareStatement(getInsertSQL(), Statement.RETURN_GENERATED_KEYS)) {
             setInsertParameters(ps, moto);
             ps.executeUpdate();
             try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
@@ -108,13 +104,11 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
         }
     }
 
-    // ===== MÉTODOS ESPECÍFICOS =====
-
     @Override
     public Optional<Moto> buscarPorMatricula(String matricula) {
         String sql = "SELECT * FROM moto WHERE matricula_moto = ?";
         Optional<Moto> resultado = Optional.empty();
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setString(1, matricula);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -142,7 +136,7 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
             """;
 
         List<MotoDTO> lista = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(sql);
+        try (PreparedStatement ps = getConnection().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             boolean hasMore = rs.next();
             while (hasMore) {
@@ -174,11 +168,11 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
             JOIN marca ma ON mo.id_marca = ma.id_marca
             LEFT JOIN contrato co ON m.id_moto = co.id_moto
                 AND co.fecha_entrega IS NULL
-            ORDER BY si.nombre, m.matricula_moto
+            ORDER BY si.nombre_situacion, m.matricula_moto
             """;
 
         List<SituacionMotoDTO> lista = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(sql);
+        try (PreparedStatement ps = getConnection().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             boolean hasMore = rs.next();
             while (hasMore) {
@@ -205,7 +199,7 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
     @Override
     public void cambiarEstado(Integer idMoto, Situacion nuevaSituacion) {
         String sql = "UPDATE moto SET id_situacion = ? WHERE id_moto = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, nuevaSituacion.getId());
             ps.setInt(2, idMoto);
             ps.executeUpdate();
@@ -219,7 +213,7 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
     public boolean estaDisponible(Integer idMoto) {
         String sql = "SELECT id_situacion FROM moto WHERE id_moto = ?";
         boolean disponible = false;
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, idMoto);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -228,21 +222,17 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
             }
         } catch (SQLException e) {
             Logger.logError("Error al verificar disponibilidad: " + e.getMessage());
-            Logger.logError("Error en la funcion de estaDisponible en MotoDAO " + e.getMessage());
             throw new RuntimeException("Error al verificar disponibilidad: " + e.getMessage(), e);
         }
         return disponible;
     }
 
-    // Nota: Respetare como se colocaron las cosas en las anteriores
-    // lineas
     public ArrayList<Color> obtenerColores() throws SQLException {
         String sql = "SELECT * FROM obtener_colores()";
         ArrayList<Color> colores = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(sql);
+        try (PreparedStatement ps = getConnection().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                // Construir el objeto Color con los datos completos
                 Color color = new Color(
                         rs.getInt("id_color"),
                         rs.getString("nombre_color")
@@ -256,14 +246,10 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
         return colores;
     }
 
-    // ===== MÉTODOS PARA MARCAS Y MODELOS =====
-
-
-
     public ArrayList<Marca> obtenerMarcas() throws SQLException {
         String sql = "SELECT * FROM obtener_marcas()";
         ArrayList<Marca> marcas = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(sql);
+        try (PreparedStatement ps = getConnection().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 marcas.add(new Marca(
@@ -278,11 +264,10 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
         return marcas;
     }
 
-
     public ArrayList<Modelo> obtenerModelosPorMarca(int idMarca) throws SQLException {
         String sql = "SELECT * FROM obtener_modelos_por_marca(?)";
         ArrayList<Modelo> modelos = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, idMarca);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -302,7 +287,7 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
 
     public Modelo obtenerModeloPorId(int idModelo) throws SQLException {
         String sql = "SELECT * FROM obtener_modelo_por_id(?)";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, idModelo);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -322,7 +307,7 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
 
     public Marca obtenerMarcaPorId(int idMarca) throws SQLException {
         String sql = "SELECT * FROM obtener_marca_por_id(?)";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, idMarca);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -341,7 +326,7 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
 
     public int obtenerIdColorPorNombre(String nombreColor) throws SQLException {
         String sql = "SELECT obtener_id_color_por_nombre(?) AS id_color";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setString(1, nombreColor);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -361,7 +346,7 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
 
     public String obtenerNombreColorPorId(int idColor) throws SQLException {
         String sql = "SELECT obtener_nombre_color_por_id(?) AS nombre_color";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, idColor);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -384,7 +369,7 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
     public List<MotoRepDTO> listarMotosReporte() {
         String sql = "SELECT * FROM reporte_motos()";
         List<MotoRepDTO> lista = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(sql);
+        try (PreparedStatement ps = getConnection().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             boolean hayFila = rs.next();
             while (hayFila) {
@@ -408,7 +393,7 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
     public List<SitMotoRepDTO> listarSituacionMotosReporte() {
         String sql = "SELECT * FROM reporte_situacion_motos()";
         List<SitMotoRepDTO> lista = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(sql);
+        try (PreparedStatement ps = getConnection().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             boolean hayFila = rs.next();
             while (hayFila) {
@@ -426,5 +411,4 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
         }
         return lista;
     }
-
 }

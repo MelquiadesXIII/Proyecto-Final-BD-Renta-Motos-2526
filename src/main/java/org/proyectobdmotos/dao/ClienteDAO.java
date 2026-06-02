@@ -98,7 +98,7 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
 
     @Override
     public void insertar(Cliente cliente) {
-        try (PreparedStatement ps = connection.prepareStatement(getInsertSQL(), Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement ps = getConnection().prepareStatement(getInsertSQL(), Statement.RETURN_GENERATED_KEYS)) {
             setInsertParameters(ps, cliente);
             ps.executeUpdate();
             try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
@@ -116,7 +116,7 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
     public Optional<Cliente> buscarPorCi(String ci) {
         String sql = "SELECT * FROM cliente WHERE ci_cliente = ?";
         Optional<Cliente> resultado = Optional.empty();
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setString(1, ci);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -145,8 +145,8 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
                 """;
 
         List<ClienteDTO> lista = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
             boolean hasMore = rs.next();
             while (hasMore) {
                 lista.add(new ClienteDTO(
@@ -175,8 +175,8 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
                 """;
 
         List<Cliente> lista = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
             boolean hasMore = rs.next();
             while (hasMore) {
                 lista.add(mapResultSetToEntity(rs));
@@ -192,24 +192,25 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
     @Override
     public void eliminarConCascada(Integer idCliente) {
         try {
-            connection.setAutoCommit(false);
+            Connection conn = getConnection();
+            conn.setAutoCommit(false);
 
             String deleteContratos = "DELETE FROM contrato WHERE id_cliente = ?";
-            try (PreparedStatement ps = connection.prepareStatement(deleteContratos)) {
+            try (PreparedStatement ps = conn.prepareStatement(deleteContratos)) {
                 ps.setInt(1, idCliente);
                 ps.executeUpdate();
             }
 
             String deleteCliente = "DELETE FROM cliente WHERE id_cliente = ?";
-            try (PreparedStatement ps = connection.prepareStatement(deleteCliente)) {
+            try (PreparedStatement ps = conn.prepareStatement(deleteCliente)) {
                 ps.setInt(1, idCliente);
                 ps.executeUpdate();
             }
 
-            connection.commit();
+            conn.commit();
         } catch (SQLException e) {
             try {
-                connection.rollback();
+                getConnection().rollback();
             } catch (SQLException rollbackEx) {
                 Logger.logError("Error en rollback: " + rollbackEx.getMessage());
             }
@@ -217,7 +218,7 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
             throw new RuntimeException("Error al eliminar cliente con cascada: " + e.getMessage(), e);
         }
         try {
-            connection.setAutoCommit(true);
+            getConnection().setAutoCommit(true);
         } catch (SQLException e) {
             Logger.logError("Error al restaurar autoCommit: " + e.getMessage());
         }
@@ -225,17 +226,16 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
 
     public Cliente insert(Cliente cliente) throws SQLException {
         String sql = "INSERT INTO cliente (ci_cliente, nombre_cliente, primer_apellido, segundo_apellido, edad, sexo, numero_contacto, municipio, id_usuario) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id_cliente";
-        try (Connection conn = DatabaseConnection.getInstance();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setString(1, cliente.getCiCliente());
             ps.setInt(8, cliente.getIdMunicipio());
             ps.setString(2, cliente.getNombreCliente());
             ps.setString(3, cliente.getPrimerApellido());
             ps.setString(4, cliente.getSegundoApellido());
             ps.setInt(5, cliente.getEdad());
-            ps.setString(6, cliente.getSexo().name()); 
+            ps.setString(6, cliente.getSexo().name());
             ps.setString(7, cliente.getNumeroContacto());
-            ps.setInt(9, cliente.getIdUsuario()); 
+            ps.setInt(9, cliente.getIdUsuario());
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     cliente.setIdCliente(rs.getInt("id_cliente"));
@@ -245,13 +245,12 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
         return cliente;
     }
 
-
     // ===================== REPORTES =====================
 
     public List<CliRepDTO> listarClientesReporte() {
         String sql = "SELECT * FROM listado_clientes()";
         List<CliRepDTO> lista = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(sql);
+        try (PreparedStatement ps = getConnection().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             boolean hayFila = rs.next();
             while (hayFila) {
@@ -275,7 +274,7 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
     public List<IncumpDTO> listarIncumplidores() {
         String sql = "SELECT * FROM lista_incumplidores()";
         List<IncumpDTO> lista = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(sql);
+        try (PreparedStatement ps = getConnection().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             boolean hayFila = rs.next();
             while (hayFila) {
@@ -293,7 +292,4 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
         }
         return lista;
     }
-
-
-
 }
