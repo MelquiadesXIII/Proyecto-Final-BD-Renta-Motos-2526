@@ -2,12 +2,12 @@ package org.proyectobdmotos.ui.navigation;
 
 import java.io.IOException;
 
+import org.proyectobdmotos.controller.InventarioController;
 import org.proyectobdmotos.controller.*;
 import org.proyectobdmotos.utils.Logger;
 import org.proyectobdmotos.ui.AppCompositionRoot;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import org.proyectobdmotos.controller.ReportesController;
 
 /**
  * ScreenLoader: carga pantallas FXML y crea controllers con inyección de
@@ -95,6 +95,10 @@ public final class ScreenLoader {
                         compositionRoot.getClienteService(),
                         compositionRoot.getMotoService(),
                         compositionRoot.getContratoService());
+            }
+
+            if (controllerClass == InventarioController.class) {
+                return new InventarioController(compositionRoot.getMotoService());
             }
 
             // Si llega aquí, el controller no está registrado
