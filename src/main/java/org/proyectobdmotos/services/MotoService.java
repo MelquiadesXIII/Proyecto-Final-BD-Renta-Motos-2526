@@ -158,6 +158,12 @@ public class MotoService {
             );
         }
     }
+
+    public List<SituacionMotoDTO> listarSituacionMotos()
+    {
+        return motoDAO.listarSituacionMotos();
+    }
+
     public List<MotoRepDTO> listarMotosReporte() {
         return motoDAO.listarMotosReporte();
     }
