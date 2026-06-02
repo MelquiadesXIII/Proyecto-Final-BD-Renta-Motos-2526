@@ -14,7 +14,6 @@ import org.proyectobdmotos.stores.AgenciaStore;
 import org.proyectobdmotos.stores.ReferenceDataStore;
 import org.proyectobdmotos.utils.Logger;
 
-import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
