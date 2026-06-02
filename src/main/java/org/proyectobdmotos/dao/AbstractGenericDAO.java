@@ -8,49 +8,40 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.proyectobdmotos.database.DatabaseConnection;
 import org.proyectobdmotos.utils.Logger;
 
-/**
- * Clase abstracta que implementa la lógica común del flujo CRUD.
- * Usa el patrón Template Method: define el esqueleto del algoritmo
- * y delega los detalles específicos (SQL, mapeo) a las subclases.
- *
- * @param <T>  Tipo de la entidad
- * @param <ID> Tipo de la clave primaria
- */
 public abstract class AbstractGenericDAO<T, ID> implements GenericDAO<T, ID> {
 
-    protected final Connection connection;
+    protected Connection connection;
 
     public AbstractGenericDAO(Connection connection) {
         this.connection = connection;
     }
 
-    // ===== MÉTODOS ABSTRACTOS (implementados por cada DAO concreto) =====
+    /**
+     * Obtiene una conexión viva. Si la original se cerró, la reabre automáticamente.
+     */
+    protected Connection getConnection() throws SQLException {
+        if (connection == null || connection.isClosed()) {
+            connection = DatabaseConnection.getInstance();
+        }
+        return connection;
+    }
 
     protected abstract String getInsertSQL();
-
     protected abstract String getUpdateSQL();
-
     protected abstract String getDeleteSQL();
-
     protected abstract String getFindByIdSQL();
-
     protected abstract String getFindAllSQL();
-
     protected abstract void setInsertParameters(PreparedStatement ps, T entity) throws SQLException;
-
     protected abstract void setUpdateParameters(PreparedStatement ps, T entity) throws SQLException;
-
     protected abstract void setIdParameter(PreparedStatement ps, ID id) throws SQLException;
-
     protected abstract T mapResultSetToEntity(ResultSet rs) throws SQLException;
-
-    // ===== IMPLEMENTACIÓN DEL FLUJO COMÚN =====
 
     @Override
     public void insertar(T entity) {
-        try (PreparedStatement ps = connection.prepareStatement(getInsertSQL())) {
+        try (PreparedStatement ps = getConnection().prepareStatement(getInsertSQL())) {
             setInsertParameters(ps, entity);
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -61,7 +52,7 @@ public abstract class AbstractGenericDAO<T, ID> implements GenericDAO<T, ID> {
 
     @Override
     public void actualizar(T entity) {
-        try (PreparedStatement ps = connection.prepareStatement(getUpdateSQL())) {
+        try (PreparedStatement ps = getConnection().prepareStatement(getUpdateSQL())) {
             setUpdateParameters(ps, entity);
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -72,7 +63,7 @@ public abstract class AbstractGenericDAO<T, ID> implements GenericDAO<T, ID> {
 
     @Override
     public void eliminar(ID id) {
-        try (PreparedStatement ps = connection.prepareStatement(getDeleteSQL())) {
+        try (PreparedStatement ps = getConnection().prepareStatement(getDeleteSQL())) {
             setIdParameter(ps, id);
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -84,7 +75,7 @@ public abstract class AbstractGenericDAO<T, ID> implements GenericDAO<T, ID> {
     @Override
     public Optional<T> buscarPorId(ID id) {
         Optional<T> resultado = Optional.empty();
-        try (PreparedStatement ps = connection.prepareStatement(getFindByIdSQL())) {
+        try (PreparedStatement ps = getConnection().prepareStatement(getFindByIdSQL())) {
             setIdParameter(ps, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -101,7 +92,7 @@ public abstract class AbstractGenericDAO<T, ID> implements GenericDAO<T, ID> {
     @Override
     public List<T> listarTodos() {
         List<T> lista = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(getFindAllSQL());
+        try (PreparedStatement ps = getConnection().prepareStatement(getFindAllSQL());
              ResultSet rs = ps.executeQuery()) {
             boolean hasMore = rs.next();
             while (hasMore) {
