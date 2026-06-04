@@ -3,7 +3,6 @@ package org.proyectobdmotos.controller;
 import java.io.IOException;
 import java.util.Stack;
 
-import javafx.scene.layout.Region;
 import org.proyectobdmotos.ui.navigation.ScreenLoader;
 import org.proyectobdmotos.utils.Logger;
 
@@ -11,18 +10,15 @@ import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 
-/**
- * MainController: controla la navegación principal del shell UI.
- * Solo maneja eventos de UI y delega la carga de vistas al ScreenLoader.
- */
-
 public class MainController {
-
     private final ScreenLoader screenLoader;
     private String fxmlActual;
     private final Stack<String> historial;
+
+    private static MainController instance;
 
     @FXML
     private StackPane contentContainer;
@@ -30,6 +26,27 @@ public class MainController {
     public MainController(ScreenLoader screenLoader) {
         this.screenLoader = screenLoader;
         this.historial = new Stack<>();
+        instance = this;
+    }
+
+    public ScreenLoader getScreenLoader() {
+        return screenLoader;
+    }
+
+    public String getFxmlActual() {
+        return fxmlActual;
+    }
+
+    public Stack<String> getHistorial() {
+        return historial;
+    }
+
+    public StackPane getContentContainer() {
+        return contentContainer;
+    }
+
+    public static MainController getInstance() {
+        return instance;
     }
 
     @FXML
@@ -76,8 +93,7 @@ public class MainController {
         loadView("/fxml/contrato-formulario.fxml", "Nuevo Contrato");
     }
 
-    @FXML
-    private void onGoBack() {
+    public void onGoBack() {
         if (historial.isEmpty()) {
             Logger.logInfo("Historial vacío, no se puede retroceder");
             return;
@@ -85,6 +101,7 @@ public class MainController {
         String fxmlAnterior = historial.pop();
         try {
             Parent vista = screenLoader.load(fxmlAnterior);
+            configurarEscalado(vista);
             fxmlActual = fxmlAnterior;
             contentContainer.getChildren().setAll(vista);
             Logger.logInfo("Retrocediendo a: " + fxmlAnterior);
@@ -92,6 +109,13 @@ public class MainController {
             Logger.logError("Error al retroceder: " + e.getMessage());
             showLoadError("Retroceder", e);
         }
+    }
+
+    /**
+     * Permite que otros controladores carguen una vista en el panel central.
+     */
+    public void cargarVista(String fxmlPath, String nombreVista) {
+        loadView(fxmlPath, nombreVista);
     }
 
     // ==================== MÉTODOS PRIVADOS ====================
@@ -114,6 +138,7 @@ public class MainController {
             loadedSuccessfully = true;
         } catch (IOException e) {
             Logger.logError("Error cargando vista " + viewName + ": " + e.getMessage());
+            e.printStackTrace();
             showLoadError(viewName, e);
         }
 
@@ -124,6 +149,7 @@ public class MainController {
             Logger.logInfo("Vista activa: " + viewName);
         }
     }
+
     private void configurarEscalado(Parent root) {
         if (root instanceof Region) {
             Region region = (Region) root;
@@ -131,6 +157,7 @@ public class MainController {
             region.setMaxHeight(Double.MAX_VALUE);
         }
     }
+
     private void showLoadError(String viewName, Exception exception) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error de navegación");
