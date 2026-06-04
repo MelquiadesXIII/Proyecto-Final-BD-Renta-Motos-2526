@@ -1,8 +1,5 @@
 package org.proyectobdmotos.controller;
 
-
-
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,22 +13,11 @@ import org.proyectobdmotos.utils.Logger;
 
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-
-
-/**
- * MotoController: maneja eventos de la UI de motos.
- * Delega operaciones a MotoService y actualiza/observa AgenciaStore.
- */
 
 public class MotoController {
 
@@ -39,7 +25,6 @@ public class MotoController {
     private final AgenciaStore agenciaStore;
     private final ReferenceDataStore referenceDataStore;
 
-    // Nombres coincidentes con moto-lista.fxml
     @FXML private TableView<Moto> tablaMotos;
     @FXML private TableColumn<Moto, String> colMatricula;
     @FXML private TableColumn<Moto, Integer> colModelo;
@@ -64,11 +49,10 @@ public class MotoController {
         loadMotos();
     }
 
-    // ===================== MÉTODOS DE LOS BOTONES =====================
-
     @FXML
     private void onCrearMoto() {
-        abrirFormulario(null);
+        MotoFormController.setMotoAEditarStatic(null);
+        MainController.getInstance().cargarVista("/fxml/moto-form-view.fxml", "Nueva Moto");
     }
 
     @FXML
@@ -77,7 +61,8 @@ public class MotoController {
         if (motoSeleccionada == null) {
             mostrarAlerta("Seleccione una moto de la tabla para editar.");
         } else {
-            abrirFormulario(motoSeleccionada);
+            MotoFormController.setMotoAEditarStatic(motoSeleccionada);
+            MainController.getInstance().cargarVista("/fxml/moto-form-view.fxml", "Editar Moto");
         }
     }
 
@@ -110,8 +95,6 @@ public class MotoController {
     private void onActualizarLista() {
         loadMotos();
     }
-
-    // ===================== MÉTODOS PRIVADOS =====================
 
     private void configureTableColumns() {
         colMatricula.setCellValueFactory(new PropertyValueFactory<>("matriculaMoto"));
@@ -156,32 +139,6 @@ public class MotoController {
         Thread loadThread = new Thread(loadTask);
         loadThread.setDaemon(true);
         loadThread.start();
-    }
-
-    private void abrirFormulario(Moto moto) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/moto-form.fxml"));
-            MotoFormController formController = new MotoFormController(motoService, agenciaStore, referenceDataStore);
-            loader.setController(formController);
-
-            Parent root = loader.load();
-
-            if (moto != null) {
-                formController.setModoEdicion(moto);
-            }
-
-            Stage stage = new Stage();
-            stage.setScene(new Scene(root));
-            stage.setTitle(moto == null ? "Nueva Moto" : "Editar Moto");
-            stage.initModality(Modality.WINDOW_MODAL);
-            stage.initOwner(tablaMotos.getScene().getWindow());
-            stage.showAndWait();
-
-            loadMotos();
-        } catch (IOException e) {
-            Logger.logError("Error al cargar formulario de moto: " + e.getMessage());
-            mostrarAlerta("No se pudo abrir el formulario.");
-        }
     }
 
     private void showError(String headerText, String contentText) {
