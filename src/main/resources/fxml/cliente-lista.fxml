@@ -2,13 +2,10 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
-<VBox xmlns="http://javafx.com/javafx/19"
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="org.proyectobdmotos.controller.ClienteController"
-      stylesheets="@/styles/cliente-lista.css"
-      spacing="10"
-      styleClass="root-vbox">
+ <!--Habia un error que cuando lo ponia separado como en los otros archivos
+ FXML no me dejaba entrar a lo del cliente, asi que decidi dejarlo todo en una Linea
+ Nota: No tocar o si tocas ten cuidado.-->
+<VBox xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.proyectobdmotos.controller.ClienteController" stylesheets="@/styles/cliente-lista.css,@/styles/tablas-estilos.css" spacing="10" styleClass="root-vbox">
 
     <TableView fx:id="clientesTable" VBox.vgrow="ALWAYS">
         <columns>
