@@ -2,7 +2,9 @@ package org.proyectobdmotos.controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import javafx.util.StringConverter;
 import org.proyectobdmotos.models.*;
 import org.proyectobdmotos.services.*;
@@ -15,32 +17,21 @@ import java.util.List;
 public class ClienteFormController {
 
     // ========== SECCIÓN USUARIO ==========
-    @FXML
-    private TextField campoNombreUsuario;
-    @FXML
-    private PasswordField campoPassword;
-    @FXML
-    private TextField campoGmail;
-    @FXML
-    private CheckBox checkEsAdmin;
+    @FXML private TextField campoNombreUsuario;
+    @FXML private PasswordField campoPassword;
+    @FXML private TextField campoGmail;
+    @FXML private CheckBox checkEsAdmin;
 
     // ========== SECCIÓN CLIENTE ==========
-    @FXML
-    private TextField campoCI;
-    @FXML
-    private TextField campoNombre;
-    @FXML
-    private TextField campoPrimerApellido;
-    @FXML
-    private TextField campoSegundoApellido;
-    @FXML
-    private TextField campoEdad;
-    @FXML
-    private ComboBox<String> comboSexo;
-    @FXML
-    private TextField campoTelefono;
-    @FXML
-    private ComboBox<Municipio> comboMunicipio;     // ← Ahora maneja objetos Municipio
+    @FXML private TextField campoCI;
+    @FXML private TextField campoNombre;
+    @FXML private TextField campoPrimerApellido;
+    @FXML private TextField campoSegundoApellido;
+    @FXML private TextField campoEdad;
+    @FXML private ComboBox<String> comboSexo;
+    @FXML private TextField campoTelefono;
+    @FXML private ComboBox<Municipio> comboMunicipio;
+    @FXML private GridPane gridCliente;
 
     // ========== DEPENDENCIAS ==========
     private final ClienteService clienteService;
@@ -50,6 +41,13 @@ public class ClienteFormController {
     private boolean modoEdicion = false;
     private Cliente clienteEditando = null;
     private Usuario usuarioEditando = null;
+
+    // Cliente estático para pasar datos desde ClienteController
+    private static Cliente clienteAEditarStatic;
+
+    public static void setClienteAEditarStatic(Cliente c) {
+        clienteAEditarStatic = c;
+    }
 
     public ClienteFormController(ClienteService clienteService,
                                  UsuarioService usuarioService,
@@ -63,11 +61,9 @@ public class ClienteFormController {
     private void initialize() {
         comboSexo.getItems().addAll("Masculino", "Femenino");
 
-        // Cargar municipios desde ReferenceDataStore
         List<Municipio> municipios = referenceDataStore.getMunicipios();
         comboMunicipio.getItems().setAll(municipios);
 
-        // Configurar visualización del combo de municipio
         comboMunicipio.setCellFactory(param -> new ListCell<Municipio>() {
             @Override
             protected void updateItem(Municipio item, boolean empty) {
@@ -80,12 +76,27 @@ public class ClienteFormController {
             public String toString(Municipio municipio) {
                 return (municipio != null) ? municipio.getNombreMunicipio() : "";
             }
-
             @Override
-            public Municipio fromString(String string) {
-                return null;
-            }
+            public Municipio fromString(String string) { return null; }
         });
+
+        // Ocultar/mostrar sección cliente según CheckBox
+        checkEsAdmin.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            boolean visible = !newVal;
+            gridCliente.setVisible(visible);
+            gridCliente.setManaged(visible);
+        });
+
+        if (checkEsAdmin.isSelected()) {
+            gridCliente.setVisible(false);
+            gridCliente.setManaged(false);
+        }
+
+        // Si se pasó un cliente para editar vía estática, cargarlo
+        if (clienteAEditarStatic != null) {
+            setModoEdicion(clienteAEditarStatic, null);
+            clienteAEditarStatic = null; // limpiar
+        }
     }
 
     public void setModoEdicion(Cliente cliente, Usuario usuario) {
@@ -102,31 +113,77 @@ public class ClienteFormController {
         campoTelefono.setText(cliente.getNumeroContacto());
 
         int idMunicipio = cliente.getIdMunicipio();
-
-        for (Municipio m : comboMunicipio.getItems()) {
+        boolean municipioEncontrado = false;
+        int i = 0;
+        while (!municipioEncontrado && i < comboMunicipio.getItems().size()) {
+            Municipio m = comboMunicipio.getItems().get(i);
             if (m.getIdMunicipio() == idMunicipio) {
                 comboMunicipio.getSelectionModel().select(m);
+                municipioEncontrado = true;
             }
+            i++;
         }
 
         if (usuario != null) {
             campoNombreUsuario.setText(usuario.getNombreUsuario());
             campoGmail.setText(usuario.getGmail());
             checkEsAdmin.setSelected(usuario.isEsAdmin());
+            boolean visible = !usuario.isEsAdmin();
+            gridCliente.setVisible(visible);
+            gridCliente.setManaged(visible);
         }
     }
 
     @FXML
     private void onGuardar() {
-        boolean camposValidos = validarCampos();
-        if (camposValidos) {
+        boolean esAdmin = checkEsAdmin.isSelected();
+        boolean camposUsuarioValidos = true;
+        boolean camposClienteValidos = true;
+
+        if (campoNombreUsuario.getText().trim().isEmpty() ||
+                campoPassword.getText().trim().isEmpty() ||
+                campoGmail.getText().trim().isEmpty()) {
+            mostrarError("Los campos de la cuenta (usuario, contraseña, gmail) son obligatorios.");
+            camposUsuarioValidos = false;
+        }
+
+        if (!esAdmin && camposUsuarioValidos) {
+            if (campoCI.getText().trim().isEmpty() ||
+                    campoNombre.getText().trim().isEmpty() ||
+                    campoPrimerApellido.getText().trim().isEmpty() ||
+                    campoEdad.getText().trim().isEmpty() ||
+                    campoTelefono.getText().trim().isEmpty() ||
+                    comboSexo.getValue() == null ||
+                    comboMunicipio.getValue() == null) {
+                mostrarError("Todos los campos del cliente son obligatorios.");
+                camposClienteValidos = false;
+            }
+        }
+
+        boolean puedeGuardar = camposUsuarioValidos && (esAdmin || camposClienteValidos);
+
+        if (puedeGuardar) {
             try {
                 if (modoEdicion) {
-                    actualizarClienteExistente();
+                    if (!esAdmin) {
+                        actualizarClienteExistente();
+                    }
                 } else {
-                    crearNuevoCliente();
+                    Usuario nuevoUsuario = usuarioService.registrarUsuarioConRol(
+                            campoNombreUsuario.getText().trim(),
+                            campoPassword.getText().trim(),
+                            campoGmail.getText().trim(),
+                            esAdmin
+                    );
+
+                    if (!esAdmin) {
+                        Cliente nuevoCliente = construirClienteDesdeCampos();
+                        nuevoCliente.setIdUsuario(nuevoUsuario.getId());
+                        clienteService.crearCliente(nuevoCliente);
+                    }
                 }
-                cerrarVentana();
+                // Navegar hacia atrás o cerrar ventana según el contexto
+                volverALista();
             } catch (ValidationException e) {
                 mostrarError(e.getMessage());
             } catch (Exception e) {
@@ -136,36 +193,19 @@ public class ClienteFormController {
         }
     }
 
-    private void crearNuevoCliente() throws ValidationException {
-        // 1. Crear usuario
-        Usuario nuevoUsuario = usuarioService.registrarUsuarioConRol(
-                campoNombreUsuario.getText().trim(),
-                campoPassword.getText().trim(),
-                campoGmail.getText().trim(),
-                checkEsAdmin.isSelected()
-        );
-
-        // 2. Construir cliente desde los campos
-        Cliente nuevoCliente = construirClienteDesdeCampos();
-        nuevoCliente.setIdUsuario(nuevoUsuario.getId());
-
-        // 3. Guardar cliente
-        clienteService.crearCliente(nuevoCliente);
-    }
-
     private void actualizarClienteExistente() throws ValidationException {
-        if (clienteEditando == null) return;
+        if (clienteEditando != null) {
+            clienteEditando.setCiCliente(campoCI.getText().trim());
+            clienteEditando.setNombreCliente(campoNombre.getText().trim());
+            clienteEditando.setPrimerApellido(campoPrimerApellido.getText().trim());
+            clienteEditando.setSegundoApellido(campoSegundoApellido.getText().trim());
+            clienteEditando.setEdad(Integer.parseInt(campoEdad.getText().trim()));
+            clienteEditando.setSexo(comboSexo.getValue().equals("Masculino") ? Sexo.MASCULINO : Sexo.FEMENINO);
+            clienteEditando.setNumeroContacto(campoTelefono.getText().trim());
+            clienteEditando.setIdMunicipio(comboMunicipio.getValue().getIdMunicipio());
 
-        clienteEditando.setCiCliente(campoCI.getText().trim());
-        clienteEditando.setNombreCliente(campoNombre.getText().trim());
-        clienteEditando.setPrimerApellido(campoPrimerApellido.getText().trim());
-        clienteEditando.setSegundoApellido(campoSegundoApellido.getText().trim());
-        clienteEditando.setEdad(Integer.parseInt(campoEdad.getText().trim()));
-        clienteEditando.setSexo(comboSexo.getValue().equals("Masculino") ? Sexo.MASCULINO : Sexo.FEMENINO);
-        clienteEditando.setNumeroContacto(campoTelefono.getText().trim());
-        clienteEditando.setIdMunicipio(comboMunicipio.getValue().getIdMunicipio());
-
-        clienteService.actualizarCliente(clienteEditando);
+            clienteService.actualizarCliente(clienteEditando);
+        }
     }
 
     private Cliente construirClienteDesdeCampos() {
@@ -183,37 +223,20 @@ public class ClienteFormController {
 
     @FXML
     private void onCancelar() {
-        cerrarVentana();
+        volverALista();
     }
 
-    // ========== MÉTODOS AUXILIARES ==========
-
-    private boolean validarCampos() {
-        boolean hayError = false;
-        String mensaje = "Todos los campos obligatorios deben estar completos.";
-
-        if (campoNombreUsuario.getText().trim().isEmpty() ||
-                campoPassword.getText().trim().isEmpty() ||
-                campoGmail.getText().trim().isEmpty() ||
-                campoCI.getText().trim().isEmpty() ||
-                campoNombre.getText().trim().isEmpty() ||
-                campoPrimerApellido.getText().trim().isEmpty() ||
-                campoEdad.getText().trim().isEmpty() ||
-                campoTelefono.getText().trim().isEmpty() ||
-                comboSexo.getValue() == null ||
-                comboMunicipio.getValue() == null) {
-            hayError = true;
+    /**
+     * Si estamos dentro del panel principal, volvemos atrás; si no, cerramos la ventana modal.
+     */
+    private void volverALista() {
+        Window window = campoCI.getScene().getWindow();
+        Window mainWindow = MainController.getInstance().getContentContainer().getScene().getWindow();
+        if (window == mainWindow) {
+            MainController.getInstance().onGoBack();
+        } else {
+            ((Stage) window).close();
         }
-
-        if (hayError) {
-            mostrarError(mensaje);
-        }
-        return !hayError;
-    }
-
-    private void cerrarVentana() {
-        Stage stage = (Stage) campoCI.getScene().getWindow();
-        stage.close();
     }
 
     private void mostrarError(String mensaje) {
