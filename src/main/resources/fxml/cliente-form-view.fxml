@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/19"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.proyectobdmotos.controller.ClienteFormController"
+      stylesheets="@/styles/cliente-form.css"
+      alignment="CENTER" spacing="15"
+      style="-fx-padding: 30; -fx-background-color: #f4f6f8;">
+
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
+        <VBox alignment="CENTER" maxWidth="750" spacing="20">
+            <Label text="Nuevo Cliente" styleClass="form-title"/>
+
+            <!-- SECCIÓN USUARIO -->
+            <Label text="Datos de la cuenta" styleClass="section-title"/>
+            <GridPane hgap="15" vgap="15" alignment="CENTER">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="30" halignment="RIGHT"/>
+                    <ColumnConstraints percentWidth="70" halignment="LEFT"/>
+                </columnConstraints>
+
+                <Label text="Usuario*" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <TextField fx:id="campoNombreUsuario" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                <Label text="Contraseña*" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <PasswordField fx:id="campoPassword" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                <Label text="Gmail*" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <TextField fx:id="campoGmail" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                <CheckBox fx:id="checkEsAdmin" text="¿Es administrador?"
+                          GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+            </GridPane>
+
+            <Separator/>
+
+            <!-- SECCIÓN CLIENTE -->
+            <Label text="Datos del cliente" styleClass="section-title"/>
+            <GridPane fx:id="gridCliente" hgap="15" vgap="15" alignment="CENTER">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="30" halignment="RIGHT"/>
+                    <ColumnConstraints percentWidth="70" halignment="LEFT"/>
+                </columnConstraints>
+
+                <Label text="CI*" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <TextField fx:id="campoCI" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                <Label text="Nombre*" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <TextField fx:id="campoNombre" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                <Label text="Primer Apellido*" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <TextField fx:id="campoPrimerApellido" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                <Label text="Segundo Apellido" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                <TextField fx:id="campoSegundoApellido" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                <Label text="Edad*" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                <TextField fx:id="campoEdad" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+                <Label text="Sexo*" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                <ComboBox fx:id="comboSexo" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+                <Label text="Teléfono*" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                <TextField fx:id="campoTelefono" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+
+                <Label text="Municipio*" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+                <ComboBox fx:id="comboMunicipio" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+            </GridPane>
+
+            <HBox alignment="CENTER" spacing="25">
+                <Button text="Guardar" onAction="#onGuardar" styleClass="btn-guardar"/>
+                <Button text="Cancelar" onAction="#onCancelar" styleClass="btn-cancelar"/>
+            </HBox>
+        </VBox>
+    </ScrollPane>
+</VBox>
