@@ -2,6 +2,8 @@ package org.proyectobdmotos.ui.navigation;
 
 import java.io.IOException;
 
+import org.proyectobdmotos.controller.ClienteFormController;
+import org.proyectobdmotos.controller.MotoFormController;
 import org.proyectobdmotos.controller.InventarioController;
 import org.proyectobdmotos.controller.*;
 import org.proyectobdmotos.utils.Logger;
@@ -37,11 +39,10 @@ public final class ScreenLoader {
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
 
-        // Configurar controllerFactory: permite inyectar dependencias en constructores
         loader.setControllerFactory(controllerClass -> {
             Logger.log("→ Creando controller: " + controllerClass.getSimpleName());
 
-            // Mapeo de controllers conocidos con sus dependencias
+            // Listas principales
             if (controllerClass == ClienteController.class) {
                 return new ClienteController(this,
                         compositionRoot.getClienteService(),
@@ -60,6 +61,20 @@ public final class ScreenLoader {
             if (controllerClass == ContratoController.class) {
                 return new ContratoController(
                         compositionRoot.getContratoService(),
+                        compositionRoot.getAgenciaStore(),
+                        compositionRoot.getReferenceDataStore());
+            }
+
+            if (controllerClass == ClienteFormController.class) {
+                return new ClienteFormController(
+                        compositionRoot.getClienteService(),
+                        compositionRoot.getUsuarioService(),
+                        compositionRoot.getReferenceDataStore());
+            }
+
+            if (controllerClass == MotoFormController.class) {
+                return new MotoFormController(
+                        compositionRoot.getMotoService(),
                         compositionRoot.getAgenciaStore(),
                         compositionRoot.getReferenceDataStore());
             }
@@ -101,7 +116,6 @@ public final class ScreenLoader {
                 return new InventarioController(compositionRoot.getMotoService());
             }
 
-            // Si llega aquí, el controller no está registrado
             throw new IllegalStateException(
                     "Controller desconocido: " + controllerClass.getName() +
                             ". Agrégalo al ScreenLoader.setControllerFactory");
