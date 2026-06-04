@@ -15,11 +15,23 @@ import org.proyectobdmotos.utils.Logger;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.Scene;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class ContratoController {
 
@@ -54,8 +66,6 @@ public class ContratoController {
         loadContratos();
     }
 
-    // ===================== MÉTODOS DE LOS BOTONES =====================
-
     @FXML
     private void onEliminarContrato() {
         Contrato contratoSeleccionado = tablaContratos.getSelectionModel().getSelectedItem();
@@ -88,15 +98,86 @@ public class ContratoController {
 
     @FXML
     private void onFinalizarContrato() {
-        mostrarAlerta("Funcionalidad de finalizar contrato en desarrollo.");
-    }
+        Contrato contrato = tablaContratos.getSelectionModel().getSelectedItem();
 
-    // ===================== MÉTODOS PRIVADOS =====================
+        if (contrato == null) {
+            mostrarAlerta("Seleccione un contrato de la tabla para finalizar.");
+            return;
+        }
+        if (contrato.getFechaEntrega() != null) {
+            mostrarAlerta("Este contrato ya está finalizado.");
+            return;
+        }
+
+        Stage dialogo = new Stage();
+        dialogo.initModality(Modality.APPLICATION_MODAL);
+        dialogo.initOwner(tablaContratos.getScene().getWindow());
+        dialogo.initStyle(StageStyle.UTILITY);
+        dialogo.setResizable(false);
+        dialogo.setTitle("Finalizar Contrato #" + contrato.getIdContrato());
+
+        DatePicker dpFechaEntrega = new DatePicker();
+        TextField tfKmLlegada = new TextField();
+        tfKmLlegada.setPromptText("Kilómetros de llegada");
+
+        Button btnAceptar = new Button("Aceptar");
+        Button btnCancelar = new Button("Cancelar");
+
+        GridPane grid = new GridPane();
+        grid.setVgap(10);
+        grid.setHgap(10);
+        grid.add(new Label("Fecha de entrega:"), 0, 0);
+        grid.add(dpFechaEntrega, 1, 0);
+        grid.add(new Label("Km de llegada:"), 0, 1);
+        grid.add(tfKmLlegada, 1, 1);
+
+        HBox botones = new HBox(10, btnAceptar, btnCancelar);
+        VBox root = new VBox(15, grid, botones);
+        root.setPadding(new Insets(15));
+        Scene scene = new Scene(root);
+        dialogo.setScene(scene);
+
+        btnAceptar.setOnAction(e -> {
+            LocalDate fechaEntrega = dpFechaEntrega.getValue();
+            String kmTexto = tfKmLlegada.getText().trim();
+
+            if (fechaEntrega == null || kmTexto.isEmpty()) {
+                mostrarAlerta("Complete todos los campos.");
+                return;
+            }
+
+            try {
+                double kmLlegada = Double.parseDouble(kmTexto);
+                contrato.setFechaEntrega(fechaEntrega);
+                contrato.setCantKmLlegada(kmLlegada);
+
+                contratoService.finalizarContrato(contrato);
+
+                double importeTotal = contrato.calcularImporteTotalTeorico();
+
+                new Alert(Alert.AlertType.INFORMATION,
+                        "Contrato finalizado.\nImporte total: " +
+                                String.format("%.2f CUP", importeTotal)).showAndWait();
+
+                loadContratos();
+                dialogo.close();
+            } catch (NumberFormatException ex) {
+                mostrarAlerta("Kilómetros inválidos. Debe ser un número.");
+            } catch (ValidationException ex) {
+                mostrarAlerta("Error de negocio: " + ex.getMessage());
+            } catch (Exception ex) {
+                Logger.logError("Error al finalizar contrato: " + ex.getMessage());
+                mostrarAlerta("Error inesperado al finalizar el contrato.");
+            }
+        });
+
+        btnCancelar.setOnAction(e -> dialogo.close());
+        dialogo.showAndWait();
+    }
 
     private void configureTableColumns() {
         colId.setCellValueFactory(new PropertyValueFactory<>("idContrato"));
 
-        // Convertir IDs a texto para mostrar en las columnas
         colCliente.setCellValueFactory(cellData ->
                 new SimpleStringProperty("Cliente #" + cellData.getValue().getIdCliente()));
         colMoto.setCellValueFactory(cellData ->
@@ -113,8 +194,10 @@ public class ContratoController {
             return new SimpleStringProperty(estado);
         });
 
-        colImporte.setCellValueFactory(cellData ->
-                new SimpleStringProperty("Pendiente"));
+        colImporte.setCellValueFactory(cellData -> {
+            double importe = cellData.getValue().calcularImporteTotalTeorico();
+            return new SimpleStringProperty(String.format("%.2f CUP", importe));
+        });
     }
 
     private void bindStore() {
