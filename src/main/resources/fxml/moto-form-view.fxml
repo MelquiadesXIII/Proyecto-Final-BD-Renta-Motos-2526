@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/19"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.proyectobdmotos.controller.MotoFormController"
+      stylesheets="@/styles/moto-form.css"
+      alignment="CENTER" spacing="15"
+      style="-fx-padding: 30; -fx-background-color: #f4f6f8;">
+
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
+        <VBox alignment="CENTER" maxWidth="600" spacing="20">
+            <Label text="Nueva Moto" styleClass="form-title"/>
+
+            <GridPane hgap="15" vgap="15" alignment="CENTER">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="30" halignment="RIGHT"/>
+                    <ColumnConstraints percentWidth="70" halignment="LEFT"/>
+                </columnConstraints>
+
+                <Label text="Matrícula*" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <TextField fx:id="campoMatricula" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                <Label text="Marca*" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <ComboBox fx:id="comboMarca" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                <Label text="Modelo*" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <ComboBox fx:id="comboModelo" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                <Label text="Color*" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                <ComboBox fx:id="comboColor" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                <Label text="Km recorridos*" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                <TextField fx:id="campoKilometros" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+            </GridPane>
+
+            <HBox alignment="CENTER" spacing="25">
+                <Button text="Guardar" onAction="#onGuardar" styleClass="btn-guardar"/>
+                <Button text="Cancelar" onAction="#onCancelar" styleClass="btn-cancelar"/>
+            </HBox>
+        </VBox>
+    </ScrollPane>
+</VBox>
