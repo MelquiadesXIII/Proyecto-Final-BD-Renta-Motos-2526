@@ -1,50 +1,31 @@
-.form-box {
-    -fx-background-color: rgba(0, 0, 0, 0.6);
-    -fx-background-radius: 15;
-    -fx-padding: 30;
-}
-
 .form-title {
-    -fx-font-size: 24px;
+    -fx-font-size: 26px;
     -fx-font-weight: bold;
-    -fx-text-fill: white;
+    -fx-text-fill: #2c3e50;
+    -fx-padding: 0 0 10 0;
 }
 
-.form-label {
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #ffffff;
-}
-
-.form-field {
+TextField, ComboBox {
     -fx-background-radius: 5;
     -fx-border-radius: 5;
-    -fx-border-color: #ccc;
+    -fx-border-color: #bdc3c7;
     -fx-padding: 8;
     -fx-font-size: 14px;
-    -fx-text-fill: #333333;
-    -fx-prompt-text-fill: #999999;
+    -fx-background-color: white;
 }
 
-.btn-link {
-    -fx-background-color: transparent;
-    -fx-text-fill: #f0c040;
-    -fx-font-size: 12px;
-    -fx-underline: true;
-    -fx-cursor: hand;
-}
-
-.btn-link:hover {
-    -fx-text-fill: #ffd966;
+TextField:focused, ComboBox:focused {
+    -fx-border-color: #3498db;
+    -fx-effect: dropshadow(gaussian, rgba(52,152,219,0.3), 4, 0, 0, 1);
 }
 
 .btn-guardar {
     -fx-background-color: #27ae60;
     -fx-text-fill: white;
-    -fx-font-size: 16px;
+    -fx-font-size: 15px;
     -fx-font-weight: bold;
     -fx-background-radius: 8;
-    -fx-padding: 10 30;
+    -fx-padding: 12 30;
 }
 
 .btn-guardar:hover {
@@ -54,10 +35,10 @@
 .btn-cancelar {
     -fx-background-color: #c0392b;
     -fx-text-fill: white;
-    -fx-font-size: 16px;
+    -fx-font-size: 15px;
     -fx-font-weight: bold;
     -fx-background-radius: 8;
-    -fx-padding: 10 30;
+    -fx-padding: 12 30;
 }
 
 .btn-cancelar:hover {
