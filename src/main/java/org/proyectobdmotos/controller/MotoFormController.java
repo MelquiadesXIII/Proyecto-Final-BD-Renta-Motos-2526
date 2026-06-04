@@ -26,6 +26,12 @@ public class MotoFormController {
     private final AgenciaStore agenciaStore;
     private final ReferenceDataStore referenceDataStore;
 
+    private static Moto motoAEditarStatic;
+
+    public static void setMotoAEditarStatic(Moto m) {
+        motoAEditarStatic = m;
+    }
+
     public MotoFormController(MotoService motoService,
                               AgenciaStore agenciaStore,
                               ReferenceDataStore referenceDataStore) {
@@ -103,6 +109,11 @@ public class MotoFormController {
         comboModelo.disableProperty().bind(
                 comboMarca.getSelectionModel().selectedItemProperty().isNull()
         );
+
+        if (motoAEditarStatic != null) {
+            setModoEdicion(motoAEditarStatic);
+            motoAEditarStatic = null;
+        }
     }
 
     public void setModoEdicion(Moto m) {
@@ -121,11 +132,15 @@ public class MotoFormController {
             comboModelo.getSelectionModel().select(modelo);
 
             int idColor = m.getIdColor();
-            for (Color c : comboColor.getItems()) {
+            boolean colorEncontrado = false;
+            int i = 0;
+            while (!colorEncontrado && i < comboColor.getItems().size()) {
+                Color c = comboColor.getItems().get(i);
                 if (c.getIdColor() == idColor) {
                     comboColor.getSelectionModel().select(c);
-                    break;
+                    colorEncontrado = true;
                 }
+                i++;
             }
         } else {
             new Alert(Alert.AlertType.WARNING, "No se pudo cargar el modelo de la moto.").showAndWait();
@@ -164,8 +179,7 @@ public class MotoFormController {
                 motoService.crearMoto(nuevaMoto);
 
                 new Alert(Alert.AlertType.INFORMATION, "Moto guardada correctamente.").showAndWait();
-                cerrarVentana();
-
+                MainController.getInstance().onGoBack();
             } catch (NumberFormatException e) {
                 new Alert(Alert.AlertType.ERROR, "Los kilómetros deben ser un número válido.").showAndWait();
             } catch (Exception e) {
@@ -176,11 +190,6 @@ public class MotoFormController {
 
     @FXML
     private void onCancelar() {
-        cerrarVentana();
-    }
-
-    private void cerrarVentana() {
-        Stage stage = (Stage) campoMatricula.getScene().getWindow();
-        stage.close();
+        MainController.getInstance().onGoBack();
     }
 }
