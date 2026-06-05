@@ -7,10 +7,7 @@ import java.util.Optional;
 import org.proyectobdmotos.dao.IClienteDAO;
 import org.proyectobdmotos.dao.IContratoDAO;
 import org.proyectobdmotos.dao.IMotoDAO;
-import org.proyectobdmotos.dto.ContRepDTO;
-import org.proyectobdmotos.dto.IngAnualDTO;
-import org.proyectobdmotos.dto.ResMarModDTO;
-import org.proyectobdmotos.dto.ResMunDTO;
+import org.proyectobdmotos.dto.*;
 import org.proyectobdmotos.models.Contrato;
 import org.proyectobdmotos.models.Situacion;
 import org.proyectobdmotos.services.exceptions.BusinessErrorCode;
@@ -323,6 +320,10 @@ public class ContratoService {
             }
             throw validationException;
         }
+    }
+
+    public List<MisContratosDTO> listarMisContratos(int idCliente) {
+        return contratoDAO.listarMisContratos(idCliente);
     }
 
     // ===================== REPORTES =====================

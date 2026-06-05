@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.proyectobdmotos.dao.IClienteDAO;
 import org.proyectobdmotos.dto.CliRepDTO;
 import org.proyectobdmotos.dto.ClienteDTO;
+import org.proyectobdmotos.dto.ClienteUsuarioDTO;
 import org.proyectobdmotos.dto.IncumpDTO;
 import org.proyectobdmotos.models.Cliente;
 import org.proyectobdmotos.services.exceptions.BusinessErrorCode;
@@ -75,6 +76,14 @@ public class ClienteService {
         }
     }
 
+    public Optional<Cliente> buscarPorId(int idCliente) {
+        return clienteDAO.buscarPorId(idCliente);
+    }
+
+    public Optional<Cliente> buscarPorIdUsuario(int idUsuario) {
+        return clienteDAO.buscarPorIdUsuario(idUsuario);
+    }
+
     public Optional<Cliente> buscarPorCi(String ci) {
         return clienteDAO.buscarPorCi(ci);
     }
@@ -100,4 +109,11 @@ public class ClienteService {
         return clienteDAO.listarIncumplidores();
     }
 
+    public List<ClienteUsuarioDTO> listarClientesConUsuario() {
+        return clienteDAO.listarClientesConUsuario();
+    }
+
+    public String obtenerNombreMunicipio(int idMunicipio) {
+        return clienteDAO.obtenerNombreMunicipio(idMunicipio);
+    }
 }
