@@ -109,6 +109,7 @@ public class ContratoController {
             return;
         }
 
+        // Diálogo modal
         Stage dialogo = new Stage();
         dialogo.initModality(Modality.APPLICATION_MODAL);
         dialogo.initOwner(tablaContratos.getScene().getWindow());
@@ -116,24 +117,81 @@ public class ContratoController {
         dialogo.setResizable(false);
         dialogo.setTitle("Finalizar Contrato #" + contrato.getIdContrato());
 
+        // Componentes para el desglose
+        Label labelId = new Label("Contrato #" + contrato.getIdContrato());
+        Label labelMoto = new Label("Moto: " + contrato.getIdMoto());
+        Label labelFechas = new Label("Inicio: " + contrato.getFechaInicio() + " | Fin: " + contrato.getFechaFin());
+
         DatePicker dpFechaEntrega = new DatePicker();
         TextField tfKmLlegada = new TextField();
         tfKmLlegada.setPromptText("Kilómetros de llegada");
 
+        // Etiquetas dinámicas para el cálculo
+        Label labelDiasBase = new Label("Días base: --");
+        Label labelDiasProrroga = new Label("Días prórroga: --");
+        Label labelImporteBase = new Label("Importe base: --");
+        Label labelRecargoProrroga = new Label("Recargo prórroga: --");
+        Label labelTotal = new Label("Total: --");
+
+        // Listener para actualizar el cálculo al cambiar los valores
+        Runnable actualizarCalculo = () -> {
+            LocalDate fechaEntrega = dpFechaEntrega.getValue();
+            String kmTexto = tfKmLlegada.getText().trim();
+
+            if (fechaEntrega != null && !kmTexto.isEmpty()) {
+                try {
+                    double kmLlegada = Double.parseDouble(kmTexto);
+                    Contrato copia = new Contrato(
+                            kmLlegada,
+                            contrato.getCantKmSalida(),
+                            contrato.getIdCliente(),
+                            contrato.getDiasProrroga(),
+                            fechaEntrega,
+                            contrato.getFechaFin(),
+                            contrato.getFechaInicio(),
+                            contrato.getFormaPago(),
+                            contrato.getIdMoto(),
+                            contrato.isSeguroAdicional(),
+                            contrato.getTarifaNormal(),
+                            contrato.getTarifaProrroga()
+                    );
+                    copia.setDiasProrroga(copia.calcularDiasProrrogaReal());
+                    double base = copia.calcularImporteBase();
+                    double recargo = copia.calcularRecargoProrroga();
+                    double total = base + recargo;
+
+                    int diasBase = copia.calcularDiasPactados();
+                    int diasProrroga = copia.calcularDiasProrrogaReal();
+
+                    labelDiasBase.setText("Días base: " + diasBase);
+                    labelDiasProrroga.setText("Días prórroga: " + diasProrroga);
+                    labelImporteBase.setText("Importe base: " + String.format("%.2f CUP", base));
+                    labelRecargoProrroga.setText("Recargo prórroga: " + String.format("%.2f CUP", recargo));
+                    labelTotal.setText("Total: " + String.format("%.2f CUP", total));
+                } catch (NumberFormatException ignored) {
+
+                }
+            }
+        };
+
+        dpFechaEntrega.valueProperty().addListener((obs, oldVal, newVal) -> actualizarCalculo.run());
+        tfKmLlegada.textProperty().addListener((obs, oldVal, newVal) -> actualizarCalculo.run());
+
         Button btnAceptar = new Button("Aceptar");
         Button btnCancelar = new Button("Cancelar");
 
-        GridPane grid = new GridPane();
-        grid.setVgap(10);
-        grid.setHgap(10);
-        grid.add(new Label("Fecha de entrega:"), 0, 0);
-        grid.add(dpFechaEntrega, 1, 0);
-        grid.add(new Label("Km de llegada:"), 0, 1);
-        grid.add(tfKmLlegada, 1, 1);
-
-        HBox botones = new HBox(10, btnAceptar, btnCancelar);
-        VBox root = new VBox(15, grid, botones);
+        // Layout del diálogo
+        VBox root = new VBox(10);
         root.setPadding(new Insets(15));
+
+        root.getChildren().addAll(
+                labelId, labelMoto, labelFechas,
+                new Label("Fecha de entrega:"), dpFechaEntrega,
+                new Label("Km de llegada:"), tfKmLlegada,
+                labelDiasBase, labelDiasProrroga, labelImporteBase, labelRecargoProrroga, labelTotal,
+                new HBox(10, btnAceptar, btnCancelar)
+        );
+
         Scene scene = new Scene(root);
         dialogo.setScene(scene);
 
@@ -153,11 +211,9 @@ public class ContratoController {
 
                 contratoService.finalizarContrato(contrato);
 
-                double importeTotal = contrato.calcularImporteTotalTeorico();
-
+                double total = contrato.calcularImporteTotalTeorico();
                 new Alert(Alert.AlertType.INFORMATION,
-                        "Contrato finalizado.\nImporte total: " +
-                                String.format("%.2f CUP", importeTotal)).showAndWait();
+                        "Contrato finalizado.\nImporte total: " + String.format("%.2f CUP", total)).showAndWait();
 
                 loadContratos();
                 dialogo.close();
