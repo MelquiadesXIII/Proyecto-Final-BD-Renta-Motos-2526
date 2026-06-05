@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.proyectobdmotos.database.DatabaseConnection;
 import org.proyectobdmotos.dto.CliRepDTO;
 import org.proyectobdmotos.dto.ClienteDTO;
+import org.proyectobdmotos.dto.ClienteUsuarioDTO;
 import org.proyectobdmotos.dto.IncumpDTO;
 import org.proyectobdmotos.models.Cliente;
 import org.proyectobdmotos.models.Sexo;
@@ -291,5 +291,85 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
             throw new RuntimeException("Error al listar incumplidores", e);
         }
         return lista;
+    }
+
+    // ===================== NUEVOS MÉTODOS =====================
+
+    public Optional<Cliente> buscarPorId(int idCliente) {
+        String sql = "SELECT * FROM buscar_cliente_por_id(?)";
+        Optional<Cliente> resultado = Optional.empty();
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setInt(1, idCliente);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    resultado = Optional.of(mapResultSetToEntity(rs));
+                }
+            }
+        } catch (SQLException e) {
+            Logger.logError("Error al buscar cliente por ID: " + e.getMessage());
+            throw new RuntimeException("Error al buscar cliente por ID", e);
+        }
+        return resultado;
+    }
+
+    public Optional<Cliente> buscarPorIdUsuario(int idUsuario) {
+        String sql = "SELECT * FROM buscar_cliente_por_id_usuario(?)";
+        Optional<Cliente> resultado = Optional.empty();
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setInt(1, idUsuario);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    resultado = Optional.of(mapResultSetToEntity(rs));
+                }
+            }
+        } catch (SQLException e) {
+            Logger.logError("Error al buscar cliente por ID de usuario: " + e.getMessage());
+            throw new RuntimeException("Error al buscar cliente por ID de usuario", e);
+        }
+        return resultado;
+    }
+
+    public List<ClienteUsuarioDTO> listarClientesConUsuario() {
+        String sql = "SELECT * FROM listar_clientes_con_usuario()";
+        List<ClienteUsuarioDTO> lista = new ArrayList<>();
+        try (PreparedStatement ps = getConnection().prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            boolean hayFila = rs.next();
+            while (hayFila) {
+                lista.add(new ClienteUsuarioDTO(
+                        rs.getInt("id_cliente"),
+                        rs.getInt("id_usuario"),
+                        rs.getString("ci_cliente"),
+                        rs.getString("nombre_completo"),
+                        rs.getString("numero_contacto"),
+                        rs.getString("nombre_municipio"),
+                        rs.getString("nombre_usuario"),
+                        rs.getString("gmail"),
+                        rs.getInt("cantidad_contratos")
+                ));
+                hayFila = rs.next();
+            }
+        } catch (SQLException e) {
+            Logger.logError("Error al listar clientes con usuario: " + e.getMessage());
+            throw new RuntimeException("Error al listar clientes con usuario", e);
+        }
+        return lista;
+    }
+
+    public String obtenerNombreMunicipio(int idMunicipio) {
+        String sql = "SELECT obtener_nombre_municipio(?) AS nombre_municipio";
+        String nombre = "";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setInt(1, idMunicipio);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    nombre = rs.getString("nombre_municipio");
+                }
+            }
+        } catch (SQLException e) {
+            Logger.logError("Error al obtener nombre de municipio: " + e.getMessage());
+            throw new RuntimeException("Error al obtener nombre de municipio", e);
+        }
+        return nombre;
     }
 }
