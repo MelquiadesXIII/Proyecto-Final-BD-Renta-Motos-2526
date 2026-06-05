@@ -9,11 +9,12 @@ public class ClienteUsuarioDTO {
     private final String nombreMunicipio;
     private final String nombreUsuario;
     private final String gmail;
+    private final int cantidadContratos;
 
     public ClienteUsuarioDTO(int idCliente, int idUsuario, String ci,
                              String nombreCompleto, String telefono,
                              String nombreMunicipio, String nombreUsuario,
-                             String gmail) {
+                             String gmail, int cantidadContratos) {
         this.idCliente = idCliente;
         this.idUsuario = idUsuario;
         this.ci = ci;
@@ -22,6 +23,7 @@ public class ClienteUsuarioDTO {
         this.nombreMunicipio = nombreMunicipio;
         this.nombreUsuario = nombreUsuario;
         this.gmail = gmail;
+        this.cantidadContratos = cantidadContratos;
     }
 
     public int getIdCliente() { return idCliente; }
@@ -32,4 +34,5 @@ public class ClienteUsuarioDTO {
     public String getNombreMunicipio() { return nombreMunicipio; }
     public String getNombreUsuario() { return nombreUsuario; }
     public String getGmail() { return gmail; }
+    public int getCantidadContratos() { return cantidadContratos; }
 }
