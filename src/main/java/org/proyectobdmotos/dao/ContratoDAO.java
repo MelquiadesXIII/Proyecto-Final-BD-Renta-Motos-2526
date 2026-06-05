@@ -8,10 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.proyectobdmotos.dto.ContRepDTO;
-import org.proyectobdmotos.dto.IngAnualDTO;
-import org.proyectobdmotos.dto.ResMarModDTO;
-import org.proyectobdmotos.dto.ResMunDTO;
+import org.proyectobdmotos.dto.*;
 import org.proyectobdmotos.models.Contrato;
 import org.proyectobdmotos.models.FormaPago;
 import org.proyectobdmotos.utils.Logger;
@@ -257,6 +254,34 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
         } catch (SQLException e) {
             Logger.logError("Error en ingresos anuales: " + e.getMessage());
             throw new RuntimeException("Error en ingresos anuales", e);
+        }
+        return lista;
+    }
+
+    public List<MisContratosDTO> listarMisContratos(int idCliente) {
+        String sql = "SELECT * FROM mis_contratos(?)";
+        List<MisContratosDTO> lista = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, idCliente);
+            try (ResultSet rs = ps.executeQuery()) {
+                boolean hayFila = rs.next();
+                while (hayFila) {
+                    lista.add(new MisContratosDTO(
+                            rs.getInt("id_contrato"),
+                            rs.getString("matricula_moto"),
+                            rs.getString("marca"),
+                            rs.getString("modelo"),
+                            rs.getDate("fecha_inicio").toLocalDate(),
+                            rs.getDate("fecha_fin").toLocalDate(),
+                            rs.getString("estado"),
+                            rs.getDouble("importe")
+                    ));
+                    hayFila = rs.next();
+                }
+            }
+        } catch (SQLException e) {
+            Logger.logError("Error al listar mis contratos: " + e.getMessage());
+            throw new RuntimeException("Error al listar mis contratos", e);
         }
         return lista;
     }
