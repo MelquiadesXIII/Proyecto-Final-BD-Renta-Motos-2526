@@ -2,17 +2,24 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
- <!--Habia un error que cuando lo ponia separado como en los otros archivos
- FXML no me dejaba entrar a lo del cliente, asi que decidi dejarlo todo en una Linea
- Nota: No tocar o si tocas ten cuidado.-->
-<VBox xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.proyectobdmotos.controller.ClienteController" stylesheets="@/styles/cliente-lista.css,@/styles/tablas-estilos.css" spacing="10" styleClass="root-vbox">
+
+<VBox xmlns="http://javafx.com/javafx/19"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.proyectobdmotos.controller.ClienteController"
+      stylesheets="@/styles/cliente-lista.css,@/styles/tablas-estilos.css"
+      spacing="10" styleClass="root-vbox">
 
     <TableView fx:id="clientesTable" VBox.vgrow="ALWAYS">
         <columns>
-            <TableColumn text="CI" fx:id="ciColumn" />
-            <TableColumn text="Nombre" fx:id="nombreColumn" />
-            <TableColumn text="Municipio" fx:id="municipioColumn" />
-            <TableColumn text="Teléfono" fx:id="telefonoColumn" />
+            <TableColumn text="ID Cliente" fx:id="colIdCliente" prefWidth="80" />
+            <TableColumn text="ID Usuario" fx:id="colIdUsuario" prefWidth="80" />
+            <TableColumn text="CI" fx:id="colCi" prefWidth="100" />
+            <TableColumn text="Nombre" fx:id="colNombre" prefWidth="180" />
+            <TableColumn text="Teléfono" fx:id="colTelefono" prefWidth="100" />
+            <TableColumn text="Municipio" fx:id="colMunicipio" prefWidth="120" />
+            <TableColumn text="Usuario" fx:id="colUsuario" prefWidth="120" />
+            <TableColumn text="Gmail" fx:id="colGmail" prefWidth="180" />
+            <TableColumn text="Contratos" fx:id="colContratos" prefWidth="80" />
         </columns>
     </TableView>
 
