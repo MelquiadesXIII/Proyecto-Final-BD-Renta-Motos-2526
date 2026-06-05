@@ -2,10 +2,7 @@ package org.proyectobdmotos.dao;
 
 import java.util.List;
 
-import org.proyectobdmotos.dto.ContRepDTO;
-import org.proyectobdmotos.dto.IngAnualDTO;
-import org.proyectobdmotos.dto.ResMarModDTO;
-import org.proyectobdmotos.dto.ResMunDTO;
+import org.proyectobdmotos.dto.*;
 import org.proyectobdmotos.models.Contrato;
 
 public interface IContratoDAO extends GenericDAO<Contrato, Integer> {
@@ -19,4 +16,6 @@ public interface IContratoDAO extends GenericDAO<Contrato, Integer> {
     List<ResMunDTO> resumenMunicipios();
 
     List<IngAnualDTO> ingresosAnuales();
+
+    List<MisContratosDTO> listarMisContratos(int idCliente);
 }
