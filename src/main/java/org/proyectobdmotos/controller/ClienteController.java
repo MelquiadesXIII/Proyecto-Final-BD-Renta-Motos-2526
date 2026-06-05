@@ -3,6 +3,7 @@ package org.proyectobdmotos.controller;
 import java.util.List;
 import java.util.Optional;
 
+import org.proyectobdmotos.dto.ClienteUsuarioDTO;
 import org.proyectobdmotos.models.Cliente;
 import org.proyectobdmotos.services.ClienteService;
 import org.proyectobdmotos.services.UsuarioService;
@@ -29,20 +30,16 @@ public class ClienteController {
     private final ReferenceDataStore referenceDataStore;
     private final ScreenLoader screenLoader;
 
-    @FXML
-    private TableView<Cliente> clientesTable;
-
-    @FXML
-    private TableColumn<Cliente, String> ciColumn;
-
-    @FXML
-    private TableColumn<Cliente, String> nombreColumn;
-
-    @FXML
-    private TableColumn<Cliente, Integer> municipioColumn;
-
-    @FXML
-    private TableColumn<Cliente, String> telefonoColumn;
+    @FXML private TableView<ClienteUsuarioDTO> clientesTable;
+    @FXML private TableColumn<ClienteUsuarioDTO, Integer> colIdCliente;
+    @FXML private TableColumn<ClienteUsuarioDTO, Integer> colIdUsuario;
+    @FXML private TableColumn<ClienteUsuarioDTO, String> colCi;
+    @FXML private TableColumn<ClienteUsuarioDTO, String> colNombre;
+    @FXML private TableColumn<ClienteUsuarioDTO, String> colTelefono;
+    @FXML private TableColumn<ClienteUsuarioDTO, String> colMunicipio;
+    @FXML private TableColumn<ClienteUsuarioDTO, String> colUsuario;
+    @FXML private TableColumn<ClienteUsuarioDTO, String> colGmail;
+    @FXML private TableColumn<ClienteUsuarioDTO, Integer> colContratos;
 
     public ClienteController(ScreenLoader screenLoader,
                              ClienteService clienteService,
@@ -60,7 +57,6 @@ public class ClienteController {
     private void initialize() {
         Logger.log("Inicializando ClienteController...");
         configureTableColumns();
-        bindStore();
         loadClientes();
     }
 
@@ -72,35 +68,40 @@ public class ClienteController {
 
     @FXML
     private void onEditarCliente() {
-        Cliente cliente = clientesTable.getSelectionModel().getSelectedItem();
-        if (cliente == null) {
-            mostrarAlerta("No ha seleccionado ningún cliente");
-        } else {
-            ClienteFormController.setClienteAEditarStatic(cliente);
-            MainController.getInstance().cargarVista("/fxml/cliente-form-view.fxml", "Editar Cliente");
+        ClienteUsuarioDTO dto = clientesTable.getSelectionModel().getSelectedItem();
+        if (dto == null) {
+            mostrarAlerta("Seleccione un cliente de la tabla.");
+            return;
         }
+        Optional<Cliente> optCliente = clienteService.buscarPorId(dto.getIdCliente());
+        if (optCliente.isEmpty()) {
+            mostrarAlerta("Cliente no encontrado.");
+            return;
+        }
+        Cliente cliente = optCliente.get();
+        ClienteFormController.setClienteAEditarStatic(cliente);
+        MainController.getInstance().cargarVista("/fxml/cliente-form-view.fxml", "Editar Cliente");
     }
 
     @FXML
     private void onEliminarCliente() {
-        Cliente cliente = clientesTable.getSelectionModel().getSelectedItem();
-        if (cliente == null) {
+        ClienteUsuarioDTO dto = clientesTable.getSelectionModel().getSelectedItem();
+        if (dto == null) {
             mostrarAlerta("Seleccione un cliente de la tabla para eliminar.");
-        } else {
-            Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
-            confirmacion.setTitle("Confirmar Eliminación");
-            confirmacion.setHeaderText("¿Eliminar al cliente " + cliente.getNombreCliente() + "?");
-            confirmacion.setContentText("CI: " + cliente.getCiCliente());
-            Optional<ButtonType> resultado = confirmacion.showAndWait();
+            return;
+        }
+        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmacion.setTitle("Confirmar Eliminación");
+        confirmacion.setHeaderText("¿Eliminar al cliente " + dto.getNombreCompleto() + "?");
+        confirmacion.setContentText("CI: " + dto.getCi());
+        Optional<ButtonType> resultado = confirmacion.showAndWait();
 
-            boolean eliminarConfirmado = resultado.isPresent() && resultado.get() == ButtonType.OK;
-            if (eliminarConfirmado) {
-                try {
-                    clienteService.eliminarCliente(cliente.getCiCliente());
-                    loadClientes();
-                } catch (ValidationException e) {
-                    mostrarAlerta("Error al eliminar: " + e.getMessage());
-                }
+        if (resultado.isPresent() && resultado.get() == ButtonType.OK) {
+            try {
+                clienteService.eliminarCliente(dto.getCi());
+                loadClientes();
+            } catch (ValidationException e) {
+                mostrarAlerta("Error al eliminar: " + e.getMessage());
             }
         }
     }
@@ -111,29 +112,30 @@ public class ClienteController {
     }
 
     private void configureTableColumns() {
-        ciColumn.setCellValueFactory(new PropertyValueFactory<>("ciCliente"));
-        nombreColumn.setCellValueFactory(new PropertyValueFactory<>("nombreCliente"));
-        municipioColumn.setCellValueFactory(new PropertyValueFactory<>("idMunicipio"));
-        telefonoColumn.setCellValueFactory(new PropertyValueFactory<>("numeroContacto"));
-    }
-
-    private void bindStore() {
-        clientesTable.setItems(agenciaStore.getClientes());
+        colIdCliente.setCellValueFactory(new PropertyValueFactory<>("idCliente"));
+        colIdUsuario.setCellValueFactory(new PropertyValueFactory<>("idUsuario"));
+        colCi.setCellValueFactory(new PropertyValueFactory<>("ci"));
+        colNombre.setCellValueFactory(new PropertyValueFactory<>("nombreCompleto"));
+        colTelefono.setCellValueFactory(new PropertyValueFactory<>("telefono"));
+        colMunicipio.setCellValueFactory(new PropertyValueFactory<>("nombreMunicipio"));
+        colUsuario.setCellValueFactory(new PropertyValueFactory<>("nombreUsuario"));
+        colGmail.setCellValueFactory(new PropertyValueFactory<>("gmail"));
+        colContratos.setCellValueFactory(new PropertyValueFactory<>("cantidadContratos"));
     }
 
     private void loadClientes() {
-        Task<List<Cliente>> loadTask = new Task<>() {
+        Task<List<ClienteUsuarioDTO>> loadTask = new Task<>() {
             @Override
-            protected List<Cliente> call() {
-                return clienteService.listarTodos();
+            protected List<ClienteUsuarioDTO> call() {
+                return clienteService.listarClientesConUsuario();
             }
         };
 
         loadTask.setOnSucceeded(event -> {
-            List<Cliente> clientes = loadTask.getValue();
-            if (clientes != null) {
-                agenciaStore.setClientes(clientes);
-                Logger.logInfo("Clientes cargados: " + clientes.size());
+            List<ClienteUsuarioDTO> lista = loadTask.getValue();
+            if (lista != null) {
+                clientesTable.getItems().setAll(lista);
+                Logger.logInfo("Clientes cargados: " + lista.size());
             }
         });
 
