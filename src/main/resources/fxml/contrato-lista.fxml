@@ -23,6 +23,7 @@
     </TableView>
 
     <HBox alignment="CENTER" spacing="15" styleClass="botonera">
+        <Button text="Nuevo Contrato" onAction="#onCrearContrato" styleClass="btn-accion" />
         <Button text="Finalizar" onAction="#onFinalizarContrato" styleClass="btn-finalizar" />
         <Button text="Eliminar" onAction="#onEliminarContrato" styleClass="btn-eliminar" />
         <Button text="Actualizar" onAction="#onActualizarLista" styleClass="btn-accion" />
