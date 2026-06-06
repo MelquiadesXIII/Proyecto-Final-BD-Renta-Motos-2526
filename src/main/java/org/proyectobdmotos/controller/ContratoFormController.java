@@ -2,37 +2,32 @@ package org.proyectobdmotos.controller;
 
 import java.time.LocalDate;
 import java.util.List;
-
-import org.proyectobdmotos.models.Cliente;
-import org.proyectobdmotos.models.Contrato;
-import org.proyectobdmotos.models.FormaPago;
-import org.proyectobdmotos.models.Moto;
-import org.proyectobdmotos.services.ClienteService;
-import org.proyectobdmotos.services.ContratoService;
-import org.proyectobdmotos.services.MotoService;
-import org.proyectobdmotos.services.exceptions.ValidationException;
-import org.proyectobdmotos.utils.Logger;
-
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
+import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.util.StringConverter;
+import org.proyectobdmotos.dto.MotoDisponibleDTO;
+import org.proyectobdmotos.models.*;
+import org.proyectobdmotos.services.*;
+import org.proyectobdmotos.utils.Logger;
+import org.proyectobdmotos.services.exceptions.ValidationException;
 
 public class ContratoFormController {
 
-    @FXML private ComboBox<Cliente> comboCliente;
-    @FXML private ComboBox<Moto> comboMoto;
+    @FXML private TextField campoBuscarCliente;
+    @FXML private ListView<Cliente> listaResultados;
+
+    @FXML private ComboBox<MotoDisponibleDTO> comboMoto;
     @FXML private DatePicker dateInicio;
     @FXML private DatePicker dateFin;
-    @FXML private ComboBox<FormaPago> comboPago;   
+    @FXML private ComboBox<FormaPago> comboPago;
     @FXML private Label labelPrecio;
 
     private final ContratoService contratoService;
     private final ClienteService clienteService;
     private final MotoService motoService;
+
+    private Cliente clienteSeleccionado = null;
 
     public ContratoFormController(ContratoService contratoService,
                                   ClienteService clienteService,
@@ -44,39 +39,82 @@ public class ContratoFormController {
 
     @FXML
     private void initialize() {
-        cargarClientes();
-        cargarMotosDisponibles();
-        configurarComboCliente();
+        configurarListaClientes();
         configurarComboMoto();
         configurarComboPago();
 
+        // Placeholder y filtro para evitar errores en lista vacía
+        listaResultados.setPlaceholder(new Label("Escriba para buscar clientes"));
+        listaResultados.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
+            if (listaResultados.getItems().isEmpty()) {
+                event.consume();
+            }
+        });
+
+        // Búsqueda de clientes
+        campoBuscarCliente.textProperty().addListener((obs, oldText, newText) -> {
+            if (newText.trim().isEmpty()) {
+                listaResultados.getItems().clear();
+            } else {
+                List<Cliente> resultados = clienteService.buscarClientesPorTexto(newText.trim());
+                listaResultados.getItems().setAll(resultados);
+            }
+        });
+
+        listaResultados.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                clienteSeleccionado = newVal;
+                campoBuscarCliente.setText(newVal.getNombreCliente() + " (" + newVal.getCiCliente() + ")");
+                listaResultados.getItems().clear();
+            }
+        });
+
+        // Fechas → cargar motos disponibles
+        dateInicio.valueProperty().addListener((obs, oldDate, newDate) -> cargarMotosSegunFechas());
+        dateFin.valueProperty().addListener((obs, oldDate, newDate) -> cargarMotosSegunFechas());
+
+        // Precio estimado
+        comboMoto.valueProperty().addListener((obs, oldMoto, newMoto) -> actualizarPrecioEstimado());
         dateInicio.valueProperty().addListener((obs, oldDate, newDate) -> actualizarPrecioEstimado());
         dateFin.valueProperty().addListener((obs, oldDate, newDate) -> actualizarPrecioEstimado());
-        comboMoto.valueProperty().addListener((obs, oldMoto, newMoto) -> actualizarPrecioEstimado());
+    }
+
+    private void cargarMotosSegunFechas() {
+        LocalDate inicio = dateInicio.getValue();
+        LocalDate fin = dateFin.getValue();
+        if (inicio != null && fin != null && !fin.isBefore(inicio)) {
+            List<MotoDisponibleDTO> disponibles = motoService.listarMotosDisponiblesDetalle(inicio, fin);
+            comboMoto.getItems().setAll(disponibles);
+            comboMoto.setPromptText("Seleccione una moto");
+        } else {
+            comboMoto.getItems().clear();
+            comboMoto.setPromptText("Primero seleccione las fechas");
+        }
     }
 
     @FXML
     private void onGuardar() {
-        Cliente clienteSeleccionado = comboCliente.getValue();
-        Moto motoSeleccionada = comboMoto.getValue();
+        MotoDisponibleDTO motoSeleccionada = comboMoto.getValue();
         LocalDate inicio = dateInicio.getValue();
         LocalDate fin = dateFin.getValue();
-        FormaPago formaPagoSeleccionada = comboPago.getValue();
+        FormaPago formaPago = comboPago.getValue();
 
         boolean datosValidos = true;
 
-        if (clienteSeleccionado == null || motoSeleccionada == null ||
-            inicio == null || fin == null || formaPagoSeleccionada == null) {
-            new Alert(Alert.AlertType.ERROR,
-                      "Todos los campos obligatorios deben estar completos.").showAndWait();
+        if (clienteSeleccionado == null) {
+            mostrarError("Debe buscar y seleccionar un cliente.");
+            datosValidos = false;
+        }
+
+        if (motoSeleccionada == null || inicio == null || fin == null || formaPago == null) {
+            mostrarError("Todos los campos obligatorios deben estar completos.");
             datosValidos = false;
         }
 
         if (datosValidos) {
             boolean fechasValidas = inicio.isBefore(fin) || inicio.isEqual(fin);
             if (!fechasValidas) {
-                new Alert(Alert.AlertType.ERROR,
-                          "La fecha de inicio debe ser anterior o igual a la fecha fin.").showAndWait();
+                mostrarError("La fecha de inicio debe ser anterior o igual a la fecha fin.");
                 datosValidos = false;
             }
         }
@@ -84,117 +122,77 @@ public class ContratoFormController {
         if (datosValidos) {
             try {
                 Contrato nuevoContrato = new Contrato(
-                        0.0,                    
-                        0.0,                    
+                        0.0, 0.0,
                         clienteSeleccionado.getIdCliente(),
-                        0,                      
-                        null,                   
-                        fin,
-                        inicio,
-                        formaPagoSeleccionada,
+                        0, null,
+                        fin, inicio,
+                        formaPago,
                         motoSeleccionada.getIdMoto(),
-                        false,                  
-                        0.0,                    
-                        0.0                     
+                        false, 0.0, 0.0
                 );
 
                 contratoService.crearContrato(nuevoContrato);
-
-                new Alert(Alert.AlertType.INFORMATION,
-                          "Contrato creado correctamente.").showAndWait();
-                cerrarVentana();
+                mostrarInfo("Contrato creado correctamente.");
+                MainController.getInstance().onGoBack();
             } catch (ValidationException e) {
-                new Alert(Alert.AlertType.ERROR, e.getMessage()).showAndWait();
+                mostrarError(e.getMessage());
             } catch (Exception e) {
                 Logger.logError("Error al guardar contrato: " + e.getMessage());
-                new Alert(Alert.AlertType.ERROR,
-                          "Error inesperado al guardar el contrato.").showAndWait();
+                mostrarError("Error inesperado al guardar el contrato.");
             }
         }
     }
 
     @FXML
     private void onCancelar() {
-        cerrarVentana();
+        MainController.getInstance().onGoBack();
     }
 
-    // ======================== MÉTODOS PRIVADOS ========================
+    // ==================== MÉTODOS PRIVADOS ====================
 
-    private void cargarClientes() {
-        List<Cliente> clientes = clienteService.listarTodos();
-        comboCliente.getItems().setAll(clientes);
-    }
-
-    private void cargarMotosDisponibles() {
-        List<Moto> todasLasMotos = motoService.listarTodos();
-        comboMoto.getItems().clear();
-        for (Moto m : todasLasMotos) {
-            boolean disponible = motoService.estaDisponible(m.getMatriculaMoto());
-            if (disponible) {
-                comboMoto.getItems().add(m);
-            }
-        }
-    }
-
-    private void configurarComboCliente() {
-        comboCliente.setCellFactory(param -> new ListCell<Cliente>() {
+    private void configurarListaClientes() {
+        listaResultados.setCellFactory(param -> new ListCell<Cliente>() {
             @Override
             protected void updateItem(Cliente item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                } else {
-                    setText(item.getNombreCliente() + " (" + item.getCiCliente() + ")");
-                }
+                setText(empty || item == null ? null :
+                        item.getNombreCliente() + " " + item.getPrimerApellido() + " (" + item.getCiCliente() + ")");
             }
-        });
-        comboCliente.setConverter(new StringConverter<Cliente>() {
-            @Override
-            public String toString(Cliente cliente) {
-                return (cliente != null) ? cliente.getNombreCliente() + " (" + cliente.getCiCliente() + ")" : "";
-            }
-            @Override
-            public Cliente fromString(String string) { return null; }
         });
     }
 
     private void configurarComboMoto() {
-        comboMoto.setCellFactory(param -> new ListCell<Moto>() {
+        // Mostramos Marca, Modelo y Color en el combo
+        comboMoto.setCellFactory(param -> new ListCell<MotoDisponibleDTO>() {
             @Override
-            protected void updateItem(Moto item, boolean empty) {
+            protected void updateItem(MotoDisponibleDTO item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                } else {
-                    setText(item.getMatriculaMoto() + " (Modelo #" + item.getIdModelo() + ")");
-                }
+                setText(empty || item == null ? null :
+                        item.getMarca() + " " + item.getModelo() + " (" + item.getColor() + ")");
             }
         });
-        comboMoto.setConverter(new StringConverter<Moto>() {
+        comboMoto.setConverter(new StringConverter<MotoDisponibleDTO>() {
             @Override
-            public String toString(Moto moto) {
-                return (moto != null) ? moto.getMatriculaMoto() + " (Modelo #" + moto.getIdModelo() + ")" : "";
+            public String toString(MotoDisponibleDTO dto) {
+                return (dto != null) ? dto.getMarca() + " " + dto.getModelo() + " (" + dto.getColor() + ")" : "";
             }
             @Override
-            public Moto fromString(String string) { return null; }
+            public MotoDisponibleDTO fromString(String string) { return null; }
         });
     }
 
     private void configurarComboPago() {
-        // Cargar todos los valores del enum FormaPago
         comboPago.getItems().setAll(FormaPago.values());
         comboPago.setCellFactory(param -> new ListCell<FormaPago>() {
             @Override
             protected void updateItem(FormaPago item, boolean empty) {
                 super.updateItem(item, empty);
-                setText(empty || item == null ? null : item.name()); 
+                setText(empty || item == null ? null : item.name());
             }
         });
         comboPago.setConverter(new StringConverter<FormaPago>() {
             @Override
-            public String toString(FormaPago fp) {
-                return (fp != null) ? fp.name() : "";
-            }
+            public String toString(FormaPago fp) { return (fp != null) ? fp.name() : ""; }
             @Override
             public FormaPago fromString(String string) { return null; }
         });
@@ -202,22 +200,24 @@ public class ContratoFormController {
     }
 
     private void actualizarPrecioEstimado() {
-        Moto motoSeleccionada = comboMoto.getValue();
+        MotoDisponibleDTO motoSeleccionada = comboMoto.getValue();
         LocalDate inicio = dateInicio.getValue();
         LocalDate fin = dateFin.getValue();
 
         boolean puedeCalcular = motoSeleccionada != null && inicio != null && fin != null;
         double precio = 0.0;
         if (puedeCalcular) {
-            
             long dias = java.time.temporal.ChronoUnit.DAYS.between(inicio, fin) + 1;
             precio = dias * 20.0;
         }
         labelPrecio.setText(String.format("%.2f CUP", precio));
     }
 
-    private void cerrarVentana() {
-        javafx.stage.Stage stage = (javafx.stage.Stage) comboCliente.getScene().getWindow();
-        stage.close();
+    private void mostrarError(String mensaje) {
+        new Alert(Alert.AlertType.ERROR, mensaje).showAndWait();
+    }
+
+    private void mostrarInfo(String mensaje) {
+        new Alert(Alert.AlertType.INFORMATION, mensaje).showAndWait();
     }
 }
