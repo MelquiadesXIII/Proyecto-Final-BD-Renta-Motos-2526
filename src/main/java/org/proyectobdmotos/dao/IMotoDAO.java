@@ -1,14 +1,12 @@
 package org.proyectobdmotos.dao;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.proyectobdmotos.dto.MotoDTO;
-import org.proyectobdmotos.dto.MotoRepDTO;
-import org.proyectobdmotos.dto.SitMotoRepDTO;
-import org.proyectobdmotos.dto.SituacionMotoDTO;
+import org.proyectobdmotos.dto.*;
 import org.proyectobdmotos.models.*;
 
 public interface IMotoDAO extends GenericDAO<Moto, Integer> {
@@ -30,4 +28,8 @@ public interface IMotoDAO extends GenericDAO<Moto, Integer> {
     List<MotoRepDTO> listarMotosReporte();
 
     List<SitMotoRepDTO> listarSituacionMotosReporte();
+
+    List<Moto> listarMotosDisponiblesEntre(LocalDate inicio, LocalDate fin);
+
+    List<MotoDisponibleDTO> listarMotosDisponiblesDetalle(LocalDate inicio, LocalDate fin);
 }

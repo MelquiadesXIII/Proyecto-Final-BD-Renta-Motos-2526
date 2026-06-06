@@ -30,4 +30,6 @@ public interface IClienteDAO extends GenericDAO<Cliente, Integer> {
     List<ClienteUsuarioDTO> listarClientesConUsuario();
 
     String obtenerNombreMunicipio(int idMunicipio);
+
+    List<Cliente> buscarClientesPorTexto(String texto);
 }
