@@ -372,4 +372,23 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
         }
         return nombre;
     }
+
+    public List<Cliente> buscarClientesPorTexto(String texto) {
+        String sql = "SELECT * FROM buscar_clientes_por_texto(?)";
+        List<Cliente> lista = new ArrayList<>();
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setString(1, texto);
+            try (ResultSet rs = ps.executeQuery()) {
+                boolean hayFila = rs.next();
+                while (hayFila) {
+                    lista.add(mapResultSetToEntity(rs));
+                    hayFila = rs.next();
+                }
+            }
+        } catch (SQLException e) {
+            Logger.logError("Error al buscar clientes por texto: " + e.getMessage());
+            throw new RuntimeException("Error al buscar clientes por texto", e);
+        }
+        return lista;
+    }
 }
