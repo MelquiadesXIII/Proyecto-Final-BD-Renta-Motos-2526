@@ -10,10 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.proyectobdmotos.dto.MotoDTO;
-import org.proyectobdmotos.dto.MotoRepDTO;
-import org.proyectobdmotos.dto.SitMotoRepDTO;
-import org.proyectobdmotos.dto.SituacionMotoDTO;
+import org.proyectobdmotos.dto.*;
 import org.proyectobdmotos.models.*;
 import org.proyectobdmotos.utils.Logger;
 
@@ -408,6 +405,53 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
         } catch (SQLException e) {
             Logger.logError("Error al listar situación motos reporte: " + e.getMessage());
             throw new RuntimeException("Error al listar situación motos reporte", e);
+        }
+        return lista;
+    }
+
+
+    public List<Moto> listarMotosDisponiblesEntre(LocalDate inicio, LocalDate fin) {
+        String sql = "SELECT * FROM motos_disponibles_entre(?, ?)";
+        List<Moto> lista = new ArrayList<>();
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setDate(1, java.sql.Date.valueOf(inicio));
+            ps.setDate(2, java.sql.Date.valueOf(fin));
+            try (ResultSet rs = ps.executeQuery()) {
+                boolean hayFila = rs.next();
+                while (hayFila) {
+                    lista.add(mapResultSetToEntity(rs));
+                    hayFila = rs.next();
+                }
+            }
+        } catch (SQLException e) {
+            Logger.logError("Error al listar motos disponibles en rango: " + e.getMessage());
+            throw new RuntimeException("Error al listar motos disponibles en rango", e);
+        }
+        return lista;
+    }
+
+    public List<MotoDisponibleDTO> listarMotosDisponiblesDetalle(LocalDate inicio, LocalDate fin) {
+        String sql = "SELECT * FROM motos_disponibles_detalle(?, ?)";
+        List<MotoDisponibleDTO> lista = new ArrayList<>();
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setDate(1, java.sql.Date.valueOf(inicio));
+            ps.setDate(2, java.sql.Date.valueOf(fin));
+            try (ResultSet rs = ps.executeQuery()) {
+                boolean hayFila = rs.next();
+                while (hayFila) {
+                    lista.add(new MotoDisponibleDTO(
+                            rs.getInt("id_moto"),
+                            rs.getString("matricula_moto"),
+                            rs.getString("nombre_marca"),
+                            rs.getString("nombre_modelo"),
+                            rs.getString("nombre_color")
+                    ));
+                    hayFila = rs.next();
+                }
+            }
+        } catch (SQLException e) {
+            Logger.logError("Error al listar motos disponibles detalle: " + e.getMessage());
+            throw new RuntimeException("Error al listar motos disponibles detalle", e);
         }
         return lista;
     }
