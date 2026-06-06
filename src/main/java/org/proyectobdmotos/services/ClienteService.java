@@ -116,4 +116,8 @@ public class ClienteService {
     public String obtenerNombreMunicipio(int idMunicipio) {
         return clienteDAO.obtenerNombreMunicipio(idMunicipio);
     }
+
+    public List<Cliente> buscarClientesPorTexto(String texto) {
+        return clienteDAO.buscarClientesPorTexto(texto);
+    }
 }
