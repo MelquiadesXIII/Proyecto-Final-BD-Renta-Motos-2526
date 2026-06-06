@@ -37,7 +37,7 @@ public class Modelo {
     }
 
     public void setNombreModelo(String nombreModelo) {
-        Validator.validateText(nombreModelo);
+        Validator.validateTextWithNumbers(nombreModelo);
         this.nombreModelo = nombreModelo;
     }
 }

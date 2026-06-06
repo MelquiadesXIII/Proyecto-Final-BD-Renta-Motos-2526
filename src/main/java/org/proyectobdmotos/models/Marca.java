@@ -26,7 +26,7 @@ public class Marca {
     }
 
     public void setNombreMarca(String nombreMarca) {
-        Validator.validateText(nombreMarca);
+        Validator.validateTextWithNumbers(nombreMarca);
         this.nombreMarca = nombreMarca;
     }
 }
