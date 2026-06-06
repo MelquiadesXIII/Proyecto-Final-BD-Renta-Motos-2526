@@ -309,4 +309,8 @@ public class ContratoController {
         alert.setContentText(mensaje);
         alert.showAndWait();
     }
+    @FXML
+    private void onCrearContrato() {
+        MainController.getInstance().cargarVista("/fxml/contrato-form-view.fxml", "Nuevo Contrato");
+    }
 }
