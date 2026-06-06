@@ -1,15 +1,13 @@
 package org.proyectobdmotos.services;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.proyectobdmotos.dao.IMotoDAO;
-import org.proyectobdmotos.dto.MotoDTO;
-import org.proyectobdmotos.dto.MotoRepDTO;
-import org.proyectobdmotos.dto.SitMotoRepDTO;
-import org.proyectobdmotos.dto.SituacionMotoDTO;
+import org.proyectobdmotos.dto.*;
 import org.proyectobdmotos.models.*;
 import org.proyectobdmotos.services.exceptions.BusinessErrorCode;
 import org.proyectobdmotos.services.exceptions.ValidationException;
@@ -170,6 +168,14 @@ public class MotoService {
 
     public List<SitMotoRepDTO> listarSituacionMotosReporte() {
         return motoDAO.listarSituacionMotosReporte();
+    }
+
+    public List<Moto> listarMotosDisponiblesEntre(LocalDate inicio, LocalDate fin) {
+        return motoDAO.listarMotosDisponiblesEntre(inicio, fin);
+    }
+
+    public List<MotoDisponibleDTO> listarMotosDisponiblesDetalle(LocalDate inicio, LocalDate fin) {
+        return motoDAO.listarMotosDisponiblesDetalle(inicio, fin);
     }
 
 }
