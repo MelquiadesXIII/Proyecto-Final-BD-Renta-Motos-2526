@@ -30,6 +30,11 @@
     -fx-background-color: #ecf0f1;
 }
 
+.content-area {
+    -fx-max-width: infinity;
+    -fx-max-height: infinity;
+}
+
 .back-button {
     -fx-background-color: transparent;
     -fx-padding: 5;
