@@ -9,6 +9,7 @@ import org.proyectobdmotos.dto.ClienteDTO;
 import org.proyectobdmotos.dto.ClienteUsuarioDTO;
 import org.proyectobdmotos.dto.IncumpDTO;
 import org.proyectobdmotos.models.Cliente;
+import org.proyectobdmotos.models.Municipio;
 import org.proyectobdmotos.services.exceptions.BusinessErrorCode;
 import org.proyectobdmotos.services.exceptions.ValidationException;
 import org.proyectobdmotos.utils.Logger;
@@ -119,5 +120,9 @@ public class ClienteService {
 
     public List<Cliente> buscarClientesPorTexto(String texto) {
         return clienteDAO.buscarClientesPorTexto(texto);
+    }
+
+    public List<Municipio> listarMunicipios() {
+        return clienteDAO.listarMunicipios();
     }
 }
