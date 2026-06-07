@@ -8,6 +8,7 @@ import org.proyectobdmotos.dto.ClienteDTO;
 import org.proyectobdmotos.dto.ClienteUsuarioDTO;
 import org.proyectobdmotos.dto.IncumpDTO;
 import org.proyectobdmotos.models.Cliente;
+import org.proyectobdmotos.models.Municipio;
 
 public interface IClienteDAO extends GenericDAO<Cliente, Integer> {
 
@@ -32,4 +33,6 @@ public interface IClienteDAO extends GenericDAO<Cliente, Integer> {
     String obtenerNombreMunicipio(int idMunicipio);
 
     List<Cliente> buscarClientesPorTexto(String texto);
+
+    List<Municipio> listarMunicipios();
 }
