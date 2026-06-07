@@ -5,8 +5,10 @@ import org.proyectobdmotos.models.Usuario;
 import org.proyectobdmotos.services.exceptions.BusinessErrorCode;
 import org.proyectobdmotos.services.exceptions.ValidationException;
 import java.sql.SQLException;
+import org.proyectobdmotos.utils.Logger;
 
-public class UsuarioService {
+public class UsuarioService
+{
 
     private final UsuarioDAO usuarioDAO;
 
@@ -59,6 +61,25 @@ public class UsuarioService {
             return usuarioDAO.insert(nuevo);
         } catch (SQLException e) {
             throw new ValidationException(BusinessErrorCode.SIN_CONEXION_BD, "Error al guardar usuario", e);
+        }
+    }
+
+
+    public Usuario buscarPorId(int idUsuario) {
+        try {
+            return usuarioDAO.findById(idUsuario);
+        } catch (SQLException e) {
+            Logger.logError("Error al buscar usuario por ID: " + e.getMessage());
+            throw new RuntimeException("Error al buscar usuario por ID", e);
+        }
+    }
+
+    public void actualizarUsuario(Usuario usuario) {
+        try {
+            usuarioDAO.update(usuario);
+        } catch (SQLException e) {
+            Logger.logError("Error al actualizar usuario: " + e.getMessage());
+            throw new RuntimeException("Error al actualizar usuario", e);
         }
     }
 }
