@@ -52,6 +52,8 @@ public class MainController {
     @FXML
     private void initialize() {
         Logger.log("Inicializando MainController...");
+        contentContainer.setMaxWidth(Double.MAX_VALUE);
+        contentContainer.setMaxHeight(Double.MAX_VALUE);
         showInitialView();
         setupKeyboardShortcut();
     }
