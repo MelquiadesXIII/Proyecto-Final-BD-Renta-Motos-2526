@@ -1,16 +1,14 @@
 package org.proyectobdmotos.models;
 
-
 public class Usuario {
     private Integer id_usuario;
     private String nombreUsuario;
-    private String password;   
+    private String password;
     private String gmail;
     private boolean esAdmin;
 
+    public Usuario() {}
 
-    public Usuario(){}
-    
     public Usuario(Integer id_usuario, String nombreUsuario, String password, String gmail, boolean esAdmin) {
         this.id_usuario = id_usuario;
         this.nombreUsuario = nombreUsuario;
@@ -20,7 +18,7 @@ public class Usuario {
     }
 
     public Integer getId() { return id_usuario; }
-    public void setId(Integer id) { this.id_usuario = id_usuario; }
+    public void setId(Integer id) { this.id_usuario = id; }  
     public String getNombreUsuario() { return nombreUsuario; }
     public void setNombreUsuario(String nombreUsuario) { this.nombreUsuario = nombreUsuario; }
     public String getPassword() { return password; }
