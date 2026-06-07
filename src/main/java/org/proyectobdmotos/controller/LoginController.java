@@ -20,7 +20,7 @@ import org.proyectobdmotos.ui.navigation.ScreenLoader;
 import org.proyectobdmotos.utils.Logger;
 import org.proyectobdmotos.utils.ScreenUtils;
 import org.proyectobdmotos.utils.TermsWindow;
-
+import org.proyectobdmotos.ui.vistas.CreditosFinales;
 import java.io.IOException;
 import java.util.Optional;
 
@@ -141,6 +141,26 @@ public class LoginController {
     @FXML
     private void goToTerms() {
         TermsWindow.show((Stage) campoUsuario.getScene().getWindow());
+    }
+
+    @FXML
+    private void goToCredits() {
+        Stage stage = (Stage) campoUsuario.getScene().getWindow();
+        CreditosFinales creditos = new CreditosFinales(() -> {
+            try {
+                Parent loginRoot = screenLoader.load("/fxml/login.fxml");
+                Scene scene = new Scene(loginRoot, ScreenUtils.getWidth(), ScreenUtils.getHeight());
+                scene.getStylesheets().add(getClass().getResource("/styles/login.css").toExternalForm());
+                stage.setScene(scene);
+                stage.setTitle("Iniciar Sesión");
+                stage.setMaximized(true);
+            } catch (IOException e) {
+                Logger.logError("Error al volver a la pantalla de login: " + e.getMessage());
+            }
+        });
+        Scene scene = new Scene(creditos);
+        stage.setScene(scene);
+        stage.setFullScreen(true);
     }
 
     private void mostrarError(String titulo, String mensaje) {
