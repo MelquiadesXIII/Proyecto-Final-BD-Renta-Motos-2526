@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.proyectobdmotos.dto.ClienteUsuarioDTO;
 import org.proyectobdmotos.models.Cliente;
+import org.proyectobdmotos.models.Usuario;
 import org.proyectobdmotos.services.ClienteService;
 import org.proyectobdmotos.services.UsuarioService;
 import org.proyectobdmotos.services.exceptions.BusinessException;
@@ -18,6 +19,7 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -41,6 +43,8 @@ public class ClienteController {
     @FXML private TableColumn<ClienteUsuarioDTO, String> colGmail;
     @FXML private TableColumn<ClienteUsuarioDTO, Integer> colContratos;
 
+    @FXML private Label labelCargando;
+
     public ClienteController(ScreenLoader screenLoader,
                              ClienteService clienteService,
                              UsuarioService usuarioService,
@@ -63,6 +67,7 @@ public class ClienteController {
     @FXML
     private void onCrearCliente() {
         ClienteFormController.setClienteAEditarStatic(null);
+        ClienteFormController.setUsuarioAEditarStatic(null);
         MainController.getInstance().cargarVista("/fxml/cliente-form-view.fxml", "Nuevo Cliente");
     }
 
@@ -79,7 +84,16 @@ public class ClienteController {
             return;
         }
         Cliente cliente = optCliente.get();
+
+        Integer idUsuario = cliente.getIdUsuario();
+        Usuario usuario = null;
+        if (idUsuario != null && idUsuario > 0) {
+            usuario = usuarioService.buscarPorId(idUsuario);
+        }
+
         ClienteFormController.setClienteAEditarStatic(cliente);
+        ClienteFormController.setUsuarioAEditarStatic(usuario);
+
         MainController.getInstance().cargarVista("/fxml/cliente-form-view.fxml", "Editar Cliente");
     }
 
@@ -124,6 +138,7 @@ public class ClienteController {
     }
 
     private void loadClientes() {
+        labelCargando.setVisible(true);
         Task<List<ClienteUsuarioDTO>> loadTask = new Task<>() {
             @Override
             protected List<ClienteUsuarioDTO> call() {
@@ -132,6 +147,7 @@ public class ClienteController {
         };
 
         loadTask.setOnSucceeded(event -> {
+            labelCargando.setVisible(false);
             List<ClienteUsuarioDTO> lista = loadTask.getValue();
             if (lista != null) {
                 clientesTable.getItems().setAll(lista);
@@ -140,6 +156,7 @@ public class ClienteController {
         });
 
         loadTask.setOnFailed(event -> {
+            labelCargando.setVisible(false);
             Throwable throwable = loadTask.getException();
             String message = throwable != null ? throwable.getMessage() : "Sin detalle";
             boolean isBusinessError = throwable instanceof BusinessException;
