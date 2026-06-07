@@ -14,6 +14,7 @@ import org.proyectobdmotos.dto.ClienteDTO;
 import org.proyectobdmotos.dto.ClienteUsuarioDTO;
 import org.proyectobdmotos.dto.IncumpDTO;
 import org.proyectobdmotos.models.Cliente;
+import org.proyectobdmotos.models.Municipio;
 import org.proyectobdmotos.models.Sexo;
 import org.proyectobdmotos.utils.Logger;
 
@@ -84,7 +85,7 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
 
     @Override
     protected Cliente mapResultSetToEntity(ResultSet rs) throws SQLException {
-        return new Cliente(
+        Cliente cliente = new Cliente(
                 rs.getInt("id_cliente"),
                 rs.getString("ci_cliente"),
                 rs.getString("nombre_cliente"),
@@ -93,7 +94,10 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
                 rs.getInt("edad"),
                 Sexo.fromId(rs.getInt("id_sexo")),
                 rs.getString("numero_contacto"),
-                rs.getInt("id_municipio"));
+                rs.getInt("id_municipio")
+        );
+        cliente.setIdUsuario(rs.getInt("id_usuario"));
+        return cliente;
     }
 
     @Override
@@ -245,8 +249,6 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
         return cliente;
     }
 
-    // ===================== REPORTES =====================
-
     public List<CliRepDTO> listarClientesReporte() {
         String sql = "SELECT * FROM listado_clientes()";
         List<CliRepDTO> lista = new ArrayList<>();
@@ -292,8 +294,6 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
         }
         return lista;
     }
-
-    // ===================== NUEVOS MÉTODOS =====================
 
     public Optional<Cliente> buscarPorId(int idCliente) {
         String sql = "SELECT * FROM buscar_cliente_por_id(?)";
@@ -371,6 +371,26 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
             throw new RuntimeException("Error al obtener nombre de municipio", e);
         }
         return nombre;
+    }
+
+    public List<Municipio> listarMunicipios() {
+        String sql = "SELECT * FROM listar_municipios()";
+        List<Municipio> lista = new ArrayList<>();
+        try (PreparedStatement ps = getConnection().prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            boolean hayFila = rs.next();
+            while (hayFila) {
+                lista.add(new Municipio(
+                        rs.getInt("id_municipio"),
+                        rs.getString("nombre_municipio")
+                ));
+                hayFila = rs.next();
+            }
+        } catch (SQLException e) {
+            Logger.logError("Error al listar municipios: " + e.getMessage());
+            throw new RuntimeException("Error al listar municipios", e);
+        }
+        return lista;
     }
 
     public List<Cliente> buscarClientesPorTexto(String texto) {
