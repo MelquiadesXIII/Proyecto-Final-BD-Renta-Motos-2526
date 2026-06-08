@@ -43,7 +43,6 @@ public class ContratoFormController {
         configurarComboMoto();
         configurarComboPago();
 
-        // Placeholder y filtro para evitar errores en lista vacía
         listaResultados.setPlaceholder(new Label("Escriba para buscar clientes"));
         listaResultados.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
             if (listaResultados.getItems().isEmpty()) {
@@ -69,11 +68,9 @@ public class ContratoFormController {
             }
         });
 
-        // Fechas -> cargar motos disponibles
         dateInicio.valueProperty().addListener((obs, oldDate, newDate) -> cargarMotosSegunFechas());
         dateFin.valueProperty().addListener((obs, oldDate, newDate) -> cargarMotosSegunFechas());
 
-        // Precio estimado
         comboMoto.valueProperty().addListener((obs, oldMoto, newMoto) -> actualizarPrecioEstimado());
         dateInicio.valueProperty().addListener((obs, oldDate, newDate) -> actualizarPrecioEstimado());
         dateFin.valueProperty().addListener((obs, oldDate, newDate) -> actualizarPrecioEstimado());
