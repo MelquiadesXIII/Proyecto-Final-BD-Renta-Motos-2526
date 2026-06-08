@@ -178,4 +178,8 @@ public class MotoService {
         return motoDAO.listarMotosDisponiblesDetalle(inicio, fin);
     }
 
+    public boolean existeSolapamiento(int idMoto, LocalDate inicio, LocalDate fin) {
+        return motoDAO.existeSolapamiento(idMoto, inicio, fin);
+    }
+
 }
