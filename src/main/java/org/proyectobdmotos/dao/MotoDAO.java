@@ -455,4 +455,22 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
         }
         return lista;
     }
+    public boolean existeSolapamiento(int idMoto, LocalDate inicio, LocalDate fin) {
+        String sql = "SELECT COUNT(*) FROM contrato WHERE id_moto = ? AND (fecha_inicio, fecha_fin) OVERLAPS (?, ?)";
+        boolean solapamiento = false;
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setInt(1, idMoto);
+            ps.setDate(2, java.sql.Date.valueOf(inicio));
+            ps.setDate(3, java.sql.Date.valueOf(fin));
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    solapamiento = rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            Logger.logError("Error al comprobar solapamiento: " + e.getMessage());
+            throw new RuntimeException("Error al comprobar solapamiento", e);
+        }
+        return solapamiento;
+    }
 }
