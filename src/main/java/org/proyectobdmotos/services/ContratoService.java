@@ -68,13 +68,17 @@ public class ContratoService {
         }
 
         if (clienteExiste && motoExiste) {
-            motoDisponible = motoDAO.estaDisponible(idMoto);
-            if (!motoDisponible) {
-                Logger.logError("Moto no disponible: id=" + idMoto);
+            boolean haySolapamiento = motoDAO.existeSolapamiento(idMoto,
+                    contrato.getFechaInicio(), contrato.getFechaFin());
+            if (haySolapamiento) {
+                Logger.logError("Moto con solapamiento: id=" + idMoto +
+                        " periodo [" + contrato.getFechaInicio() + " – " + contrato.getFechaFin() + "]");
                 validationException = new ValidationException(
                         BusinessErrorCode.MOTO_NO_DISPONIBLE,
-                        "No se puede crear el contrato: moto no disponible"
+                        "No se puede crear el contrato: la moto ya está alquilada en ese período"
                 );
+            } else {
+                motoDisponible = true;
             }
         }
 
