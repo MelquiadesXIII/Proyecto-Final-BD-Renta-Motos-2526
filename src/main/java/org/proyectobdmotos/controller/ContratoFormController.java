@@ -69,7 +69,7 @@ public class ContratoFormController {
             }
         });
 
-        // Fechas → cargar motos disponibles
+        // Fechas -> cargar motos disponibles
         dateInicio.valueProperty().addListener((obs, oldDate, newDate) -> cargarMotosSegunFechas());
         dateFin.valueProperty().addListener((obs, oldDate, newDate) -> cargarMotosSegunFechas());
 
@@ -128,7 +128,7 @@ public class ContratoFormController {
                         fin, inicio,
                         formaPago,
                         motoSeleccionada.getIdMoto(),
-                        false, 0.0, 0.0
+                        false, 20.0, 40.0
                 );
 
                 contratoService.crearContrato(nuevoContrato);
