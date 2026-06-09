@@ -224,13 +224,14 @@ public abstract class Validator {
         return isUnique;
     }
 
-    // Esto es para los modelos y marcas... que me estan saltando muchos erroes. Amen.
+    // Esto es para los modelos y marcas... que me estan saltando muchos erroes
+    // y dolores de cabeza... al final funciono. Amen.
     public static void validateTextWithNumbers(String texto) {
-        boolean valid = texto != null && texto.matches("^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9 ]{2,25}$");
+        boolean valid = texto != null && texto.matches("^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9 -]{3,25}$");
         if (!valid) {
             throw new ValidationException(
                     BusinessErrorCode.TEXTO_INVALIDO,
-                    "Texto inválido: debe tener entre 3 y 25 caracteres, solo letras, números y espacios. Recibido: \"" + texto + "\""
+                    "Texto inválido: debe tener entre 3 y 25 caracteres, solo letras, números, espacios y guiones. Recibido: \"" + texto + "\""
             );
         }
     }
