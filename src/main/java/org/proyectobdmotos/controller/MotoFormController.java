@@ -1,16 +1,15 @@
 package org.proyectobdmotos.controller;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.TextField;
-import javafx.stage.Stage;
+import javafx.scene.control.*;
 import javafx.util.StringConverter;
 import org.proyectobdmotos.models.*;
+import org.proyectobdmotos.services.MarcaService;
+import org.proyectobdmotos.services.ModeloService;
 import org.proyectobdmotos.services.MotoService;
 import org.proyectobdmotos.stores.AgenciaStore;
 import org.proyectobdmotos.stores.ReferenceDataStore;
+import org.proyectobdmotos.utils.Logger;
 
 import java.util.ArrayList;
 
@@ -25,19 +24,23 @@ public class MotoFormController {
     private final MotoService motoService;
     private final AgenciaStore agenciaStore;
     private final ReferenceDataStore referenceDataStore;
+    private final MarcaService marcaService;
+    private final ModeloService modeloService;
 
     private static Moto motoAEditarStatic;
 
-    public static void setMotoAEditarStatic(Moto m) {
-        motoAEditarStatic = m;
-    }
+    public static void setMotoAEditarStatic(Moto m) { motoAEditarStatic = m; }
 
     public MotoFormController(MotoService motoService,
                               AgenciaStore agenciaStore,
-                              ReferenceDataStore referenceDataStore) {
+                              ReferenceDataStore referenceDataStore,
+                              MarcaService marcaService,
+                              ModeloService modeloService) {
         this.motoService = motoService;
         this.agenciaStore = agenciaStore;
         this.referenceDataStore = referenceDataStore;
+        this.marcaService = marcaService;
+        this.modeloService = modeloService;
     }
 
     @FXML
@@ -53,62 +56,43 @@ public class MotoFormController {
             }
         });
         comboMarca.setConverter(new StringConverter<Marca>() {
-            @Override
-            public String toString(Marca marca) {
-                return (marca != null) ? marca.getNombreMarca() : "";
-            }
-            @Override
-            public Marca fromString(String string) { return null; }
+            @Override public String toString(Marca m) { return m != null ? m.getNombreMarca() : ""; }
+            @Override public Marca fromString(String s) { return null; }
         });
 
-        comboMarca.getSelectionModel().selectedItemProperty().addListener((obs, oldMarca, newMarca) -> {
+        comboMarca.getSelectionModel().selectedItemProperty().addListener((obs, old, newMarca) -> {
             comboModelo.getItems().clear();
             if (newMarca != null) {
                 ArrayList<Modelo> modelos = motoService.listarModelosPorMarca(newMarca.getIdMarca());
-                if (modelos != null) {
-                    comboModelo.getItems().setAll(modelos);
-                }
+                if (modelos != null) comboModelo.getItems().setAll(modelos);
             }
         });
 
         comboModelo.setCellFactory(param -> new ListCell<Modelo>() {
-            @Override
-            protected void updateItem(Modelo item, boolean empty) {
+            @Override protected void updateItem(Modelo item, boolean empty) {
                 super.updateItem(item, empty);
                 setText(empty || item == null ? null : item.getNombreModelo());
             }
         });
         comboModelo.setConverter(new StringConverter<Modelo>() {
-            @Override
-            public String toString(Modelo modelo) {
-                return (modelo != null) ? modelo.getNombreModelo() : "";
-            }
-            @Override
-            public Modelo fromString(String string) { return null; }
+            @Override public String toString(Modelo m) { return m != null ? m.getNombreModelo() : ""; }
+            @Override public Modelo fromString(String s) { return null; }
         });
 
         ArrayList<Color> colores = motoService.listarColores();
         comboColor.getItems().setAll(colores);
-
         comboColor.setCellFactory(param -> new ListCell<Color>() {
-            @Override
-            protected void updateItem(Color item, boolean empty) {
+            @Override protected void updateItem(Color item, boolean empty) {
                 super.updateItem(item, empty);
                 setText(empty || item == null ? null : item.getNombreColor());
             }
         });
         comboColor.setConverter(new StringConverter<Color>() {
-            @Override
-            public String toString(Color color) {
-                return (color != null) ? color.getNombreColor() : "";
-            }
-            @Override
-            public Color fromString(String string) { return null; }
+            @Override public String toString(Color c) { return c != null ? c.getNombreColor() : ""; }
+            @Override public Color fromString(String s) { return null; }
         });
 
-        comboModelo.disableProperty().bind(
-                comboMarca.getSelectionModel().selectedItemProperty().isNull()
-        );
+        comboModelo.disableProperty().bind(comboMarca.getSelectionModel().selectedItemProperty().isNull());
 
         if (motoAEditarStatic != null) {
             setModoEdicion(motoAEditarStatic);
@@ -122,25 +106,14 @@ public class MotoFormController {
 
         int idModelo = m.getIdModelo();
         Modelo modelo = motoService.obtenerModeloPorId(idModelo);
-
         if (modelo != null) {
-            int idMarca = modelo.getIdMarca();
-            Marca marca = motoService.obtenerMarcaPorId(idMarca);
-            if (marca != null) {
-                comboMarca.getSelectionModel().select(marca);
-            }
+            Marca marca = motoService.obtenerMarcaPorId(modelo.getIdMarca());
+            if (marca != null) comboMarca.getSelectionModel().select(marca);
             comboModelo.getSelectionModel().select(modelo);
 
             int idColor = m.getIdColor();
-            boolean colorEncontrado = false;
-            int i = 0;
-            while (!colorEncontrado && i < comboColor.getItems().size()) {
-                Color c = comboColor.getItems().get(i);
-                if (c.getIdColor() == idColor) {
-                    comboColor.getSelectionModel().select(c);
-                    colorEncontrado = true;
-                }
-                i++;
+            for (Color c : comboColor.getItems()) {
+                if (c.getIdColor() == idColor) { comboColor.getSelectionModel().select(c); break; }
             }
         } else {
             new Alert(Alert.AlertType.WARNING, "No se pudo cargar el modelo de la moto.").showAndWait();
@@ -151,45 +124,35 @@ public class MotoFormController {
     private void onGuardar() {
         String matricula = campoMatricula.getText().trim();
         String kmTexto = campoKilometros.getText().trim();
-        Modelo modeloSeleccionado = comboModelo.getValue();
-        Color colorSeleccionado = comboColor.getValue();
+        Modelo modeloSel = comboModelo.getValue();
+        Color colorSel = comboColor.getValue();
 
-        boolean datosValidos = true;
-
-        if (matricula.isEmpty() || modeloSeleccionado == null || colorSeleccionado == null) {
+        if (matricula.isEmpty() || modeloSel == null || colorSel == null) {
             new Alert(Alert.AlertType.ERROR, "Todos los campos obligatorios deben estar completos.").showAndWait();
-            datosValidos = false;
+            return;
         }
-
-        if (datosValidos) {
-            try {
-                double kilometros = Double.parseDouble(kmTexto);
-                int idModelo = modeloSeleccionado.getIdModelo();
-                int idColor = colorSeleccionado.getIdColor();
-
-                Moto nuevaMoto = new Moto(
-                        null,
-                        matricula,
-                        idModelo,
-                        Situacion.DISPONIBLE,
-                        kilometros,
-                        idColor
-                );
-
-                motoService.crearMoto(nuevaMoto);
-
-                new Alert(Alert.AlertType.INFORMATION, "Moto guardada correctamente.").showAndWait();
-                MainController.getInstance().onGoBack();
-            } catch (NumberFormatException e) {
-                new Alert(Alert.AlertType.ERROR, "Los kilómetros deben ser un número válido.").showAndWait();
-            } catch (Exception e) {
-                new Alert(Alert.AlertType.ERROR, "Error al guardar la moto: " + e.getMessage()).showAndWait();
-            }
+        try {
+            double km = Double.parseDouble(kmTexto);
+            Moto nueva = new Moto(null, matricula, modeloSel.getIdModelo(), Situacion.DISPONIBLE, km, colorSel.getIdColor());
+            motoService.crearMoto(nueva);
+            new Alert(Alert.AlertType.INFORMATION, "Moto guardada correctamente.").showAndWait();
+            MainController.getInstance().onGoBack();
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Los kilómetros deben ser un número válido.").showAndWait();
+        } catch (Exception e) {
+            e.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Error al guardar la moto: " + e.getMessage()).showAndWait();
         }
     }
 
     @FXML
     private void onCancelar() {
         MainController.getInstance().onGoBack();
+    }
+
+    @FXML
+    private void onCrearMarcaOModelo() {
+        MainController.getInstance().cargarVista("/fxml/modelo-form.fxml", "Crear Modelo");
     }
 }
