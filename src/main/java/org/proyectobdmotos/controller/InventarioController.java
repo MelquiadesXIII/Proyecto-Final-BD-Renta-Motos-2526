@@ -54,6 +54,7 @@ public class InventarioController {
             tablaInventario.getItems().setAll(lista);
             Logger.logInfo("Inventario cargado: " + lista.size() + " motos");
         } catch (Exception e) {
+            e.printStackTrace();
             Logger.logError("Error al cargar inventario: " + e.getMessage());
         }
     }

@@ -108,6 +108,7 @@ public class MainController {
             contentContainer.getChildren().setAll(vista);
             Logger.logInfo("Retrocediendo a: " + fxmlAnterior);
         } catch (IOException e) {
+            e.printStackTrace();
             Logger.logError("Error al retroceder: " + e.getMessage());
             showLoadError("Retroceder", e);
         }

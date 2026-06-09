@@ -111,6 +111,7 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
                 }
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             Logger.logError("Error al insertar cliente: " + e.getMessage());
             throw new RuntimeException("Error al insertar cliente: " + e.getMessage(), e);
         }
@@ -128,6 +129,7 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
                 }
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             Logger.logError("Error al buscar cliente por CI: " + e.getMessage());
             throw new RuntimeException("Error al buscar cliente por CI: " + e.getMessage(), e);
         }
@@ -161,6 +163,7 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
                 hasMore = rs.next();
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             Logger.logError("Error al listar clientes por municipio: " + e.getMessage());
             throw new RuntimeException("Error al listar clientes por municipio: " + e.getMessage(), e);
         }
@@ -187,6 +190,7 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
                 hasMore = rs.next();
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             Logger.logError("Error al obtener clientes incumplidores: " + e.getMessage());
             throw new RuntimeException("Error al obtener clientes incumplidores: " + e.getMessage(), e);
         }
@@ -216,6 +220,7 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
             try {
                 getConnection().rollback();
             } catch (SQLException rollbackEx) {
+                e.printStackTrace();
                 Logger.logError("Error en rollback: " + rollbackEx.getMessage());
             }
             Logger.logError("Error al eliminar cliente con cascada: " + e.getMessage());
@@ -224,6 +229,7 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
         try {
             getConnection().setAutoCommit(true);
         } catch (SQLException e) {
+            e.printStackTrace();
             Logger.logError("Error al restaurar autoCommit: " + e.getMessage());
         }
     }
@@ -267,6 +273,7 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
                 hayFila = rs.next();
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             Logger.logError("Error al listar clientes reporte: " + e.getMessage());
             throw new RuntimeException("Error al listar clientes reporte", e);
         }
@@ -289,6 +296,7 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
                 hayFila = rs.next();
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             Logger.logError("Error al listar incumplidores: " + e.getMessage());
             throw new RuntimeException("Error al listar incumplidores", e);
         }
@@ -306,6 +314,7 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
                 }
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             Logger.logError("Error al buscar cliente por ID: " + e.getMessage());
             throw new RuntimeException("Error al buscar cliente por ID", e);
         }
@@ -323,6 +332,7 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
                 }
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             Logger.logError("Error al buscar cliente por ID de usuario: " + e.getMessage());
             throw new RuntimeException("Error al buscar cliente por ID de usuario", e);
         }
@@ -350,6 +360,7 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
                 hayFila = rs.next();
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             Logger.logError("Error al listar clientes con usuario: " + e.getMessage());
             throw new RuntimeException("Error al listar clientes con usuario", e);
         }
@@ -367,6 +378,7 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
                 }
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             Logger.logError("Error al obtener nombre de municipio: " + e.getMessage());
             throw new RuntimeException("Error al obtener nombre de municipio", e);
         }
@@ -387,6 +399,7 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
                 hayFila = rs.next();
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             Logger.logError("Error al listar municipios: " + e.getMessage());
             throw new RuntimeException("Error al listar municipios", e);
         }
@@ -406,6 +419,7 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
                 }
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             Logger.logError("Error al buscar clientes por texto: " + e.getMessage());
             throw new RuntimeException("Error al buscar clientes por texto", e);
         }

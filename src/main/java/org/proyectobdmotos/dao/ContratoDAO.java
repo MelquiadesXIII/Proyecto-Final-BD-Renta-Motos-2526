@@ -146,6 +146,7 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
                 hasMore = rs.next();
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             Logger.logError("Error al listar contratos completos: " + e.getMessage());
             throw new RuntimeException("Error al listar contratos completos: " + e.getMessage(), e);
         }
@@ -176,6 +177,7 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
                 hayFila = rs.next();
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             Logger.logError("Error al listar contratos reporte: " + e.getMessage());
             throw new RuntimeException("Error al listar contratos reporte", e);
         }
@@ -204,6 +206,7 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
                 hayFila = rs.next();
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             Logger.logError("Error en resumen marcas/modelos: " + e.getMessage());
             throw new RuntimeException("Error en resumen marcas/modelos", e);
         }
@@ -230,6 +233,7 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
                 hayFila = rs.next();
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             Logger.logError("Error en resumen municipios: " + e.getMessage());
             throw new RuntimeException("Error en resumen municipios", e);
         }
@@ -252,6 +256,7 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
                 hayFila = rs.next();
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             Logger.logError("Error en ingresos anuales: " + e.getMessage());
             throw new RuntimeException("Error en ingresos anuales", e);
         }
@@ -280,6 +285,7 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
                 }
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             Logger.logError("Error al listar mis contratos: " + e.getMessage());
             throw new RuntimeException("Error al listar mis contratos", e);
         }

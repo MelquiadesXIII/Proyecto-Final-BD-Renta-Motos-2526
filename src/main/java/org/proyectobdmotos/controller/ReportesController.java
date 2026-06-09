@@ -126,13 +126,13 @@ public class ReportesController {
     }
 
     private void cargarDatos() {
-        try { tablaClientesMunicipio.getItems().setAll(clienteService.listarClientesReporte()); } catch (Exception e) { Logger.logError("Error clientes reporte: " + e.getMessage()); }
-        try { tablaMotos.getItems().setAll(motoService.listarMotosReporte()); } catch (Exception e) { Logger.logError("Error motos reporte: " + e.getMessage()); }
-        try { tablaContratos.getItems().setAll(contratoService.listarContratosReporte()); } catch (Exception e) { Logger.logError("Error contratos reporte: " + e.getMessage()); }
-        try { tablaSituacionMotos.getItems().setAll(motoService.listarSituacionMotosReporte()); } catch (Exception e) { Logger.logError("Error situación motos: " + e.getMessage()); }
-        try { tablaIncumplidores.getItems().setAll(clienteService.listarIncumplidores()); } catch (Exception e) { Logger.logError("Error incumplidores: " + e.getMessage()); }
-        try { tablaResumenMarcaModelo.getItems().setAll(contratoService.resumenMarcasModelos()); } catch (Exception e) { Logger.logError("Error resumen MM: " + e.getMessage()); }
-        try { tablaResumenMunicipio.getItems().setAll(contratoService.resumenMunicipios()); } catch (Exception e) { Logger.logError("Error resumen Mun: " + e.getMessage()); }
-        try { tablaIngresosAnuales.getItems().setAll(contratoService.ingresosAnuales()); } catch (Exception e) { Logger.logError("Error ingresos anuales: " + e.getMessage()); }
+        try { tablaClientesMunicipio.getItems().setAll(clienteService.listarClientesReporte()); } catch (Exception e) {e.printStackTrace(); Logger.logError("Error clientes reporte: " + e.getMessage()); }
+        try { tablaMotos.getItems().setAll(motoService.listarMotosReporte()); } catch (Exception e) {e.printStackTrace(); Logger.logError("Error motos reporte: " + e.getMessage()); }
+        try { tablaContratos.getItems().setAll(contratoService.listarContratosReporte()); } catch (Exception e) {e.printStackTrace(); Logger.logError("Error contratos reporte: " + e.getMessage()); }
+        try { tablaSituacionMotos.getItems().setAll(motoService.listarSituacionMotosReporte()); } catch (Exception e) {e.printStackTrace(); Logger.logError("Error situación motos: " + e.getMessage()); }
+        try { tablaIncumplidores.getItems().setAll(clienteService.listarIncumplidores()); } catch (Exception e) {e.printStackTrace(); Logger.logError("Error incumplidores: " + e.getMessage()); }
+        try { tablaResumenMarcaModelo.getItems().setAll(contratoService.resumenMarcasModelos()); } catch (Exception e) {e.printStackTrace(); Logger.logError("Error resumen MM: " + e.getMessage()); }
+        try { tablaResumenMunicipio.getItems().setAll(contratoService.resumenMunicipios()); } catch (Exception e) {e.printStackTrace(); Logger.logError("Error resumen Mun: " + e.getMessage()); }
+        try { tablaIngresosAnuales.getItems().setAll(contratoService.ingresosAnuales()); } catch (Exception e) {e.printStackTrace(); Logger.logError("Error ingresos anuales: " + e.getMessage()); }
     }
 }

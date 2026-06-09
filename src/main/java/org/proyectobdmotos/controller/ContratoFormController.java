@@ -50,7 +50,6 @@ public class ContratoFormController {
             }
         });
 
-        // Búsqueda de clientes
         campoBuscarCliente.textProperty().addListener((obs, oldText, newText) -> {
             if (newText.trim().isEmpty()) {
                 listaResultados.getItems().clear();
@@ -132,8 +131,10 @@ public class ContratoFormController {
                 mostrarInfo("Contrato creado correctamente.");
                 MainController.getInstance().onGoBack();
             } catch (ValidationException e) {
+                e.printStackTrace();
                 mostrarError(e.getMessage());
             } catch (Exception e) {
+                e.printStackTrace();
                 Logger.logError("Error al guardar contrato: " + e.getMessage());
                 mostrarError("Error inesperado al guardar el contrato.");
             }

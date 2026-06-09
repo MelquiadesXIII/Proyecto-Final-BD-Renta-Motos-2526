@@ -468,6 +468,7 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
                 }
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             Logger.logError("Error al comprobar solapamiento: " + e.getMessage());
             throw new RuntimeException("Error al comprobar solapamiento", e);
         }

@@ -77,6 +77,7 @@ public class PerfilController {
             List<MisContratosDTO> lista = contratoService.listarMisContratos(idCliente);
             tablaMisContratos.getItems().setAll(lista);
         } catch (Exception e) {
+            e.printStackTrace();
             Logger.logError("Error al cargar contratos del perfil: " + e.getMessage());
         }
     }
@@ -86,6 +87,7 @@ public class PerfilController {
         try {
             MainController.getInstance().cargarVista("/fxml/login.fxml", "Login");
         } catch (Exception e) {
+            e.printStackTrace();
             Logger.logError("Error al cerrar sesión: " + e.getMessage());
         }
     }

@@ -86,6 +86,7 @@ public class MotoController {
                 loadMotos();
                 mostrarAlerta("Moto eliminada correctamente.");
             } catch (ValidationException e) {
+                e.printStackTrace();
                 mostrarAlerta("Error al eliminar: " + e.getMessage());
             }
         }

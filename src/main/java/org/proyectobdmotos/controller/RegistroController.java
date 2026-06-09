@@ -152,10 +152,13 @@ public class RegistroController {
             volverAlLogin();
 
         } catch (ValidationException e) {
+            e.printStackTrace();
             mostrarError(e.getMessage());
         } catch (NumberFormatException e) {
+            e.printStackTrace();
             mostrarError("La edad debe ser un número válido.");
         } catch (Exception e) {
+            e.printStackTrace();
             Logger.logError("Error en registro: " + e.getMessage());
             mostrarError("Error inesperado al crear la cuenta.");
         }
@@ -173,7 +176,6 @@ public class RegistroController {
             Stage stage = (Stage) campoNombreUsuario.getScene().getWindow();
             stage.setScene(new Scene(anterior));
         } else {
-            // Si no hay historial, simplemente no hace nada o podrías mostrar un mensaje
             Logger.logInfo("No hay pantalla anterior para retroceder.");
         }
     }
