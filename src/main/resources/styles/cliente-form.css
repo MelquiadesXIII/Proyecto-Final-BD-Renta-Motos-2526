@@ -1,53 +1,73 @@
+/* Panel oscuro semitransparente */
+.form-box {
+    -fx-background-color: rgba(0, 0, 0, 0.6);
+    -fx-background-radius: 15;
+    -fx-padding: 30;
+}
+
+/* Transparencia para ScrollPane y contenedor */
+.transparent-scroll,
+.transparent-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+.transparent-box {
+    -fx-background-color: transparent;
+}
+
+/* Titulo */
 .form-title {
     -fx-font-size: 26px;
     -fx-font-weight: bold;
-    -fx-text-fill: #2c3e50;
+    -fx-text-fill: white;
     -fx-padding: 0 0 10 0;
 }
 
+/* Subtitulos */
 .section-title {
     -fx-font-size: 16px;
     -fx-font-weight: bold;
-    -fx-text-fill: #34495e;
-    -fx-padding: 15 0 5 0;
+    -fx-text-fill: #cccccc;
+    -fx-padding: 10 0 5 0;
 }
 
+/* Campos de texto, password, combos (gris clarito) */
 TextField, PasswordField, ComboBox {
     -fx-background-radius: 5;
     -fx-border-radius: 5;
     -fx-border-color: #bdc3c7;
     -fx-padding: 8;
     -fx-font-size: 14px;
-    -fx-background-color: white;
+    -fx-background-color: #eef0f2;
+    -fx-text-fill: #2c3e50;
 }
-
 TextField:focused, PasswordField:focused, ComboBox:focused {
     -fx-border-color: #3498db;
+    -fx-background-color: #ffffff;
     -fx-effect: dropshadow(gaussian, rgba(52,152,219,0.3), 4, 0, 0, 1);
 }
 
+/* Botones */
 .btn-guardar {
     -fx-background-color: #27ae60;
     -fx-text-fill: white;
-    -fx-font-size: 15px;
+    -fx-font-size: 16px;
     -fx-font-weight: bold;
     -fx-background-radius: 8;
-    -fx-padding: 12 30;
+    -fx-padding: 12 35;
+    -fx-cursor: hand;
 }
-
 .btn-guardar:hover {
     -fx-background-color: #219a52;
 }
-
 .btn-cancelar {
     -fx-background-color: #c0392b;
     -fx-text-fill: white;
-    -fx-font-size: 15px;
+    -fx-font-size: 16px;
     -fx-font-weight: bold;
     -fx-background-radius: 8;
-    -fx-padding: 12 30;
+    -fx-padding: 12 35;
+    -fx-cursor: hand;
 }
-
 .btn-cancelar:hover {
     -fx-background-color: #a93226;
 }
