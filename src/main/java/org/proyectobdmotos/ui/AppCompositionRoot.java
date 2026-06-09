@@ -3,19 +3,12 @@ package org.proyectobdmotos.ui;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import org.proyectobdmotos.dao.ClienteDAO;
-import org.proyectobdmotos.dao.ContratoDAO;
-import org.proyectobdmotos.dao.MotoDAO;
-import org.proyectobdmotos.dao.UsuarioDAO;
+import org.proyectobdmotos.dao.*;
+import org.proyectobdmotos.services.*;
 import org.proyectobdmotos.utils.IdGenerator;
 import org.proyectobdmotos.utils.Logger;
 import org.proyectobdmotos.utils.Validator;
 import org.proyectobdmotos.database.DatabaseConnection;
-import org.proyectobdmotos.services.AgenciaService;
-import org.proyectobdmotos.services.ClienteService;
-import org.proyectobdmotos.services.ContratoService;
-import org.proyectobdmotos.services.MotoService;
-import org.proyectobdmotos.services.UsuarioService;
 import org.proyectobdmotos.stores.AgenciaStore;
 import org.proyectobdmotos.stores.ReferenceDataStore;
 import org.proyectobdmotos.ui.navigation.ScreenLoader;
@@ -47,6 +40,11 @@ public final class AppCompositionRoot {
     // Nuevas dependencias para usuarios
     private final UsuarioDAO usuarioDAO;
     private final UsuarioService usuarioService;
+
+    private final MarcaDAO marcaDAO;
+    private final ModeloDAO modeloDAO;
+    private final MarcaService marcaService;
+    private final ModeloService modeloService;
 
     public AppCompositionRoot() throws SQLException {
         Logger.log("Iniciando construcción del grafo de dependencias...");
@@ -87,9 +85,35 @@ public final class AppCompositionRoot {
         this.screenLoader = new ScreenLoader(this);
 
         Logger.logInfo("Grafo de dependencias completo\n");
+
+        this.marcaDAO = new MarcaDAO(connection);
+        this.modeloDAO = new ModeloDAO(connection);
+        this.marcaService = new MarcaService(marcaDAO);
+        this.modeloService = new ModeloService(modeloDAO);
     }
 
     // Getters para acceso controlado desde ScreenLoader y otros componentes
+
+
+    public UsuarioDAO getUsuarioDAO() {
+        return usuarioDAO;
+    }
+
+    public MarcaDAO getMarcaDAO() {
+        return marcaDAO;
+    }
+
+    public ModeloDAO getModeloDAO() {
+        return modeloDAO;
+    }
+
+    public MarcaService getMarcaService() {
+        return marcaService;
+    }
+
+    public ModeloService getModeloService() {
+        return modeloService;
+    }
 
     public Connection getConnection() {
         return connection;
