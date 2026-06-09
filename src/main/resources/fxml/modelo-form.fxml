@@ -22,6 +22,7 @@
               GridPane.columnIndex="1">
             <Label text="Nuevo Modelo" styleClass="form-title" />
 
+            <!-- Nombre del modelo -->
             <GridPane hgap="10" vgap="15" alignment="CENTER">
                 <columnConstraints>
                     <ColumnConstraints percentWidth="30" />
@@ -32,14 +33,22 @@
                        GridPane.rowIndex="0" GridPane.columnIndex="0" />
                 <TextField fx:id="campoNombreModelo" promptText="Nombre del modelo" styleClass="form-field"
                            GridPane.rowIndex="0" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" />
-
-                <Label text="Marca*" styleClass="form-label"
-                       GridPane.rowIndex="1" GridPane.columnIndex="0" />
-                <ComboBox fx:id="comboMarca" promptText="Seleccionar marca" styleClass="form-field"
-                          GridPane.rowIndex="1" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" />
             </GridPane>
 
-            <HBox alignment="CENTER" spacing="10">
+            <!-- Marca (combo) -->
+            <GridPane hgap="10" vgap="0" alignment="CENTER">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="30" />
+                    <ColumnConstraints percentWidth="70" />
+                </columnConstraints>
+
+                <Label text="Marca*" styleClass="form-label"
+                       GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                <ComboBox fx:id="comboMarca" promptText="Seleccionar marca" styleClass="form-field"
+                          GridPane.rowIndex="0" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" />
+            </GridPane>
+            
+            <HBox alignment="CENTER_RIGHT" style="-fx-padding: 0 0 0 0;">
                 <Button text="Crear nueva marca" onAction="#onCrearMarca" styleClass="btn-link" />
             </HBox>
 
