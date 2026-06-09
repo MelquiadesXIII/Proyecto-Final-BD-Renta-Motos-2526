@@ -2,9 +2,6 @@ package org.proyectobdmotos.ui.navigation;
 
 import java.io.IOException;
 
-import org.proyectobdmotos.controller.ClienteFormController;
-import org.proyectobdmotos.controller.MotoFormController;
-import org.proyectobdmotos.controller.InventarioController;
 import org.proyectobdmotos.controller.*;
 import org.proyectobdmotos.utils.Logger;
 import org.proyectobdmotos.ui.AppCompositionRoot;
@@ -76,7 +73,9 @@ public final class ScreenLoader {
                 return new MotoFormController(
                         compositionRoot.getMotoService(),
                         compositionRoot.getAgenciaStore(),
-                        compositionRoot.getReferenceDataStore());
+                        compositionRoot.getReferenceDataStore(),
+                        compositionRoot.getMarcaService(),
+                        compositionRoot.getModeloService());
             }
 
             if (controllerClass == LoginController.class) {
@@ -99,6 +98,16 @@ public final class ScreenLoader {
                         compositionRoot.getContratoService(),
                         compositionRoot.getClienteService(),
                         compositionRoot.getMotoService());
+            }
+
+            if (controllerClass == MarcaFormController.class) {
+                return new MarcaFormController(compositionRoot.getMarcaService());
+            }
+            if (controllerClass == ModeloFormController.class) {
+                return new ModeloFormController(
+                        compositionRoot.getMotoService(),
+                        compositionRoot.getMarcaService(),
+                        compositionRoot.getModeloService());
             }
 
             if (controllerClass == TerminosController.class) {
