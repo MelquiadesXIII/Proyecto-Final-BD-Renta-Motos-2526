@@ -26,18 +26,6 @@
     -fx-prompt-text-fill: #999999;
 }
 
-.btn-link {
-    -fx-background-color: transparent;
-    -fx-text-fill: #f0c040;
-    -fx-font-size: 12px;
-    -fx-underline: true;
-    -fx-cursor: hand;
-}
-
-.btn-link:hover {
-    -fx-text-fill: #ffd966;
-}
-
 .btn-guardar {
     -fx-background-color: #27ae60;
     -fx-text-fill: white;
@@ -62,4 +50,16 @@
 
 .btn-cancelar:hover {
     -fx-background-color: #a93226;
+}
+
+.btn-link {
+    -fx-background-color: transparent;
+    -fx-text-fill: #f0c040;
+    -fx-font-size: 12px;
+    -fx-underline: true;
+    -fx-cursor: hand;
+}
+
+.btn-link:hover {
+    -fx-text-fill: #ffd966;
 }
