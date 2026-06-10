@@ -227,7 +227,7 @@ public abstract class Validator {
     // Esto es para los modelos y marcas... que me estan saltando muchos erroes
     // y dolores de cabeza... al final funciono. Amen.
     public static void validateTextWithNumbers(String texto) {
-        boolean valid = texto != null && texto.matches("^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9 -]{3,25}$");
+        boolean valid = texto != null && texto.matches("^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9 -]{2,25}$");
         if (!valid) {
             throw new ValidationException(
                     BusinessErrorCode.TEXTO_INVALIDO,
