@@ -110,6 +110,13 @@ public final class ScreenLoader {
                         compositionRoot.getModeloService());
             }
 
+            if (controllerClass == EditarMarcaModeloController.class) {
+                return new EditarMarcaModeloController(
+                        compositionRoot.getModeloService(),
+                        compositionRoot.getMarcaService(),
+                        compositionRoot.getMotoService());
+            }
+
             if (controllerClass == TerminosController.class) {
                 return new TerminosController(this);
             }
@@ -119,6 +126,16 @@ public final class ScreenLoader {
                         compositionRoot.getClienteService(),
                         compositionRoot.getMotoService(),
                         compositionRoot.getContratoService());
+            }
+            
+            if (controllerClass == MarcasModelosController.class) {
+                return new MarcasModelosController(compositionRoot.getModeloService());
+            }
+
+            if (controllerClass == EliminarMarcaModeloController.class) {
+                return new EliminarMarcaModeloController(
+                        compositionRoot.getModeloService(),
+                        compositionRoot.getMarcaService());
             }
 
             if (controllerClass == InventarioController.class) {
