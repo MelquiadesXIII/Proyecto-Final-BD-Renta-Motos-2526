@@ -151,8 +151,4 @@ public class MotoFormController {
         MainController.getInstance().onGoBack();
     }
 
-    @FXML
-    private void onCrearMarcaOModelo() {
-        MainController.getInstance().cargarVista("/fxml/modelo-form.fxml", "Crear Modelo");
-    }
 }
