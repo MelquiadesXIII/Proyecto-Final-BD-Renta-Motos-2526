@@ -44,10 +44,6 @@
                         <TextField fx:id="campoKilometros" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
                     </GridPane>
 
-                    <HBox alignment="CENTER" spacing="10">
-                        <Button text="Crear Marca o Modelo" onAction="#onCrearMarcaOModelo" styleClass="btn-link" />
-                    </HBox>
-
                     <HBox alignment="CENTER" spacing="25">
                         <Button text="Guardar" onAction="#onGuardar" styleClass="btn-guardar"/>
                         <Button text="Cancelar" onAction="#onCancelar" styleClass="btn-cancelar"/>
