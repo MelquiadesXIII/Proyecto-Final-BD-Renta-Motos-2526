@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.util.StringConverter;
 import org.proyectobdmotos.models.Marca;
+import org.proyectobdmotos.models.Modelo;
 import org.proyectobdmotos.services.MarcaService;
 import org.proyectobdmotos.services.ModeloService;
 import org.proyectobdmotos.services.MotoService;
@@ -18,6 +19,12 @@ public class ModeloFormController {
     private final MotoService motoService;
     private final MarcaService marcaService;
     private final ModeloService modeloService;
+
+    private Modelo modeloEditando;
+
+    private static Modelo modeloEditarStatic;
+
+    public static void setModeloEditarStatic(Modelo m) { modeloEditarStatic = m; }
 
     public ModeloFormController(MotoService motoService, MarcaService marcaService, ModeloService modeloService) {
         this.motoService = motoService;
@@ -38,16 +45,32 @@ public class ModeloFormController {
                 setText(empty || item == null ? null : item.getNombreMarca());
             }
         });
+
+        if (modeloEditarStatic != null) {
+            setModoEdicion(modeloEditarStatic);
+            modeloEditarStatic = null;
+        }
     }
 
     private void cargarMarcas() {
-        try {
-            List<Marca> marcas = motoService.listarMarcas();
-            comboMarca.getItems().setAll(marcas);
-        } catch (Exception e) {
-            e.printStackTrace();
-            new Alert(Alert.AlertType.ERROR, "Error al cargar marcas.").showAndWait();
+        List<Marca> marcas = motoService.listarMarcas();
+        comboMarca.getItems().setAll(marcas);
+    }
+
+    public void setModoEdicion(Modelo modelo) {
+        this.modeloEditando = modelo;
+        // Seleccionar la marca en el combo
+        boolean encontrado = false;
+        int i = 0;
+        while (!encontrado && i < comboMarca.getItems().size()) {
+            Marca m = comboMarca.getItems().get(i);
+            if (m.getIdMarca() == modelo.getIdMarca()) {
+                comboMarca.getSelectionModel().select(m);
+                encontrado = true;
+            }
+            i++;
         }
+        campoNombreModelo.setText(modelo.getNombreModelo());
     }
 
     @FXML
@@ -59,10 +82,16 @@ public class ModeloFormController {
             return;
         }
         try {
-            modeloService.crearModelo(marca.getIdMarca(), nombre);
+            if (modeloEditando != null) {
+                // Actualizar modelo existente
+                modeloEditando.setNombreModelo(nombre);
+                modeloEditando.setIdMarca(marca.getIdMarca());
+                modeloService.actualizarModelo(modeloEditando);
+            } else {
+                modeloService.crearModelo(marca.getIdMarca(), nombre);
+            }
             MainController.getInstance().onGoBack();
         } catch (RuntimeException e) {
-            e.printStackTrace();
             new Alert(Alert.AlertType.ERROR, e.getMessage()).showAndWait();
         }
     }
