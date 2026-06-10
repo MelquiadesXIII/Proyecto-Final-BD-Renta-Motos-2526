@@ -7,8 +7,10 @@ import java.util.Optional;
 import org.proyectobdmotos.dao.IClienteDAO;
 import org.proyectobdmotos.dto.CliRepDTO;
 import org.proyectobdmotos.dto.ClienteDTO;
+import org.proyectobdmotos.dto.ClienteUsuarioDTO;
 import org.proyectobdmotos.dto.IncumpDTO;
 import org.proyectobdmotos.models.Cliente;
+import org.proyectobdmotos.models.Municipio;
 import org.proyectobdmotos.models.Sexo;
 
 import junit.framework.Test;
@@ -28,10 +30,10 @@ public class ClienteServiceContractTest extends TestCase {
     public void testBuscarPorCiRetornaResultadoDelDAO() {
         FakeClienteDAO clienteDAO = new FakeClienteDAO();
         Cliente cliente = new Cliente(1, "99123112345", "Ana", "Perez", "Lopez", 30, Sexo.FEMENINO, "55512345", 1);
-        clienteDAO.clienteBuscado = java.util.Optional.of(cliente);
+        clienteDAO.clienteBuscado = Optional.of(cliente);
         ClienteService clienteService = new ClienteService(clienteDAO);
 
-        java.util.Optional<Cliente> resultado = clienteService.buscarPorCi("99123112345");
+        Optional<Cliente> resultado = clienteService.buscarPorCi("99123112345");
 
         assertEquals(clienteDAO.clienteBuscado, resultado);
         assertEquals("99123112345", clienteDAO.ultimoCiBuscado);
@@ -41,7 +43,7 @@ public class ClienteServiceContractTest extends TestCase {
         FakeClienteDAO clienteDAO = new FakeClienteDAO();
         ClienteService clienteService = new ClienteService(clienteDAO);
 
-        java.util.Optional<Cliente> resultado = clienteService.buscarPorCi("00000000000");
+        Optional<Cliente> resultado = clienteService.buscarPorCi("00000000000");
 
         assertFalse(resultado.isPresent());
         assertEquals("00000000000", clienteDAO.ultimoCiBuscado);
@@ -140,17 +142,17 @@ public class ClienteServiceContractTest extends TestCase {
 
         @Override
         public List<Cliente> listarTodos() {
-            return new ArrayList<Cliente>();
+            return new ArrayList<>();
         }
 
         @Override
         public List<ClienteDTO> listarClientesPorMunicipio() {
-            return new ArrayList<ClienteDTO>();
+            return new ArrayList<>();
         }
 
         @Override
         public List<Cliente> obtenerClientesIncumplidores() {
-            return new ArrayList<Cliente>();
+            return new ArrayList<>();
         }
 
         @Override
@@ -165,6 +167,37 @@ public class ClienteServiceContractTest extends TestCase {
 
         @Override
         public List<IncumpDTO> listarIncumplidores() {
+            return new ArrayList<>();
+        }
+
+        // Métodos adicionales de IClienteDAO
+        @Override
+        public Optional<Cliente> buscarPorId(int idCliente) {
+            return Optional.empty();
+        }
+
+        @Override
+        public Optional<Cliente> buscarPorIdUsuario(int idUsuario) {
+            return Optional.empty();
+        }
+
+        @Override
+        public List<ClienteUsuarioDTO> listarClientesConUsuario() {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public String obtenerNombreMunicipio(int idMunicipio) {
+            return "";
+        }
+
+        @Override
+        public List<Cliente> buscarClientesPorTexto(String texto) {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public List<Municipio> listarMunicipios() {
             return new ArrayList<>();
         }
     }
