@@ -55,7 +55,7 @@ public class ContratoServiceContractTest extends TestCase {
         FakeMotoDAO motoDAO = new FakeMotoDAO();
         clienteDAO.cliente = Optional.of(new Cliente(1, "99123112345", "Ana", "Perez", "Lopez", 30, Sexo.FEMENINO, "65512345", 1));
         motoDAO.moto = Optional.of(crearMoto(1, "MO0001"));
-        motoDAO.disponible = false;
+        motoDAO.solapamiento = true;   // simula que la moto no está disponible (solapamiento de fechas)
         ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
         Contrato contrato = crearContrato(1, 1);
 
@@ -77,7 +77,7 @@ public class ContratoServiceContractTest extends TestCase {
         FakeMotoDAO motoDAO = new FakeMotoDAO();
         clienteDAO.cliente = Optional.of(new Cliente(1, "99123112345", "Ana", "Perez", "Lopez", 30, Sexo.FEMENINO, "65512345", 1));
         motoDAO.moto = Optional.of(crearMoto(1, "MO0001"));
-        motoDAO.disponible = true;
+        motoDAO.solapamiento = false;
         ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
         Contrato contrato = crearContrato(1, 1);
 
@@ -555,7 +555,7 @@ public class ContratoServiceContractTest extends TestCase {
 
         @Override
         public Optional<Cliente> buscarPorId(int idCliente) {
-            return Optional.empty();
+            return cliente;
         }
 
         @Override
@@ -585,7 +585,7 @@ public class ContratoServiceContractTest extends TestCase {
     }
 
     private static final class FakeMotoDAO implements IMotoDAO {
-        private boolean disponible;
+        private boolean solapamiento = false;
         private int buscarPorIdCount;
         private int cambiarEstadoCount;
         private Optional<Moto> moto = Optional.empty();
@@ -635,7 +635,7 @@ public class ContratoServiceContractTest extends TestCase {
 
         @Override
         public boolean estaDisponible(Integer idMoto) {
-            return disponible;
+            return false;
         }
 
         @Override
@@ -695,7 +695,7 @@ public class ContratoServiceContractTest extends TestCase {
 
         @Override
         public boolean existeSolapamiento(int idMoto, LocalDate inicio, LocalDate fin) {
-            return false;
+            return solapamiento;
         }
     }
 }
