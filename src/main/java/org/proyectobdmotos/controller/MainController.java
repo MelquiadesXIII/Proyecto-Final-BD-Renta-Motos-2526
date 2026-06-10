@@ -114,6 +114,11 @@ public class MainController {
         }
     }
 
+    @FXML
+    private void onShowMarcasModelos() {
+        loadView("/fxml/marcas-modelos.fxml", "Marcas y Modelos");
+    }
+
     /**
      * Permite que otros controladores carguen una vista en el panel central.
      */
@@ -183,4 +188,6 @@ public class MainController {
             }
         });
     }
+
+
 }
