@@ -1,21 +1,13 @@
 package org.proyectobdmotos.services;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.proyectobdmotos.dto.MotoRepDTO;
-import org.proyectobdmotos.dto.SitMotoRepDTO;
-import org.proyectobdmotos.models.Color;
-import org.proyectobdmotos.models.Marca;
-import org.proyectobdmotos.models.Modelo;
-import java.sql.SQLException;
 import org.proyectobdmotos.dao.IMotoDAO;
-import org.proyectobdmotos.dto.MotoDTO;
-import org.proyectobdmotos.dto.MotoRepDTO;
-import org.proyectobdmotos.dto.SitMotoRepDTO;
-import org.proyectobdmotos.dto.SituacionMotoDTO;
+import org.proyectobdmotos.dto.*;
 import org.proyectobdmotos.models.*;
 
 import junit.framework.Test;
@@ -197,18 +189,6 @@ public class MotoServiceContractTest extends TestCase {
             return false;
         }
 
-
-        // ===================== REPORTES Y OTROS =====================
-        @Override
-        public List<MotoRepDTO> listarMotosReporte() {
-            return new ArrayList<>();
-        }
-
-        @Override
-        public List<SitMotoRepDTO> listarSituacionMotosReporte() {
-            return new ArrayList<>();
-        }
-
         @Override
         public ArrayList<Color> obtenerColores() throws SQLException {
             return new ArrayList<>();
@@ -242,6 +222,31 @@ public class MotoServiceContractTest extends TestCase {
         @Override
         public String obtenerNombreColorPorId(int idColor) throws SQLException {
             return null;
+        }
+
+        @Override
+        public List<MotoRepDTO> listarMotosReporte() {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public List<SitMotoRepDTO> listarSituacionMotosReporte() {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public List<Moto> listarMotosDisponiblesEntre(LocalDate inicio, LocalDate fin) {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public List<MotoDisponibleDTO> listarMotosDisponiblesDetalle(LocalDate inicio, LocalDate fin) {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public boolean existeSolapamiento(int idMoto, LocalDate inicio, LocalDate fin) {
+            return false;
         }
     }
 }
