@@ -79,7 +79,7 @@ public class ClienteServiceContractTest extends TestCase {
             indiceMetodo++;
         }
 
-        assertFalse(tieneBuscarPorId);
+        assertTrue(tieneBuscarPorId);
     }
 
     public void testConsumoLegadoFallaPorAliasRemovidoEnClienteService() {
@@ -159,7 +159,6 @@ public class ClienteServiceContractTest extends TestCase {
         public void eliminarConCascada(Integer idCliente) {
         }
 
-        // ===================== REPORTES =====================
         @Override
         public List<CliRepDTO> listarClientesReporte() {
             return new ArrayList<>();
@@ -170,10 +169,9 @@ public class ClienteServiceContractTest extends TestCase {
             return new ArrayList<>();
         }
 
-        // Métodos adicionales de IClienteDAO
         @Override
         public Optional<Cliente> buscarPorId(int idCliente) {
-            return Optional.empty();
+            return clienteBuscado;
         }
 
         @Override
