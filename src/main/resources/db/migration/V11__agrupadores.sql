@@ -1,5 +1,5 @@
 
-DROP FUNCTION obtener_colores();
+DROP FUNCTION IF EXISTS obtener_colores();
 -- Función que devuelve el nombre de todos los colores
 CREATE OR REPLACE FUNCTION obtener_colores()
 RETURNS TABLE (
