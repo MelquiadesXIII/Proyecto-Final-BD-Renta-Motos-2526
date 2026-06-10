@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<StackPane xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="org.proyectobdmotos.controller.MarcasModelosController"
+           stylesheets="@/styles/marcas-modelos.css"
+           alignment="CENTER">
+    <GridPane hgap="0" vgap="0" alignment="CENTER">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="20"/>
+            <ColumnConstraints percentWidth="60"/>
+            <ColumnConstraints percentWidth="20"/>
+        </columnConstraints>
+        <VBox spacing="15" styleClass="form-box" GridPane.columnIndex="1">
+            <Label text="Marcas y Modelos" styleClass="form-title"/>
+            <TableView fx:id="tabla" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn text="Modelo" fx:id="colModelo"/>
+                    <TableColumn text="Marca" fx:id="colMarca"/>
+                </columns>
+            </TableView>
+            <HBox alignment="CENTER" spacing="15">
+                <Button text="Crear Modelo o Marca" onAction="#onNuevo" styleClass="btn-guardar"/>
+                <Button text="Editar" onAction="#onEditar" styleClass="btn-accion"/>
+                <Button text="Eliminar" onAction="#onEliminar" styleClass="btn-cancelar"/>
+            </HBox>
+        </VBox>
+    </GridPane>
+</StackPane>
