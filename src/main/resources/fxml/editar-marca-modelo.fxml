@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<StackPane xmlns="http://javafx.com/javafx/19"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="org.proyectobdmotos.controller.EditarMarcaModeloController"
+           stylesheets="@/styles/marcas-modelos.css"
+           alignment="CENTER">
+
+    <fx:define>
+        <ToggleGroup fx:id="grupoTipo" />
+    </fx:define>
+
+    <GridPane hgap="0" vgap="0" alignment="CENTER">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="25" />
+            <ColumnConstraints percentWidth="50" />
+            <ColumnConstraints percentWidth="25" />
+        </columnConstraints>
+
+        <VBox spacing="15" styleClass="form-box" GridPane.columnIndex="1">
+            <Label text="Editar Modelo o Marca" styleClass="form-title" />
+
+            <RadioButton text="Modelo" fx:id="radioModelo" toggleGroup="$grupoTipo" />
+            <RadioButton text="Marca" fx:id="radioMarca" toggleGroup="$grupoTipo" />
+
+            <Label text="Seleccione el elemento a editar:" />
+            <ComboBox fx:id="comboModelo" promptText="Modelo" visible="false" managed="false" />
+            <ComboBox fx:id="comboMarca" promptText="Marca" visible="false" managed="false" />
+
+            <TextField fx:id="campoNombreModelo" promptText="Nuevo nombre del modelo" visible="false" managed="false" />
+            <TextField fx:id="campoNombreMarca" promptText="Nuevo nombre de la marca" visible="false" managed="false" />
+
+            <!-- Marca asociada -->
+            <Label text="Marca asociada:" visible="false" managed="false" fx:id="labelMarcaAsociada" />
+            <Label fx:id="valorMarcaAsociada" text="" visible="false" managed="false"
+                   style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;" />
+
+            <HBox spacing="20" alignment="CENTER">
+                <Button text="Guardar" onAction="#onGuardar" styleClass="btn-guardar" />
+                <Button text="Cancelar" onAction="#onCancelar" styleClass="btn-cancelar" />
+            </HBox>
+        </VBox>
+    </GridPane>
+</StackPane>
