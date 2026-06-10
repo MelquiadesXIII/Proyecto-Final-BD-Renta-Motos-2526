@@ -60,19 +60,49 @@ public class MarcaDAO extends AbstractGenericDAO<Marca, Integer> {
     }
 
     public boolean existeMarca(String nombre) {
-        String sql = "SELECT existe_marca(?) AS existe";
+        String sql = "SELECT existe_marca(?)";
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setString(1, nombre);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getBoolean("existe");
-                }
-            }
+            ResultSet rs = ps.executeQuery();
+            return rs.next() && rs.getBoolean(1);
         } catch (SQLException e) {
-            e.printStackTrace();
-            Logger.logError("Error al verificar marca: " + e.getMessage());
             throw new RuntimeException("Error al verificar marca", e);
         }
-        return false;
+    }
+
+    public boolean existenModelosConMarca(int idMarca) {
+        String sql = "SELECT existen_modelos_con_marca(?)";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setInt(1, idMarca);
+            ResultSet rs = ps.executeQuery();
+            return rs.next() && rs.getBoolean(1);
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al verificar modelos con marca", e);
+        }
+    }
+
+    public boolean existenMotosConMarca(int idMarca) {
+        String sql = "SELECT existen_motos_con_marca(?)";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setInt(1, idMarca);
+            ResultSet rs = ps.executeQuery();
+            return rs.next() && rs.getBoolean(1);
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al verificar motos con marca", e);
+        }
+    }
+
+    public void eliminarMarca(int idMarca) {
+        String sql = "DELETE FROM marca WHERE id_marca = ?";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setInt(1, idMarca);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al eliminar marca", e);
+        }
+    }
+
+    public void actualizarMarca(Marca marca) {
+        actualizar(marca);
     }
 }
