@@ -1,1 +1,1 @@
-DROP FUNCTION IF EXISTS set_moto_alquilada();
+DROP FUNCTION IF EXISTS set_moto_alquilada() CASCADE;
