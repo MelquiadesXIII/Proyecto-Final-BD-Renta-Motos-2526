@@ -1,11 +1,11 @@
 package org.proyectobdmotos.dto;
 
 public class MotoDisponibleDTO {
-    private final int idMoto;
-    private final String matricula;
-    private final String marca;
-    private final String modelo;
-    private final String color;
+    private int idMoto;
+    private String matricula;
+    private String marca;
+    private String modelo;
+    private String color;
 
     public MotoDisponibleDTO(int idMoto, String matricula, String marca, String modelo, String color) {
         this.idMoto = idMoto;
