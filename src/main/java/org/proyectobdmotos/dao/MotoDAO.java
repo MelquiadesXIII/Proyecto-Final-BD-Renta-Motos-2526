@@ -409,7 +409,6 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
         return lista;
     }
 
-
     public List<Moto> listarMotosDisponiblesEntre(LocalDate inicio, LocalDate fin) {
         String sql = "SELECT * FROM motos_disponibles_entre(?, ?)";
         List<Moto> lista = new ArrayList<>();
@@ -431,14 +430,13 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
     }
 
     public List<MotoDisponibleDTO> listarMotosDisponiblesDetalle(LocalDate inicio, LocalDate fin) {
-        String sql = "SELECT * FROM motos_disponibles_detalle(?, ?)";
+        String sql = "SELECT * FROM obtener_motos_libres(?, ?)";
         List<MotoDisponibleDTO> lista = new ArrayList<>();
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setDate(1, java.sql.Date.valueOf(inicio));
             ps.setDate(2, java.sql.Date.valueOf(fin));
             try (ResultSet rs = ps.executeQuery()) {
-                boolean hayFila = rs.next();
-                while (hayFila) {
+                while (rs.next()) {
                     lista.add(new MotoDisponibleDTO(
                             rs.getInt("id_moto"),
                             rs.getString("matricula_moto"),
@@ -446,7 +444,6 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
                             rs.getString("nombre_modelo"),
                             rs.getString("nombre_color")
                     ));
-                    hayFila = rs.next();
                 }
             }
         } catch (SQLException e) {
@@ -455,6 +452,7 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
         }
         return lista;
     }
+
     public boolean existeSolapamiento(int idMoto, LocalDate inicio, LocalDate fin) {
         String sql = "SELECT COUNT(*) FROM contrato WHERE id_moto = ? AND (fecha_inicio, fecha_fin) OVERLAPS (?, ?)";
         boolean solapamiento = false;
