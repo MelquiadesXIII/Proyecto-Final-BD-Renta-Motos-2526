@@ -160,7 +160,6 @@ public class ContratoFormController {
     }
 
     private void configurarComboMoto() {
-        // Mostramos Marca, Modelo y Color en el combo
         comboMoto.setCellFactory(param -> new ListCell<MotoDisponibleDTO>() {
             @Override
             protected void updateItem(MotoDisponibleDTO item, boolean empty) {
