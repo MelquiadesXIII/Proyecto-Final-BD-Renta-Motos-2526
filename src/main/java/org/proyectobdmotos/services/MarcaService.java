@@ -1,11 +1,12 @@
 package org.proyectobdmotos.services;
 
+import org.proyectobdmotos.dao.IMarcaDAO;
 import org.proyectobdmotos.dao.MarcaDAO;
 import org.proyectobdmotos.models.Marca;
 import java.util.List;
 
 public class MarcaService {
-    private final MarcaDAO marcaDAO;
+    private final IMarcaDAO marcaDAO;
 
     public MarcaService(MarcaDAO marcaDAO) { this.marcaDAO = marcaDAO; }
 
