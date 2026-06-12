@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<ScrollPane xmlns="http://javafx.com/javafx/19"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.proyectobdmotos.controller.MisContratosController"
+            stylesheets="@/styles/mis-contratos.css"
+            fitToWidth="true"
+            style="-fx-background: transparent;">
+
+    <VBox alignment="CENTER" spacing="10" style="-fx-padding: 20;">
+        <Label text="Motos disponibles" styleClass="section-title" />
+        <TableView fx:id="tablaMotos" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn text="Matrícula" fx:id="colMatricula" />
+                <TableColumn text="Marca" fx:id="colMarca" />
+                <TableColumn text="Modelo" fx:id="colModelo" />
+                <TableColumn text="Color" fx:id="colColor" />
+                <TableColumn text="Km" fx:id="colKm" />
+            </columns>
+        </TableView>
+
+        <Label text="Mis Contratos" styleClass="section-title" />
+        <Label fx:id="labelSinContratos" text="Sin Ningún Contrato" styleClass="sin-contratos-label" />
+        <TableView fx:id="tablaContratos" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn text="Moto" fx:id="colContratoMoto" />
+                <TableColumn text="Inicio" fx:id="colFechaInicio" />
+                <TableColumn text="Fin" fx:id="colFechaFin" />
+                <TableColumn text="Costo" fx:id="colCosto" />
+                <TableColumn text="Entrega" fx:id="colFechaEntrega" />
+            </columns>
+        </TableView>
+
+        <HBox spacing="20" alignment="CENTER">
+            <Button text="Crear Nuevo Contrato" onAction="#onCrearNuevoContrato" styleClass="btn-primary" />
+            <Button text="Finalizar Contrato" onAction="#onFinalizarContrato" fx:id="btnFinalizarContrato" styleClass="btn-danger" />
+        </HBox>
+    </VBox>
+</ScrollPane>
