@@ -8,12 +8,14 @@ import org.proyectobdmotos.ui.AppCompositionRoot;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 
+
 /**
  * ScreenLoader: carga pantallas FXML y crea controllers con inyección de
  * dependencias.
  * Usa FXMLLoader.setControllerFactory para evitar singletons y `new` en lugares
  * arbitrarios.
  */
+
 public final class ScreenLoader {
 
     private final AppCompositionRoot compositionRoot;
@@ -39,7 +41,7 @@ public final class ScreenLoader {
         loader.setControllerFactory(controllerClass -> {
             Logger.log("→ Creando controller: " + controllerClass.getSimpleName());
 
-            // Listas principales
+            // ========== ADMIN / LISTADOS ==========
             if (controllerClass == ClienteController.class) {
                 return new ClienteController(this,
                         compositionRoot.getClienteService(),
@@ -62,11 +64,19 @@ public final class ScreenLoader {
                         compositionRoot.getReferenceDataStore());
             }
 
+            // ========== FORMULARIOS ==========
             if (controllerClass == ClienteFormController.class) {
                 return new ClienteFormController(
                         compositionRoot.getClienteService(),
                         compositionRoot.getUsuarioService(),
                         compositionRoot.getReferenceDataStore());
+            }
+
+            if (controllerClass == ContratoUsuarioFormController.class) {
+                return new ContratoUsuarioFormController(
+                        compositionRoot.getContratoService(),
+                        compositionRoot.getMotoService(),
+                        compositionRoot.getAgenciaStore());
             }
 
             if (controllerClass == MotoFormController.class) {
@@ -76,21 +86,6 @@ public final class ScreenLoader {
                         compositionRoot.getReferenceDataStore(),
                         compositionRoot.getMarcaService(),
                         compositionRoot.getModeloService());
-            }
-
-            if (controllerClass == LoginController.class) {
-                return new LoginController(this, compositionRoot.getUsuarioService());
-            }
-
-            if (controllerClass == MainController.class) {
-                return new MainController(this);
-            }
-
-            if (controllerClass == RegistroController.class) {
-                return new RegistroController(this,
-                        compositionRoot.getUsuarioService(),
-                        compositionRoot.getClienteService(),
-                        compositionRoot.getReferenceDataStore());
             }
 
             if (controllerClass == ContratoFormController.class) {
@@ -103,6 +98,7 @@ public final class ScreenLoader {
             if (controllerClass == MarcaFormController.class) {
                 return new MarcaFormController(compositionRoot.getMarcaService());
             }
+
             if (controllerClass == ModeloFormController.class) {
                 return new ModeloFormController(
                         compositionRoot.getMotoService(),
@@ -117,6 +113,62 @@ public final class ScreenLoader {
                         compositionRoot.getMotoService());
             }
 
+            if (controllerClass == EliminarMarcaModeloController.class) {
+                return new EliminarMarcaModeloController(
+                        compositionRoot.getModeloService(),
+                        compositionRoot.getMarcaService());
+            }
+
+            // ========== NAVEGACIÓN PRINCIPAL ==========
+            if (controllerClass == LoginController.class) {
+                return new LoginController(this,
+                        compositionRoot.getUsuarioService(),
+                        compositionRoot.getAgenciaStore(),
+                        compositionRoot.getClienteService());
+            }
+
+            if (controllerClass == MainController.class) {
+                return new MainController(this);
+            }
+
+            if (controllerClass == UserMainController.class) {
+                return new UserMainController(this);
+            }
+
+            if (controllerClass == RegistroController.class) {
+                return new RegistroController(this,
+                        compositionRoot.getUsuarioService(),
+                        compositionRoot.getClienteService(),
+                        compositionRoot.getReferenceDataStore(),
+                        compositionRoot.getAgenciaStore());
+            }
+
+            // ========== PANTALLAS DEL USUARIO ==========
+            if (controllerClass == BienvenidoUsuarioController.class) {
+                return new BienvenidoUsuarioController(compositionRoot.getAgenciaStore());
+            }
+
+            if (controllerClass == MisContratosController.class) {
+                return new MisContratosController(
+                        compositionRoot.getMotoService(),
+                        compositionRoot.getContratoService(),
+                        compositionRoot.getAgenciaStore());
+            }
+
+            if (controllerClass == PerfilController.class) {
+                return new PerfilController(compositionRoot.getAgenciaStore());
+            }
+
+            // ========== AYUDA ==========
+            if (controllerClass == AyudaController.class) {
+                return new AyudaController();
+            }
+
+            if (controllerClass == BienvenidoAdminController.class) {
+                return new BienvenidoAdminController(compositionRoot.getAgenciaStore());
+            }
+
+            // ========== OTROS ==========
             if (controllerClass == TerminosController.class) {
                 return new TerminosController(this);
             }
@@ -127,15 +179,9 @@ public final class ScreenLoader {
                         compositionRoot.getMotoService(),
                         compositionRoot.getContratoService());
             }
-            
+
             if (controllerClass == MarcasModelosController.class) {
                 return new MarcasModelosController(compositionRoot.getModeloService());
-            }
-
-            if (controllerClass == EliminarMarcaModeloController.class) {
-                return new EliminarMarcaModeloController(
-                        compositionRoot.getModeloService(),
-                        compositionRoot.getMarcaService());
             }
 
             if (controllerClass == InventarioController.class) {
