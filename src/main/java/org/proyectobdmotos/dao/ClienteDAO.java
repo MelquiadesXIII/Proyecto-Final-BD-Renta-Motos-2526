@@ -27,8 +27,8 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
     @Override
     protected String getInsertSQL() {
         return "INSERT INTO cliente (ci_cliente, nombre_cliente, primer_apellido, "
-                + "segundo_apellido, edad, id_sexo, numero_contacto, id_municipio) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                + "segundo_apellido, edad, id_sexo, numero_contacto, id_municipio, id_usuario) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     }
 
     @Override
@@ -63,6 +63,7 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
         ps.setInt(6, cliente.getSexo().getId());
         ps.setString(7, cliente.getNumeroContacto());
         ps.setInt(8, cliente.getIdMunicipio());
+        ps.setInt(9, cliente.getIdUsuario());
     }
 
     @Override
