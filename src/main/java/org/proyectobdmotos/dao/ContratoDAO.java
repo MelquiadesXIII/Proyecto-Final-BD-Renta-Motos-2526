@@ -264,28 +264,40 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
     }
 
     public List<MisContratosDTO> listarMisContratos(int idCliente) {
-        String sql = "SELECT * FROM mis_contratos(?)";
+        String sql = """
+        SELECT co.id_contrato,
+               m.matricula_moto || ' - ' || ma.nombre_marca || ' ' || mo.nombre_modelo AS moto_info,
+               co.fecha_inicio,
+               co.fecha_fin,
+               co.fecha_entrega,
+               (co.tarifa_normal * (co.fecha_fin - co.fecha_inicio + 1) +
+                co.tarifa_prorroga * co.dias_prorroga) AS importe
+        FROM contrato co
+        JOIN moto m ON co.id_moto = m.id_moto
+        JOIN modelo mo ON m.id_modelo = mo.id_modelo
+        JOIN marca ma ON mo.id_marca = ma.id_marca
+        WHERE co.id_cliente = ?
+        ORDER BY co.fecha_inicio DESC
+        """;
+
         List<MisContratosDTO> lista = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, idCliente);
             try (ResultSet rs = ps.executeQuery()) {
-                boolean hayFila = rs.next();
-                while (hayFila) {
+                while (rs.next()) {
+                    String fechaEntregaStr = rs.getDate("fecha_entrega") != null ?
+                            rs.getDate("fecha_entrega").toLocalDate().toString() : "Sin entregar";
                     lista.add(new MisContratosDTO(
                             rs.getInt("id_contrato"),
-                            rs.getString("matricula_moto"),
-                            rs.getString("marca"),
-                            rs.getString("modelo"),
-                            rs.getDate("fecha_inicio").toLocalDate(),
-                            rs.getDate("fecha_fin").toLocalDate(),
-                            rs.getString("estado"),
-                            rs.getDouble("importe")
+                            rs.getString("moto_info"),
+                            rs.getDate("fecha_inicio").toLocalDate().toString(),
+                            rs.getDate("fecha_fin").toLocalDate().toString(),
+                            rs.getDouble("importe"),
+                            fechaEntregaStr
                     ));
-                    hayFila = rs.next();
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
             Logger.logError("Error al listar mis contratos: " + e.getMessage());
             throw new RuntimeException("Error al listar mis contratos", e);
         }
