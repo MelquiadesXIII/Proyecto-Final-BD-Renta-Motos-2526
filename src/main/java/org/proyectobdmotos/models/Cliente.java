@@ -116,6 +116,17 @@ public class Cliente {
         this.idMunicipio = idMunicipio;
     }
 
+    public String getNombreCompleto() {
+        String completo = nombreCliente;
+        if (primerApellido != null && !primerApellido.isEmpty()) {
+            completo += " " + primerApellido;
+        }
+        if (segundoApellido != null && !segundoApellido.isEmpty()) {
+            completo += " " + segundoApellido;
+        }
+        return completo;
+    }
+
     public Integer getIdUsuario() { 
         return idUsuario; 
     }
