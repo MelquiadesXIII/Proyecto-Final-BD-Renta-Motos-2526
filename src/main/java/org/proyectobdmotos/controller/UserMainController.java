@@ -1,148 +1,114 @@
-/*
 package org.proyectobdmotos.controller;
 
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.StackPane;
-import javafx.stage.Stage;
-import org.proyectobdmotos.models.Cliente;
-import org.proyectobdmotos.models.Usuario;
-import org.proyectobdmotos.services.ClienteService;
-import org.proyectobdmotos.services.UsuarioService;
-import org.proyectobdmotos.stores.AgenciaStore;
-import org.proyectobdmotos.ui.navigation.NavigationHistory;
+import java.io.IOException;
+import java.util.Stack;
+
 import org.proyectobdmotos.ui.navigation.ScreenLoader;
 import org.proyectobdmotos.utils.Logger;
-import org.proyectobdmotos.utils.ScreenUtils;
-import org.proyectobdmotos.utils.TermsWindow;
-import java.io.IOException;
+import javafx.fxml.FXML;
+import javafx.scene.Parent;
+import javafx.scene.control.Alert;
+import javafx.scene.input.KeyCode;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 
-public class LoginController {
-
-    @FXML private TextField campoUsuario;
-    @FXML private PasswordField campoContrasena;
-    @FXML private ImageView fondoLogin;
-
+public class UserMainController {
     private final ScreenLoader screenLoader;
-    private final UsuarioService usuarioService;
-    private final AgenciaStore agenciaStore;
-    private final ClienteService clienteService;
+    private String fxmlActual;
+    private final Stack<String> historial;
+    private static UserMainController instance;
 
-    public LoginController(ScreenLoader screenLoader, UsuarioService usuarioService,
-                           AgenciaStore agenciaStore, ClienteService clienteService) {
+    @FXML private StackPane contentContainer;
+
+    public UserMainController(ScreenLoader screenLoader) {
         this.screenLoader = screenLoader;
-        this.usuarioService = usuarioService;
-        this.agenciaStore = agenciaStore;
-        this.clienteService = clienteService;
+        this.historial = new Stack<>();
+        instance = this;
     }
 
+    public static UserMainController getInstance() { return instance; }
+
     @FXML
-    public void initialize() {
-        Logger.log("LoginController inicializado");
-        if (fondoLogin != null) {
-            StackPane parent = (StackPane) fondoLogin.getParent();
-            fondoLogin.fitWidthProperty().bind(parent.widthProperty());
-            fondoLogin.fitHeightProperty().bind(parent.heightProperty());
-        }
+    private void initialize() {
+        Logger.log("Inicializando UserMainController...");
+        contentContainer.setMaxWidth(Double.MAX_VALUE);
+        contentContainer.setMaxHeight(Double.MAX_VALUE);
+        showInitialView();
+        setupKeyboardShortcut();
     }
 
-    @FXML
-    private void onIngresar() {
-        String usuario = campoUsuario.getText().trim();
-        String pass = campoContrasena.getText().trim();
+    @FXML private void onShowPerfil() { loadView("/fxml/perfil.fxml", "Perfil"); }
+    @FXML private void onShowMisContratos() { loadView("/fxml/mis-contratos.fxml", "Mis Contratos"); }
+    @FXML private void onShowAyuda() { loadView("/fxml/ayuda.fxml", "Ayuda"); }
 
-        if (usuario.isEmpty() || pass.isEmpty()) {
-            mostrarError("Campos vacíos", "Por favor, ingresa usuario y contraseña.");
+    public void onGoBack() {
+        if (historial.isEmpty()) {
+            Logger.logInfo("Historial vacío, no se puede retroceder");
         } else {
+            String fxmlAnterior = historial.pop();
             try {
-                Usuario user = usuarioService.autenticar(usuario, pass);
-                Logger.logInfo("Login exitoso: " + user.getNombreUsuario());
-
-                if (user.isEsAdmin()) {
-                    irAPantallaPrincipal();
-                } else {
-                    Cliente cliente = clienteService.obtenerPorIdUsuario(user.getIdUsuario());
-                    agenciaStore.setClienteActual(cliente);
-                    irAPantallaUsuario(user);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                mostrarError("Error de autenticación", e.getMessage());
+                Parent vista = screenLoader.load(fxmlAnterior);
+                configurarEscalado(vista);
+                fxmlActual = fxmlAnterior;
+                contentContainer.getChildren().setAll(vista);
+                Logger.logInfo("Retrocediendo a: " + fxmlAnterior);
+            } catch (IOException e) {
+                Logger.logError("Error al retroceder: " + e.getMessage());
+                showLoadError("Retroceder", e);
             }
         }
     }
 
-    private void irAPantallaPrincipal() {
+    public void cargarVista(String fxmlPath, String nombreVista) { loadView(fxmlPath, nombreVista); }
+
+    private void showInitialView() {
+        historial.clear();
+        loadView("/fxml/bienvenido-usuario.fxml", "Bienvenida");
+    }
+
+    private void loadView(String fxmlPath, String viewName) {
+        if (fxmlActual != null) { historial.push(fxmlActual); }
+        Parent viewRoot = null;
         try {
-            Parent mainRoot = screenLoader.load("/fxml/main.fxml");
-            Scene scene = new Scene(mainRoot, ScreenUtils.getWidth(), ScreenUtils.getHeight());
-            scene.getStylesheets().addAll(
-                    getClass().getResource("/styles/app.css").toExternalForm(),
-                    getClass().getResource("/styles/default.css").toExternalForm());
-            Stage stage = (Stage) campoUsuario.getScene().getWindow();
-            stage.setScene(scene);
-            stage.setTitle("Renta Motos - Sistema de Gestión");
-            stage.setMaximized(true);
-            Logger.logInfo("Login administrador exitoso");
+            viewRoot = screenLoader.load(fxmlPath);
         } catch (IOException e) {
-            Logger.logError("Error al cargar main.fxml: " + e.getMessage());
-            mostrarError("Error", "No se pudo abrir la aplicación principal.");
+            Logger.logError("Error cargando vista " + viewName + ": " + e.getMessage());
+            showLoadError(viewName, e);
+        }
+        if (viewRoot != null) {
+            fxmlActual = fxmlPath;
+            configurarEscalado(viewRoot);
+            contentContainer.getChildren().setAll(viewRoot);
+            Logger.logInfo("Vista activa: " + viewName);
         }
     }
 
-    private void irAPantallaUsuario(Usuario usuario) {
-        try {
-            Parent userMainRoot = screenLoader.load("/fxml/user-main.fxml");
-            Scene scene = new Scene(userMainRoot, ScreenUtils.getWidth(), ScreenUtils.getHeight());
-            scene.getStylesheets().addAll(
-                    getClass().getResource("/styles/app.css").toExternalForm(),
-                    getClass().getResource("/styles/default.css").toExternalForm());
-            Stage stage = (Stage) campoUsuario.getScene().getWindow();
-            stage.setScene(scene);
-            stage.setTitle("Renta Motos - " + usuario.getNombreUsuario());
-            stage.setMaximized(true);
-            Logger.logInfo("Login cliente exitoso: " + usuario.getNombreUsuario());
-        } catch (IOException e) {
-            Logger.logError("Error al cargar user-main.fxml: " + e.getMessage());
-            mostrarError("Error", "No se pudo abrir la interfaz de usuario.");
+    private void configurarEscalado(Parent root) {
+        if (root instanceof Region) {
+            Region region = (Region) root;
+            region.setMaxWidth(Double.MAX_VALUE);
+            region.setMaxHeight(Double.MAX_VALUE);
         }
     }
 
-    @FXML
-    private void goToRegister() {
-        try {
-            NavigationHistory.push("/fxml/login.fxml");
-            Parent registerRoot = screenLoader.load("/fxml/registro.fxml");
-            Scene scene = new Scene(registerRoot, ScreenUtils.getWidth(), ScreenUtils.getHeight());
-            scene.getStylesheets().add(getClass().getResource("/styles/register.css").toExternalForm());
-            Stage stage = (Stage) campoUsuario.getScene().getWindow();
-            stage.setScene(scene);
-            stage.setTitle("Crear cuenta");
-            stage.setMaximized(true);
-        } catch (IOException e) {
-            Logger.logError("Error al cargar registro: " + e.getMessage());
-            mostrarError("Error", "No se pudo abrir el registro.");
-        }
+    private void showLoadError(String viewName, Exception exception) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error de navegación");
+        alert.setHeaderText("No se pudo abrir la vista de " + viewName);
+        alert.setContentText(exception.getMessage());
+        alert.showAndWait();
     }
 
-    @FXML
-    private void goToTerms() {
-        TermsWindow.show((Stage) campoUsuario.getScene().getWindow());
-    }
-
-    private void mostrarError(String titulo, String mensaje) {
-        Alert alerta = new Alert(Alert.AlertType.ERROR);
-        alerta.setTitle(titulo);
-        alerta.setHeaderText(null);
-        alerta.setContentText(mensaje);
-        alerta.showAndWait();
+    private void setupKeyboardShortcut() {
+        contentContainer.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                newScene.setOnKeyPressed(event -> {
+                    if (event.isControlDown() && event.getCode() == KeyCode.BACK_SPACE) {
+                        onGoBack();
+                        event.consume();
+                    }
+                });
+            }
+        });
     }
 }
-
- */
