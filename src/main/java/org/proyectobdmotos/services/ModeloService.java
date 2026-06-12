@@ -1,5 +1,6 @@
 package org.proyectobdmotos.services;
 
+import org.proyectobdmotos.dao.IModeloDAO;
 import org.proyectobdmotos.dao.ModeloDAO;
 import org.proyectobdmotos.dto.ModeloConMarcaDTO;
 import org.proyectobdmotos.models.Modelo;
@@ -7,7 +8,7 @@ import org.proyectobdmotos.models.Modelo;
 import java.util.List;
 
 public class ModeloService {
-    private final ModeloDAO modeloDAO;
+    private final IModeloDAO modeloDAO;
 
     public ModeloService(ModeloDAO modeloDAO) { this.modeloDAO = modeloDAO; }
 
