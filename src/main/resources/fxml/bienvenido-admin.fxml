@@ -2,12 +2,19 @@
 
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.text.Font?>
 
 <StackPane xmlns="http://javafx.com/javafx/19"
            xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="org.proyectobdmotos.controller.BienvenidoAdminController"
            stylesheets="@/styles/bienvenido-admin.css"
            styleClass="root-pane">
 
-    <Label text="Bienvenido a la Administración de las Motos"
-           styleClass="welcome-label" />
+    <Label fx:id="labelBienvenida"
+           text="Bienvenido a la Administración de las Motos"
+           styleClass="welcome-label">
+        <font>
+            <Font size="28.0" />
+        </font>
+    </Label>
 </StackPane>
