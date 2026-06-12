@@ -330,6 +330,17 @@ public class ContratoService {
         return contratoDAO.listarMisContratos(idCliente);
     }
 
+
+    public void finalizarContrato(int idContrato) {
+        Optional<Contrato> opt = contratoDAO.buscarPorId(idContrato);
+        if (opt.isEmpty()) {
+            throw new ValidationException(BusinessErrorCode.CONTRATO_NO_ENCONTRADO, "Contrato no existe");
+        }
+        Contrato c = opt.get();
+        c.setFechaEntrega(LocalDate.now());
+        finalizarContrato(c);
+    }
+
     // ===================== REPORTES =====================
 
     public List<ContRepDTO> listarContratosReporte() {

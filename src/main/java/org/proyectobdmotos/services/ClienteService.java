@@ -125,4 +125,6 @@ public class ClienteService {
     public List<Municipio> listarMunicipios() {
         return clienteDAO.listarMunicipios();
     }
+
+
 }
