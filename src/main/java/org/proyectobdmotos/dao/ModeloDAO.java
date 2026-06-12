@@ -8,7 +8,7 @@ import org.proyectobdmotos.dto.ModeloConMarcaDTO;
 import org.proyectobdmotos.models.Modelo;
 import org.proyectobdmotos.utils.Logger;
 
-public class ModeloDAO extends AbstractGenericDAO<Modelo, Integer> {
+public class ModeloDAO extends AbstractGenericDAO<Modelo, Integer> implements IModeloDAO {
 
     public ModeloDAO(Connection connection) {
         super(connection);
