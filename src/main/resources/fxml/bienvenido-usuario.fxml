@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.text.Font?>
+
+<StackPane xmlns="http://javafx.com/javafx/19"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="org.proyectobdmotos.controller.BienvenidoUsuarioController"
+           stylesheets="@/styles/bienvenido-usuario.css"
+           styleClass="root-pane">
+
+    <Label fx:id="labelBienvenida"
+           text="Bienvenido Usuario"
+           styleClass="welcome-label">
+        <font>
+            <Font size="28.0" />
+        </font>
+    </Label>
+</StackPane>
