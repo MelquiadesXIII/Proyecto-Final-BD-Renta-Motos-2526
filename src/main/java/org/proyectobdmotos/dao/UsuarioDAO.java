@@ -2,9 +2,11 @@ package org.proyectobdmotos.dao;
 
 import org.proyectobdmotos.database.DatabaseConnection;
 import org.proyectobdmotos.models.Usuario;
+import org.proyectobdmotos.utils.Logger;
+
 import java.sql.*;
 
-public class UsuarioDAO {
+public class UsuarioDAO implements IUsuarioDAO {
 
     private Connection getConnection() throws SQLException {
         return DatabaseConnection.getInstance();
@@ -95,6 +97,17 @@ public class UsuarioDAO {
             ps.setBoolean(4, usuario.isEsAdmin());
             ps.setInt(5, usuario.getId());
             ps.executeUpdate();
+        }
+    }
+
+    public void eliminarUsuario(int idUsuario) {
+        String sql = "DELETE FROM usuario WHERE id_usuario = ?";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setInt(1, idUsuario);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            Logger.logError("Error al eliminar usuario: " + e.getMessage());
+            throw new RuntimeException("Error al eliminar usuario", e);
         }
     }
 }
