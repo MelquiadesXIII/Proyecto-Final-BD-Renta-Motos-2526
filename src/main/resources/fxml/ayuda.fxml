@@ -1,13 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<VBox xmlns:fx="http://javafx.com/fxml"
-      spacing="10.0"
-      styleClass="list-screen">
-    <children>
-        <Label text="Ayuda" styleClass="screen-title"/>
-        <Label text="Pantalla base L4 con ayuda para el usuario."/>
-    </children>
-</VBox>
+<StackPane xmlns="http://javafx.com/javafx/19"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="org.proyectobdmotos.controller.AyudaController"
+           stylesheets="@/styles/ayuda.css">
+
+    <VBox alignment="CENTER" spacing="20" styleClass="ayuda-box">
+        <Label text="Créditos" styleClass="ayuda-title" />
+        <Label text="Desarrollado por:" styleClass="ayuda-text" />
+        <Label text="Eriet Dario Armas Gonzalez
+        DarelL Perdomo Gonzalez
+        Lian Carnos Gene Galvez" styleClass="ayuda-text" />
+        <Label text="Versión 1.0" styleClass="ayuda-text" />
+        <Label text="Esperando por Ti" styleClass="ayuda-message" />
+    </VBox>
+</StackPane>
