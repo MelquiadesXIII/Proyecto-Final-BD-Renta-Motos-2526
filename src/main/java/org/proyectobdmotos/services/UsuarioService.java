@@ -1,5 +1,6 @@
 package org.proyectobdmotos.services;
 
+import org.proyectobdmotos.dao.IUsuarioDAO;
 import org.proyectobdmotos.dao.UsuarioDAO;
 import org.proyectobdmotos.models.Usuario;
 import org.proyectobdmotos.services.exceptions.BusinessErrorCode;
@@ -10,7 +11,7 @@ import org.proyectobdmotos.utils.Logger;
 public class UsuarioService
 {
 
-    private final UsuarioDAO usuarioDAO;
+    private final IUsuarioDAO usuarioDAO;
 
     public UsuarioService(UsuarioDAO usuarioDAO) {
         this.usuarioDAO = usuarioDAO;
@@ -81,5 +82,9 @@ public class UsuarioService
             Logger.logError("Error al actualizar usuario: " + e.getMessage());
             throw new RuntimeException("Error al actualizar usuario", e);
         }
+    }
+
+    public void eliminarUsuario(int idUsuario) {
+        usuarioDAO.eliminarUsuario(idUsuario);
     }
 }
