@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.image.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/19"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.proyectobdmotos.controller.UserMainController"
+            stylesheets="@/styles/app.css">
+
+    <top>
+        <HBox styleClass="top-bar" spacing="10" alignment="CENTER_LEFT">
+            <Button onAction="#onGoBack" styleClass="back-button">
+                <graphic>
+                    <ImageView fitWidth="24" fitHeight="24">
+                        <image>
+                            <Image url="@../Utiles/flecha.jpg" />
+                        </image>
+                    </ImageView>
+                </graphic>
+            </Button>
+            <Label text="Renta Motos - Usuario" styleClass="top-title" />
+        </HBox>
+    </top>
+
+    <left>
+        <VBox styleClass="sidebar" spacing="10" fillWidth="true">
+            <Button text="Perfil" onAction="#onShowPerfil" styleClass="sidebar-button" maxWidth="Infinity" />
+            <Button text="Mis Contratos" onAction="#onShowMisContratos" styleClass="sidebar-button" maxWidth="Infinity" />
+            <Button text="Ayuda" onAction="#onShowAyuda" styleClass="sidebar-button" maxWidth="Infinity" />
+        </VBox>
+    </left>
+
+    <center>
+        <StackPane fx:id="contentContainer" styleClass="content-area" />
+    </center>
+</BorderPane>
