@@ -1,0 +1,6 @@
+.ayuda-label {
+    -fx-font-size: 24px;
+    -fx-text-fill: #f1c40f;
+    -fx-background-color: rgba(0,0,0,0.6);
+    -fx-padding: 15 30;
+}
