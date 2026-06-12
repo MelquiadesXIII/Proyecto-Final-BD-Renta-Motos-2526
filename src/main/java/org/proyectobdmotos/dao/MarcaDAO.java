@@ -6,7 +6,7 @@ import java.util.List;
 import org.proyectobdmotos.models.Marca;
 import org.proyectobdmotos.utils.Logger;
 
-public class MarcaDAO extends AbstractGenericDAO<Marca, Integer> {
+public class MarcaDAO extends AbstractGenericDAO<Marca, Integer> implements IMarcaDAO {
 
     public MarcaDAO(Connection connection) {
         super(connection);
