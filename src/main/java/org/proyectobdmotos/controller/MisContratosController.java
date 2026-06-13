@@ -17,6 +17,7 @@ import org.proyectobdmotos.models.Moto;
 import org.proyectobdmotos.services.ContratoService;
 import org.proyectobdmotos.services.MotoService;
 import org.proyectobdmotos.stores.AgenciaStore;
+import org.proyectobdmotos.utils.AlertUtils;
 
 public class MisContratosController {
 
@@ -75,31 +76,67 @@ public class MisContratosController {
     // -----------------------------------------------------------------
 
     /**
-     * Define cómo se muestra cada columna de la tabla de motos.
-     * Las columnas de marca, modelo y color se obtienen dinámicamente
-     * a partir de los identificadores, usando cachés para mejorar el rendimiento.
+     * Configura la visualización de las cinco columnas de la tabla de motos.
+     * Cada columna delega en un método privado que extrae el valor adecuado
+     * del objeto Moto.
      */
     private void configurarColumnasMotos() {
-        colMatricula.setCellValueFactory(cellData ->
-                new javafx.beans.property.SimpleStringProperty(cellData.getValue().getMatriculaMoto()));
+        configurarColumnaMatricula();
+        configurarColumnaMarca();
+        configurarColumnaModelo();
+        configurarColumnaColor();
+        configurarColumnaKm();
+    }
 
+    /**
+     * Columna Matrícula: muestra el valor directo de getMatriculaMoto().
+     */
+    private void configurarColumnaMatricula() {
+        colMatricula.setCellValueFactory(cellData ->
+                new javafx.beans.property.SimpleStringProperty(
+                        cellData.getValue().getMatriculaMoto()));
+    }
+
+    /**
+     * Columna Marca: obtiene el ID de la marca desde el modelo y luego el nombre.
+     */
+    private void configurarColumnaMarca() {
         colMarca.setCellValueFactory(cellData -> {
             int idMarca = obtenerIdMarcaDeMoto(cellData.getValue());
-            return new javafx.beans.property.SimpleStringProperty(obtenerNombreMarca(idMarca));
+            String nombreMarca = obtenerNombreMarca(idMarca);
+            return new javafx.beans.property.SimpleStringProperty(nombreMarca);
         });
+    }
 
+    /**
+     * Columna Modelo: muestra el nombre del modelo a partir de su ID.
+     */
+    private void configurarColumnaModelo() {
         colModelo.setCellValueFactory(cellData -> {
             int idModelo = cellData.getValue().getIdModelo();
-            return new javafx.beans.property.SimpleStringProperty(obtenerNombreModelo(idModelo));
+            String nombreModelo = obtenerNombreModelo(idModelo);
+            return new javafx.beans.property.SimpleStringProperty(nombreModelo);
         });
+    }
 
+    /**
+     * Columna Color: muestra el nombre del color a partir de su ID.
+     */
+    private void configurarColumnaColor() {
         colColor.setCellValueFactory(cellData -> {
             int idColor = cellData.getValue().getIdColor();
-            return new javafx.beans.property.SimpleStringProperty(obtenerNombreColor(idColor));
+            String nombreColor = obtenerNombreColor(idColor);
+            return new javafx.beans.property.SimpleStringProperty(nombreColor);
         });
+    }
 
+    /**
+     * Columna Km: muestra el kilometraje (double) como objeto observable.
+     */
+    private void configurarColumnaKm() {
         colKm.setCellValueFactory(cellData ->
-                new javafx.beans.property.SimpleDoubleProperty(cellData.getValue().getCantKmRecorridos()).asObject());
+                new javafx.beans.property.SimpleDoubleProperty(
+                        cellData.getValue().getCantKmRecorridos()).asObject());
     }
 
     /**
@@ -128,6 +165,7 @@ public class MisContratosController {
         try {
             modelo = motoService.obtenerModeloPorId(idModelo);
         } catch (Exception e) {
+            e.printStackTrace();
             modelo = null;
         }
         int idMarca = -1;
@@ -149,6 +187,7 @@ public class MisContratosController {
             try {
                 marca = motoService.obtenerMarcaPorId(idMarca);
             } catch (Exception e) {
+                e.printStackTrace();
                 marca = null;
             }
             nombre = (marca != null) ? marca.getNombreMarca() : "Desconocida";
@@ -169,6 +208,7 @@ public class MisContratosController {
             try {
                 modelo = motoService.obtenerModeloPorId(idModelo);
             } catch (Exception e) {
+                e.printStackTrace();
                 modelo = null;
             }
             nombre = (modelo != null) ? modelo.getNombreModelo() : "Desconocido";
@@ -188,6 +228,7 @@ public class MisContratosController {
             try {
                 nombre = motoService.obtenerNombreColorPorId(idColor);
             } catch (Exception e) {
+                e.printStackTrace();
                 nombre = "Color #" + idColor;
             }
             cacheColores.put(idColor, nombre);
@@ -245,7 +286,7 @@ public class MisContratosController {
             if (datos.isPresent()) {
                 DatosFinalizacion d = datos.get();
                 if (d.kmLlegada < 0 || d.fechaEntrega == null) {
-                    new Alert(Alert.AlertType.ERROR, "Datos inválidos.").showAndWait();
+                    mostrarAlerta("Datos inválidos.");
                 } else {
                     procesarFinalizacion(seleccionado, d.kmLlegada, d.fechaEntrega);
                 }
@@ -288,13 +329,13 @@ public class MisContratosController {
             try {
                 double km = Double.parseDouble(kmField.getText().trim());
                 if (datePicker.getValue() == null) {
-                    new Alert(Alert.AlertType.ERROR, "Debe seleccionar una fecha.").showAndWait();
+                    mostrarAlerta("Debe seleccionar una fecha.");
                 } else {
                     datos = new DatosFinalizacion(km, datePicker.getValue());
                 }
             } catch (NumberFormatException e) {
                 e.printStackTrace();
-                new Alert(Alert.AlertType.ERROR, "Ingrese un número válido para los kilómetros.").showAndWait();
+                mostrarAlerta( "Ingrese un número válido para los kilómetros.");
             }
         }
         return Optional.ofNullable(datos);
@@ -307,18 +348,17 @@ public class MisContratosController {
     private void procesarFinalizacion(MisContratosDTO dto, double kmLlegada, LocalDate fechaEntrega) {
         Optional<Contrato> optContrato = contratoService.buscarPorId(dto.getIdContrato());
         if (optContrato.isEmpty()) {
-            new Alert(Alert.AlertType.ERROR, "El contrato ya no existe.").showAndWait();
+            mostrarAlerta( "El contrato ya no existe.");
         } else {
             Contrato contrato = optContrato.get();
             boolean kmValido = kmLlegada >= contrato.getCantKmSalida();
             boolean fechaValida = !fechaEntrega.isAfter(LocalDate.now());
             if (!kmValido) {
-                new Alert(Alert.AlertType.ERROR,
-                        "Los kilómetros de llegada no pueden ser menores que los de salida ("
-                                + contrato.getCantKmSalida() + " km).").showAndWait();
+                mostrarAlerta("Los kilómetros de llegada no pueden ser menores que los de salida "
+                                + contrato.getCantKmSalida() + " km).");
             } else if (!fechaValida) {
-                new Alert(Alert.AlertType.ERROR,
-                        "La fecha de entrega no puede ser posterior a hoy.").showAndWait();
+                mostrarAlerta(
+                        "La fecha de entrega no puede ser posterior a hoy.");
             } else {
                 contrato.setCantKmLlegada(kmLlegada);
                 contrato.setFechaEntrega(fechaEntrega);
@@ -327,7 +367,7 @@ public class MisContratosController {
                     cargarContratos();
                 } catch (Exception e) {
                     e.printStackTrace();
-                    new Alert(Alert.AlertType.ERROR, "Error al finalizar: " + e.getMessage()).showAndWait();
+                    mostrarAlerta( "Error al finalizar: " + e.getMessage());
                 }
             }
         }
@@ -349,5 +389,10 @@ public class MisContratosController {
             this.kmLlegada = kmLlegada;
             this.fechaEntrega = fechaEntrega;
         }
+    }
+
+    private void mostrarAlerta(String mensaje)
+    {
+        AlertUtils.mostrarError(mensaje);
     }
 }
