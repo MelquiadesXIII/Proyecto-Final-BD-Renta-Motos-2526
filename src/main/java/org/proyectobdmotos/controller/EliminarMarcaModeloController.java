@@ -22,11 +22,26 @@ public class EliminarMarcaModeloController {
         this.marcaService = marcaService;
     }
 
+    // -----------------------------------------------------------------
+    // Inicialización
+    // -----------------------------------------------------------------
+
+    /**
+     * Llena los combos y configura la exclusividad de selección:
+     * al elegir un modelo se limpia la marca y viceversa.
+     */
     @FXML
     private void initialize() {
         cargarModelos();
         cargarMarcas();
+        enlazarExclusividadDeSeleccion();
+    }
 
+    /**
+     * Añade listeners a ambos combos para que, al seleccionar un
+     * elemento, se limpie automáticamente la selección del otro.
+     */
+    private void enlazarExclusividadDeSeleccion() {
         comboModelo.valueProperty().addListener((obs, old, newVal) -> {
             if (newVal != null) comboMarca.getSelectionModel().clearSelection();
         });
@@ -35,6 +50,14 @@ public class EliminarMarcaModeloController {
         });
     }
 
+    // -----------------------------------------------------------------
+    // Carga de combos
+    // -----------------------------------------------------------------
+
+    /**
+     * Llena el combo de modelos y configura la visualización
+     * para que muestre el nombre de cada modelo.
+     */
     private void cargarModelos() {
         List<Modelo> modelos = modeloService.listarTodos();
         comboModelo.getItems().setAll(modelos);
@@ -54,6 +77,10 @@ public class EliminarMarcaModeloController {
         });
     }
 
+    /**
+     * Llena el combo de marcas y configura la visualización
+     * para que muestre el nombre de cada marca.
+     */
     private void cargarMarcas() {
         List<Marca> marcas = marcaService.listarTodas();
         comboMarca.getItems().setAll(marcas);
@@ -73,32 +100,76 @@ public class EliminarMarcaModeloController {
         });
     }
 
+    // -----------------------------------------------------------------
+    // Acción Eliminar
+    // -----------------------------------------------------------------
+
+    /**
+     * Orquesta la eliminación según el elemento seleccionado:
+     * modelo o marca. Si no se selecciona nada, muestra un mensaje.
+     */
     @FXML
     private void onEliminar() {
         Modelo modelo = comboModelo.getValue();
         Marca marca = comboMarca.getValue();
 
         if (modelo == null && marca == null) {
-            new Alert(Alert.AlertType.ERROR, "Seleccione un modelo o una marca").showAndWait();
+            mostrarAlerta("Seleccione un modelo o una marca");
         } else if (modelo != null) {
-            if (modeloService.existeMotoConModelo(modelo.getIdModelo())) {
-                new Alert(Alert.AlertType.ERROR, "No se puede eliminar: hay motos que usan este modelo").showAndWait();
-            } else {
-                modeloService.eliminarModelo(modelo.getIdModelo());
-                MainController.getInstance().onGoBack();
-            }
+            eliminarModeloSiEsPosible(modelo);
         } else {
-            if (marcaService.existenModelosConMarca(marca.getIdMarca()) || marcaService.existenMotosConMarca(marca.getIdMarca())) {
-                new Alert(Alert.AlertType.ERROR, "No se puede eliminar: la marca tiene modelos o motos asociadas").showAndWait();
-            } else {
-                marcaService.eliminarMarca(marca.getIdMarca());
-                MainController.getInstance().onGoBack();
-            }
+            eliminarMarcaSiEsPosible(marca);
         }
     }
 
+    /**
+     * Verifica si el modelo tiene motos asociadas. Si no las tiene,
+     * lo elimina y vuelve a la pantalla anterior. Si tiene, muestra un error.
+     */
+    private void eliminarModeloSiEsPosible(Modelo modelo) {
+        if (modeloService.existeMotoConModelo(modelo.getIdModelo())) {
+            mostrarAlerta("No se puede eliminar: hay motos que usan este modelo");
+        } else {
+            modeloService.eliminarModelo(modelo.getIdModelo());
+            MainController.getInstance().onGoBack();
+        }
+    }
+
+    /**
+     * Verifica si la marca tiene modelos o motos asociadas. Si no las tiene,
+     * la elimina y vuelve a la pantalla anterior. Si tiene, muestra un error.
+     */
+    private void eliminarMarcaSiEsPosible(Marca marca) {
+        boolean tieneDependencias = marcaService.existenModelosConMarca(marca.getIdMarca())
+                || marcaService.existenMotosConMarca(marca.getIdMarca());
+        if (tieneDependencias) {
+            mostrarAlerta("No se puede eliminar: la marca tiene modelos o motos asociadas");
+        } else {
+            marcaService.eliminarMarca(marca.getIdMarca());
+            MainController.getInstance().onGoBack();
+        }
+    }
+
+    // -----------------------------------------------------------------
+    // Cancelar
+    // -----------------------------------------------------------------
+
+    /**
+     * Vuelve a la pantalla anterior sin eliminar nada.
+     */
     @FXML
     private void onCancelar() {
         MainController.getInstance().onGoBack();
+    }
+
+    // -----------------------------------------------------------------
+    // Alerta
+    // -----------------------------------------------------------------
+
+    /**
+     * Muestra un diálogo de error con el mensaje indicado.
+     */
+    private void mostrarAlerta(String mensaje) {
+        new Alert(Alert.AlertType.ERROR, mensaje).showAndWait();
     }
 }

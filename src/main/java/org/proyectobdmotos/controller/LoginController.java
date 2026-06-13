@@ -43,6 +43,14 @@ public class LoginController {
         this.clienteService = clienteService;
     }
 
+    // -----------------------------------------------------------------
+    // Inicialización
+    // -----------------------------------------------------------------
+
+    /**
+     * Configura la imagen de fondo para que se escale junto con el
+     * contenedor padre al iniciar la pantalla de login.
+     */
     @FXML
     public void initialize() {
         Logger.log("LoginController inicializado");
@@ -53,6 +61,15 @@ public class LoginController {
         }
     }
 
+    // -----------------------------------------------------------------
+    // Autenticación
+    // -----------------------------------------------------------------
+
+    /**
+     * Lee las credenciales ingresadas, las valida contra el servicio
+     * y redirige al panel correspondiente según el rol del usuario.
+     * Si las credenciales son incorrectas, muestra un mensaje de error.
+     */
     @FXML
     private void onIngresar() {
         String usuario = campoUsuario.getText().trim();
@@ -61,26 +78,59 @@ public class LoginController {
         if (usuario.isEmpty() || pass.isEmpty()) {
             mostrarError("Campos vacíos", "Por favor, ingresa usuario y contraseña.");
         } else {
-            try {
-                Usuario user = usuarioService.autenticar(usuario, pass);
-                Logger.logInfo("Login exitoso: " + user.getNombreUsuario());
-
-                if (user.isEsAdmin()) {
-                    irAPantallaPrincipal(user);
-                } else {
-                    Optional<Cliente> clienteOpt = clienteService.buscarPorIdUsuario(user.getId());
-                    if (clienteOpt.isPresent()) {
-                        agenciaStore.setClienteActual(clienteOpt.get());
-                    }
-                    irAPantallaUsuario(user);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                mostrarError("Error de autenticación", e.getMessage());
-            }
+            autenticarUsuario(usuario, pass);
         }
     }
 
+    /**
+     * Consulta el servicio de usuarios con las credenciales proporcionadas.
+     * Si la autenticación es exitosa, deriva al método adecuado según el rol.
+     * Si falla, muestra un mensaje de error.
+     */
+    private void autenticarUsuario(String usuario, String pass) {
+        try {
+            Usuario user = usuarioService.autenticar(usuario, pass);
+            Logger.logInfo("Login exitoso: " + user.getNombreUsuario());
+            redirigirSegunRol(user);
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarError("Error de autenticación", e.getMessage());
+        }
+    }
+
+    /**
+     * Decide la pantalla a la que debe ir el usuario según su rol.
+     * Si es administrador, va al panel principal de administración.
+     * Si es cliente, recupera sus datos y va al panel de usuario.
+     */
+    private void redirigirSegunRol(Usuario user) {
+        if (user.isEsAdmin()) {
+            irAPantallaPrincipal(user);
+        } else {
+            redirigirCliente(user);
+        }
+    }
+
+    /**
+     * Obtiene los datos del cliente asociado al usuario y los guarda
+     * en el store, para luego abrir la interfaz de usuario.
+     */
+    private void redirigirCliente(Usuario user) {
+        Optional<Cliente> clienteOpt = clienteService.buscarPorIdUsuario(user.getId());
+        if (clienteOpt.isPresent()) {
+            agenciaStore.setClienteActual(clienteOpt.get());
+        }
+        irAPantallaUsuario(user);
+    }
+
+    // -----------------------------------------------------------------
+    // Navegación a pantallas principales
+    // -----------------------------------------------------------------
+
+    /**
+     * Abre la pantalla principal del administrador (Main).
+     * Guarda el usuario autenticado en el store y configura la escena.
+     */
     private void irAPantallaPrincipal(Usuario user) {
         try {
             agenciaStore.setUsuarioActual(user);
@@ -101,6 +151,10 @@ public class LoginController {
         }
     }
 
+    /**
+     * Abre la pantalla principal del usuario (UserMain).
+     * Guarda el usuario autenticado en el store y configura la escena.
+     */
     private void irAPantallaUsuario(Usuario usuario) {
         try {
             agenciaStore.setUsuarioActual(usuario);
@@ -121,6 +175,13 @@ public class LoginController {
         }
     }
 
+    // -----------------------------------------------------------------
+    // Navegación a otras pantallas
+    // -----------------------------------------------------------------
+
+    /**
+     * Navega a la pantalla de registro de nuevos usuarios.
+     */
     @FXML
     private void goToRegister() {
         try {
@@ -138,6 +199,9 @@ public class LoginController {
         }
     }
 
+    /**
+     * Abre la ventana con los términos y condiciones.
+     */
     @FXML
     private void goToTerms() {
         TermsWindow.show((Stage) campoUsuario.getScene().getWindow());
@@ -163,6 +227,13 @@ public class LoginController {
         stage.setFullScreen(true);
     }
 
+    // -----------------------------------------------------------------
+    // Utilidades de alertas
+    // -----------------------------------------------------------------
+
+    /**
+     * Muestra un diálogo de error con un título y un mensaje descriptivo.
+     */
     private void mostrarError(String titulo, String mensaje) {
         Alert alerta = new Alert(Alert.AlertType.ERROR);
         alerta.setTitle(titulo);

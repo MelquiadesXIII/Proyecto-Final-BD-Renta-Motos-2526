@@ -29,26 +29,53 @@ public class MainController {
         instance = this;
     }
 
+    // -----------------------------------------------------------------
+    // Getters públicos
+    // -----------------------------------------------------------------
+
+    /**
+     * @return el cargador de pantallas utilizado por este controlador.
+     */
     public ScreenLoader getScreenLoader() {
         return screenLoader;
     }
 
+    /**
+     * @return la ruta FXML de la vista actualmente mostrada.
+     */
     public String getFxmlActual() {
         return fxmlActual;
     }
 
+    /**
+     * @return la pila de historial de navegación.
+     */
     public Stack<String> getHistorial() {
         return historial;
     }
 
+    /**
+     * @return el contenedor central donde se muestran las vistas.
+     */
     public StackPane getContentContainer() {
         return contentContainer;
     }
 
+    /**
+     * @return la instancia única de MainController.
+     */
     public static MainController getInstance() {
         return instance;
     }
 
+    // -----------------------------------------------------------------
+    // Inicialización
+    // -----------------------------------------------------------------
+
+    /**
+     * Prepara el contenedor central y muestra la vista inicial.
+     * Configura el atajo de teclado para retroceder.
+     */
     @FXML
     private void initialize() {
         Logger.log("Inicializando MainController...");
@@ -58,99 +85,125 @@ public class MainController {
         setupKeyboardShortcut();
     }
 
-    // ==================== NAVEGACIÓN ====================
+    // -----------------------------------------------------------------
+    // Acciones de navegación (botones de la barra lateral)
+    // -----------------------------------------------------------------
 
+    /** Abre la vista de lista de clientes. */
     @FXML
     private void onShowClientes() {
         loadView("/fxml/cliente-lista.fxml", "Clientes");
     }
 
+    /** Abre la vista de lista de motos. */
     @FXML
     private void onShowMotos() {
         loadView("/fxml/moto-lista.fxml", "Motos");
     }
 
+    /** Abre la vista de lista de contratos. */
     @FXML
     private void onShowContratos() {
         loadView("/fxml/contrato-lista.fxml", "Contratos");
     }
 
+    /** Abre la vista de inventario. */
     @FXML
     private void onShowInventario() {
         loadView("/fxml/inventario.fxml", "Inventario");
     }
 
+    /** Abre la vista de reportes. */
     @FXML
     private void onShowReportes() {
         loadView("/fxml/reportes.fxml", "Reportes");
     }
 
+    /** Abre la vista de ayuda. */
     @FXML
     private void onShowAyuda() {
         loadView("/fxml/ayuda.fxml", "Ayuda");
     }
 
+    /** Abre el formulario de nuevo contrato. */
     @FXML
     private void onShowNuevoContrato() {
         loadView("/fxml/contrato-formulario.fxml", "Nuevo Contrato");
     }
 
-    public void onGoBack() {
-        if (historial.isEmpty()) {
-            Logger.logInfo("Historial vacío, no se puede retroceder");
-            return;
-        }
-        String fxmlAnterior = historial.pop();
-        try {
-            Parent vista = screenLoader.load(fxmlAnterior);
-            configurarEscalado(vista);
-            fxmlActual = fxmlAnterior;
-            contentContainer.getChildren().setAll(vista);
-            Logger.logInfo("Retrocediendo a: " + fxmlAnterior);
-        } catch (IOException e) {
-            e.printStackTrace();
-            Logger.logError("Error al retroceder: " + e.getMessage());
-            showLoadError("Retroceder", e);
-        }
-    }
-
+    /** Abre la vista de marcas y modelos. */
     @FXML
     private void onShowMarcasModelos() {
         loadView("/fxml/marcas-modelos.fxml", "Marcas y Modelos");
     }
 
     /**
-     * Permite que otros controladores carguen una vista en el panel central.
+     * Retrocede a la vista anterior. Si el historial está vacío,
+     * simplemente registra un mensaje informativo.
+     */
+    public void onGoBack() {
+        if (historial.isEmpty()) {
+            Logger.logInfo("Historial vacío, no se puede retroceder");
+        } else {
+            String fxmlAnterior = historial.pop();
+            try {
+                Parent vista = screenLoader.load(fxmlAnterior);
+                configurarEscalado(vista);
+                fxmlActual = fxmlAnterior;
+                contentContainer.getChildren().setAll(vista);
+                Logger.logInfo("Retrocediendo a: " + fxmlAnterior);
+            } catch (IOException e) {
+                e.printStackTrace();
+                Logger.logError("Error al retroceder: " + e.getMessage());
+                showLoadError("Retroceder", e);
+            }
+        }
+    }
+
+    /**
+     * Carga una vista en el panel central desde otro controlador.
+     * @param fxmlPath   ruta del archivo FXML.
+     * @param nombreVista nombre descriptivo para el log.
      */
     public void cargarVista(String fxmlPath, String nombreVista) {
         loadView(fxmlPath, nombreVista);
     }
 
-    // ==================== MÉTODOS PRIVADOS ====================
+    // -----------------------------------------------------------------
+    // Métodos privados de navegación
+    // -----------------------------------------------------------------
 
+    /**
+     * Establece la vista inicial de la aplicación (bienvenida del admin).
+     * Limpia el historial antes de cargar la nueva vista.
+     */
     private void showInitialView() {
         historial.clear();
         loadView("/fxml/bienvenido-admin.fxml", "Bienvenida");
     }
 
+    /**
+     * Carga una vista en el contenedor central, gestionando el historial
+     * y los errores de carga.
+     */
     private void loadView(String fxmlPath, String viewName) {
         if (fxmlActual != null) {
             historial.push(fxmlActual);
         }
 
-        boolean loadedSuccessfully = false;
+        boolean cargaExitosa = false;
         Parent viewRoot = null;
 
         try {
             viewRoot = screenLoader.load(fxmlPath);
-            loadedSuccessfully = true;
+            cargaExitosa = true;
         } catch (IOException e) {
             Logger.logError("Error cargando vista " + viewName + ": " + e.getMessage());
             e.printStackTrace();
             showLoadError(viewName, e);
         }
 
-        if (loadedSuccessfully) {
+        if (cargaExitosa) {
             fxmlActual = fxmlPath;
             configurarEscalado(viewRoot);
             contentContainer.getChildren().setAll(viewRoot);
@@ -158,6 +211,10 @@ public class MainController {
         }
     }
 
+    /**
+     * Configura el nodo raíz de una vista para que se expanda
+     * al máximo del contenedor.
+     */
     private void configurarEscalado(Parent root) {
         if (root instanceof Region) {
             Region region = (Region) root;
@@ -166,6 +223,9 @@ public class MainController {
         }
     }
 
+    /**
+     * Muestra un diálogo de error cuando una vista no puede cargarse.
+     */
     private void showLoadError(String viewName, Exception exception) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error de navegación");
@@ -174,8 +234,14 @@ public class MainController {
         alert.showAndWait();
     }
 
-    // ==================== ATAJO DE TECLADO ====================
+    // -----------------------------------------------------------------
+    // Atajo de teclado
+    // -----------------------------------------------------------------
 
+    /**
+     * Configura el atajo de teclado Ctrl+Backspace para retroceder
+     * a la vista anterior.
+     */
     private void setupKeyboardShortcut() {
         contentContainer.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
@@ -188,6 +254,4 @@ public class MainController {
             }
         });
     }
-
-
 }

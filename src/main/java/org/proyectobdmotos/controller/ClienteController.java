@@ -57,6 +57,14 @@ public class ClienteController {
         this.referenceDataStore = referenceDataStore;
     }
 
+    // -------------------------------------------------------------
+    // Inicialización
+    // -------------------------------------------------------------
+
+    /**
+     * Prepara la tabla y carga los clientes al iniciar la pantalla.
+     * No realiza lógica de negocio, solo configura y dispara la carga.
+     */
     @FXML
     private void initialize() {
         Logger.log("Inicializando ClienteController...");
@@ -64,67 +72,15 @@ public class ClienteController {
         loadClientes();
     }
 
-    @FXML
-    private void onCrearCliente() {
-        ClienteFormController.setClienteAEditarStatic(null);
-        ClienteFormController.setUsuarioAEditarStatic(null);
-        MainController.getInstance().cargarVista("/fxml/cliente-form-view.fxml", "Nuevo Cliente");
-    }
+    // -------------------------------------------------------------
+    // Configuración de columnas
+    // -------------------------------------------------------------
 
-    @FXML
-    private void onEditarCliente() {
-        ClienteUsuarioDTO dto = clientesTable.getSelectionModel().getSelectedItem();
-        if (dto == null) {
-            mostrarAlerta("Seleccione un cliente de la tabla.");
-            return;
-        }
-        Optional<Cliente> optCliente = clienteService.buscarPorId(dto.getIdCliente());
-        if (optCliente.isEmpty()) {
-            mostrarAlerta("Cliente no encontrado.");
-            return;
-        }
-        Cliente cliente = optCliente.get();
-
-        Integer idUsuario = cliente.getIdUsuario();
-        Usuario usuario = null;
-        if (idUsuario != null && idUsuario > 0) {
-            usuario = usuarioService.buscarPorId(idUsuario);
-        }
-
-        ClienteFormController.setClienteAEditarStatic(cliente);
-        ClienteFormController.setUsuarioAEditarStatic(usuario);
-
-        MainController.getInstance().cargarVista("/fxml/cliente-form-view.fxml", "Editar Cliente");
-    }
-
-    @FXML
-    private void onEliminarCliente() {
-        ClienteUsuarioDTO dto = clientesTable.getSelectionModel().getSelectedItem();
-        if (dto == null) {
-            mostrarAlerta("Seleccione un cliente de la tabla para eliminar.");
-            return;
-        }
-        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmacion.setTitle("Confirmar Eliminación");
-        confirmacion.setHeaderText("¿Eliminar al cliente " + dto.getNombreCompleto() + "?");
-        confirmacion.setContentText("CI: " + dto.getCi());
-        Optional<ButtonType> resultado = confirmacion.showAndWait();
-
-        if (resultado.isPresent() && resultado.get() == ButtonType.OK) {
-            try {
-                clienteService.eliminarCliente(dto.getCi());
-                loadClientes();
-            } catch (ValidationException e) {
-                mostrarAlerta("Error al eliminar: " + e.getMessage());
-            }
-        }
-    }
-
-    @FXML
-    private void onActualizarLista() {
-        loadClientes();
-    }
-
+    /**
+     * Asigna a cada columna de la tabla la propiedad del DTO
+     * que debe mostrar. Centraliza el mapeo para que sea fácil
+     * de modificar si cambian los nombres de los campos.
+     */
     private void configureTableColumns() {
         colIdCliente.setCellValueFactory(new PropertyValueFactory<>("idCliente"));
         colIdUsuario.setCellValueFactory(new PropertyValueFactory<>("idUsuario"));
@@ -137,8 +93,28 @@ public class ClienteController {
         colContratos.setCellValueFactory(new PropertyValueFactory<>("cantidadContratos"));
     }
 
+    // -------------------------------------------------------------
+    // Carga de el clientes
+    // -------------------------------------------------------------
+
+    /**
+     * Inicia la carga de clientes en segundo plano, mostrando
+     * un indicador de progreso mientras se consulta la base de datos.
+     * Delega en el servicio correspondiente y actualiza la tabla
+     * cuando los datos están listos.
+     */
     private void loadClientes() {
         labelCargando.setVisible(true);
+        Task<List<ClienteUsuarioDTO>> loadTask = crearTareaCargaClientes();
+        new Thread(loadTask).start();
+    }
+
+    /**
+     * Construye la tarea asíncrona que obtiene la lista de clientes
+     * y define qué hacer al tener éxito o fallar.
+     * Separa la creación de la tarea de su ejecución.
+     */
+    private Task<List<ClienteUsuarioDTO>> crearTareaCargaClientes() {
         Task<List<ClienteUsuarioDTO>> loadTask = new Task<>() {
             @Override
             protected List<ClienteUsuarioDTO> call() {
@@ -146,34 +122,184 @@ public class ClienteController {
             }
         };
 
-        loadTask.setOnSucceeded(event -> {
-            labelCargando.setVisible(false);
-            List<ClienteUsuarioDTO> lista = loadTask.getValue();
-            if (lista != null) {
-                clientesTable.getItems().setAll(lista);
-                Logger.logInfo("Clientes cargados: " + lista.size());
-            }
-        });
+        loadTask.setOnSucceeded(event -> manejarCargaExitosa(loadTask.getValue()));
+        loadTask.setOnFailed(event -> manejarCargaFallida(loadTask.getException()));
 
-        loadTask.setOnFailed(event -> {
-            labelCargando.setVisible(false);
-            Throwable throwable = loadTask.getException();
-            String message = throwable != null ? throwable.getMessage() : "Sin detalle";
-            boolean isBusinessError = throwable instanceof BusinessException;
-            if (isBusinessError) {
-                Logger.logError("Error de negocio cargando clientes: " + message);
-                showError("No se pudieron cargar los clientes", message);
-            } else {
-                Logger.logError("Error inesperado cargando clientes: " + message);
-                showError("Error cargando clientes", message);
-            }
-        });
-
-        Thread loadThread = new Thread(loadTask);
-        loadThread.setDaemon(true);
-        loadThread.start();
+        return loadTask;
     }
 
+    /**
+     * Oculta el indicador de carga y muestra los clientes en la tabla
+     * cuando la consulta termina bien.
+     */
+    private void manejarCargaExitosa(List<ClienteUsuarioDTO> lista) {
+        labelCargando.setVisible(false);
+        if (lista != null) {
+            clientesTable.getItems().setAll(lista);
+            Logger.logInfo("Clientes cargados: " + lista.size());
+        }
+    }
+
+    /**
+     * Oculta el indicador de carga y muestra un mensaje de error
+     * si la consulta falla, diferenciando entre error de negocio
+     * y error técnico.
+     */
+    private void manejarCargaFallida(Throwable throwable) {
+        labelCargando.setVisible(false);
+        String message = throwable != null ? throwable.getMessage() : "Sin detalle";
+        boolean isBusinessError = throwable instanceof BusinessException;
+        if (isBusinessError) {
+            Logger.logError("Error de negocio cargando clientes: " + message);
+            showError("No se pudieron cargar los clientes", message);
+        } else {
+            Logger.logError("Error inesperado cargando clientes: " + message);
+            showError("Error cargando clientes", message);
+        }
+    }
+
+    // -------------------------------------------------------------
+    // Navegación hacia el formulario
+    // -------------------------------------------------------------
+
+    /**
+     * Abre el formulario de cliente sin datos previos (modo creación).
+     * Indica al controlador del formulario que no hay cliente ni usuario
+     * seleccionados.
+     */
+    @FXML
+    private void onCrearCliente() {
+        ClienteFormController.setClienteAEditarStatic(null);
+        ClienteFormController.setUsuarioAEditarStatic(null);
+        MainController.getInstance().cargarVista("/fxml/cliente-form-view.fxml", "Nuevo Cliente");
+    }
+
+    /**
+     * Carga el cliente y su usuario asociado (si existe) y los envía
+     * al formulario en modo edición. Si no se selecciona ningún cliente
+     * en la tabla, muestra un mensaje de advertencia.
+     */
+    @FXML
+    private void onEditarCliente() {
+        ClienteUsuarioDTO dto = clientesTable.getSelectionModel().getSelectedItem();
+        boolean seleccionValida = dto != null;
+        if (seleccionValida) {
+            Cliente cliente = buscarClientePorId(dto.getIdCliente());
+            boolean clienteExiste = cliente != null;
+            if (clienteExiste) {
+                Usuario usuario = buscarUsuarioDeCliente(cliente.getIdUsuario());
+                prepararFormularioEdicion(cliente, usuario);
+            } else {
+                mostrarAlerta("Cliente no encontrado.");
+            }
+        } else {
+            mostrarAlerta("Seleccione un cliente de la tabla.");
+        }
+    }
+
+    /**
+     * Busca un cliente por su id. Devuelve null si no existe.
+     * Método auxiliar para mantener limpia la lógica del evento.
+     */
+    private Cliente buscarClientePorId(int idCliente) {
+        Optional<Cliente> opt = clienteService.buscarPorId(idCliente);
+        return opt.orElse(null);
+    }
+
+    /**
+     * Busca el usuario asociado al id_usuario del cliente.
+     * Retorna null si el id es nulo/cero o si no se encuentra.
+     */
+    private Usuario buscarUsuarioDeCliente(Integer idUsuario) {
+        Usuario usuario = null;
+        boolean idValido = idUsuario != null && idUsuario > 0;
+        if (idValido) {
+            usuario = usuarioService.buscarPorId(idUsuario);
+        }
+        return usuario;
+    }
+
+    /**
+     * Coloca los objetos cliente y usuario en los campos estáticos
+     * del controlador del formulario y abre la vista de edición.
+     */
+    private void prepararFormularioEdicion(Cliente cliente, Usuario usuario) {
+        ClienteFormController.setClienteAEditarStatic(cliente);
+        ClienteFormController.setUsuarioAEditarStatic(usuario);
+        MainController.getInstance().cargarVista("/fxml/cliente-form-view.fxml", "Editar Cliente");
+    }
+
+    // -------------------------------------------------------------
+    // Eliminación de cliente
+    // -------------------------------------------------------------
+
+    /**
+     * Maneja la acción de eliminar un cliente. Verifica que haya
+     * uno seleccionado, pide confirmación y, si se acepta,
+     * ejecuta el borrado.
+     */
+    @FXML
+    private void onEliminarCliente() {
+        ClienteUsuarioDTO dto = clientesTable.getSelectionModel().getSelectedItem();
+        boolean seleccionValida = dto != null;
+        if (seleccionValida) {
+            boolean confirmado = confirmarEliminacion(dto);
+            if (confirmado) {
+                ejecutarEliminacion(dto);
+            }
+        } else {
+            mostrarAlerta("Seleccione un cliente de la tabla para eliminar.");
+        }
+    }
+
+    /**
+     * Muestra un diálogo de confirmación y devuelve true si el usuario
+     * elige "Aceptar". Centraliza el mensaje de la confirmación.
+     */
+    private boolean confirmarEliminacion(ClienteUsuarioDTO dto) {
+        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmacion.setTitle("Confirmar Eliminación");
+        confirmacion.setHeaderText("¿Eliminar al cliente " + dto.getNombreCompleto() + "?");
+        confirmacion.setContentText("CI: " + dto.getCi());
+        Optional<ButtonType> resultado = confirmacion.showAndWait();
+        boolean esOk = resultado.isPresent() && resultado.get() == ButtonType.OK;
+        return esOk;
+    }
+
+    /**
+     * Intenta eliminar el cliente usando el servicio. Si la operación
+     * falla, muestra un mensaje de error. Si tiene éxito, recarga la tabla.
+     */
+    private void ejecutarEliminacion(ClienteUsuarioDTO dto) {
+        try {
+            clienteService.eliminarCliente(dto.getCi());
+            loadClientes();
+        } catch (ValidationException e) {
+            mostrarAlerta("Error al eliminar: " + e.getMessage());
+        }
+    }
+
+    // -------------------------------------------------------------
+    // Recarga manual
+    // -------------------------------------------------------------
+
+    /**
+     * Fuerza la recarga de la lista de clientes desde el servicio.
+     * Útil para refrescar los datos después de cambios externos.
+     */
+    @FXML
+    private void onActualizarLista() {
+        loadClientes();
+    }
+
+    // -------------------------------------------------------------
+    // Alertas reutilizables
+    // -------------------------------------------------------------
+
+    /**
+     * Muestra un mensaje de error con título y contenido personalizados.
+     * Centraliza la creación de alertas de error para mantener consistencia.
+     */
     private void showError(String headerText, String contentText) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error");
@@ -182,6 +308,10 @@ public class ClienteController {
         alert.showAndWait();
     }
 
+    /**
+     * Muestra un mensaje informativo con un solo texto.
+     * Simplifica la comunicación de eventos no críticos.
+     */
     private void mostrarAlerta(String mensaje) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Información");

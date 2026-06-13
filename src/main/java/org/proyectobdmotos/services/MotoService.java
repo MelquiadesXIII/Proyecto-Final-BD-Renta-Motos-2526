@@ -21,16 +21,32 @@ public class MotoService {
         this.motoDAO = motoDAO;
     }
 
+    // -----------------------------------------------------------------
+    // Operaciones CRUD básicas
+    // -----------------------------------------------------------------
+
+    /**
+     * Registra una nueva moto en el sistema.
+     * La matrícula se registra en el log antes de la inserción.
+     */
     public void crearMoto(Moto moto) {
         Logger.log("Creando moto: " + moto.getMatriculaMoto());
         motoDAO.insertar(moto);
     }
 
+    /**
+     * Actualiza los datos de una moto existente.
+     * Se registra el id y la matrícula para trazabilidad.
+     */
     public void actualizarMoto(Moto moto) {
         Logger.log("Actualizando moto id=" + moto.getIdMoto() + " matricula=" + moto.getMatriculaMoto());
         motoDAO.actualizar(moto);
     }
 
+    /**
+     * Elimina una moto a partir de su matrícula.
+     * Si la moto no existe, lanza una excepción de validación.
+     */
     public void eliminarMoto(String matricula) {
         Logger.log("Eliminando moto por matrícula: " + matricula);
         Optional<Moto> encontrada = motoDAO.buscarPorMatricula(matricula);
@@ -44,22 +60,46 @@ public class MotoService {
         motoDAO.eliminar(encontrada.get().getIdMoto());
     }
 
+    // -----------------------------------------------------------------
+    // Consultas
+    // -----------------------------------------------------------------
+
+    /**
+     * Busca una moto por su matrícula exacta.
+     * @return un Optional con la moto si existe, vacío en caso contrario.
+     */
     public Optional<Moto> buscarPorMatricula(String matricula) {
         return motoDAO.buscarPorMatricula(matricula);
     }
 
+    /**
+     * Obtiene la lista completa de motos registradas.
+     */
     public List<Moto> listarTodos() {
         return motoDAO.listarTodos();
     }
 
+    /**
+     * Verifica si una moto está disponible (situación DISPONIBLE).
+     * @return true si la moto existe y su situación es DISPONIBLE; false en caso contrario.
+     */
     public boolean estaDisponible(String matricula) {
         Optional<Moto> moto = motoDAO.buscarPorMatricula(matricula);
+        boolean disponible = false;
         if (moto.isPresent()) {
-            return motoDAO.estaDisponible(moto.get().getIdMoto());
+            disponible = motoDAO.estaDisponible(moto.get().getIdMoto());
         }
-        return false;
+        return disponible;
     }
 
+    // -----------------------------------------------------------------
+    // Cambio de estado
+    // -----------------------------------------------------------------
+
+    /**
+     * Cambia la situación de una moto (DISPONIBLE, ALQUILADA, TALLER).
+     * Lanza una excepción si la moto no existe.
+     */
     public void cambiarEstado(String matricula, Situacion nuevaSituacion) {
         Logger.log("Cambiando estado de moto " + matricula + " a " + nuevaSituacion.getValor());
         Optional<Moto> encontrada = motoDAO.buscarPorMatricula(matricula);
@@ -73,6 +113,14 @@ public class MotoService {
         motoDAO.cambiarEstado(encontrada.get().getIdMoto(), nuevaSituacion);
     }
 
+    // -----------------------------------------------------------------
+    // Catálogos (colores, marcas, modelos)
+    // -----------------------------------------------------------------
+
+    /**
+     * Obtiene la lista de todos los colores disponibles.
+     * @throws ValidationException si falla la conexión a la base de datos.
+     */
     public ArrayList<Color> listarColores() throws ValidationException {
         try {
             return motoDAO.obtenerColores();
@@ -85,6 +133,10 @@ public class MotoService {
         }
     }
 
+    /**
+     * Obtiene la lista de todas las marcas.
+     * @throws ValidationException si falla la conexión a la base de datos.
+     */
     public ArrayList<Marca> listarMarcas() throws ValidationException {
         try {
             return motoDAO.obtenerMarcas();
@@ -97,6 +149,11 @@ public class MotoService {
         }
     }
 
+    /**
+     * Obtiene los modelos que pertenecen a una marca determinada.
+     * @param idMarca identificador de la marca.
+     * @throws ValidationException si falla la conexión a la base de datos.
+     */
     public ArrayList<Modelo> listarModelosPorMarca(int idMarca) throws ValidationException {
         try {
             return motoDAO.obtenerModelosPorMarca(idMarca);
@@ -109,6 +166,11 @@ public class MotoService {
         }
     }
 
+    /**
+     * Busca un modelo por su identificador único.
+     * @return el modelo encontrado.
+     * @throws ValidationException si falla la conexión a la base de datos.
+     */
     public Modelo obtenerModeloPorId(int idModelo) throws ValidationException {
         try {
             return motoDAO.obtenerModeloPorId(idModelo);
@@ -121,6 +183,11 @@ public class MotoService {
         }
     }
 
+    /**
+     * Busca una marca por su identificador único.
+     * @return la marca encontrada.
+     * @throws ValidationException si falla la conexión a la base de datos.
+     */
     public Marca obtenerMarcaPorId(int idMarca) throws ValidationException {
         try {
             return motoDAO.obtenerMarcaPorId(idMarca);
@@ -133,6 +200,11 @@ public class MotoService {
         }
     }
 
+    /**
+     * Obtiene el id de un color a partir de su nombre.
+     * @return el identificador del color.
+     * @throws ValidationException si falla la conexión a la base de datos.
+     */
     public int obtenerIdColorPorNombre(String nombreColor) throws ValidationException {
         try {
             return motoDAO.obtenerIdColorPorNombre(nombreColor);
@@ -145,6 +217,11 @@ public class MotoService {
         }
     }
 
+    /**
+     * Obtiene el nombre de un color a partir de su id.
+     * @return el nombre del color.
+     * @throws ValidationException si falla la conexión a la base de datos.
+     */
     public String obtenerNombreColorPorId(int idColor) throws ValidationException {
         try {
             return motoDAO.obtenerNombreColorPorId(idColor);
@@ -157,29 +234,52 @@ public class MotoService {
         }
     }
 
-    public List<SituacionMotoDTO> listarSituacionMotos()
-    {
+    // -----------------------------------------------------------------
+    // Reportes y consultas especiales
+    // -----------------------------------------------------------------
+
+    /**
+     * Obtiene la situación actual de todas las motos (incluye fechas de fin de contrato).
+     */
+    public List<SituacionMotoDTO> listarSituacionMotos() {
         return motoDAO.listarSituacionMotos();
     }
 
+    /**
+     * Obtiene los datos del reporte general de motos.
+     */
     public List<MotoRepDTO> listarMotosReporte() {
         return motoDAO.listarMotosReporte();
     }
 
+    /**
+     * Obtiene el reporte de situación de motos.
+     */
     public List<SitMotoRepDTO> listarSituacionMotosReporte() {
         return motoDAO.listarSituacionMotosReporte();
     }
 
+    /**
+     * Lista las motos que están disponibles en un rango de fechas determinado.
+     * @return lista de objetos Moto (solo datos básicos).
+     */
     public List<Moto> listarMotosDisponiblesEntre(LocalDate inicio, LocalDate fin) {
         return motoDAO.listarMotosDisponiblesEntre(inicio, fin);
     }
 
+    /**
+     * Lista las motos disponibles en un rango de fechas con detalle de marca, modelo y color.
+     * @return lista de DTOs con la información completa para mostrar en la interfaz.
+     */
     public List<MotoDisponibleDTO> listarMotosDisponiblesDetalle(LocalDate inicio, LocalDate fin) {
         return motoDAO.listarMotosDisponiblesDetalle(inicio, fin);
     }
 
+    /**
+     * Verifica si una moto ya tiene un contrato que se solape con el período indicado.
+     * @return true si existe solapamiento, false en caso contrario.
+     */
     public boolean existeSolapamiento(int idMoto, LocalDate inicio, LocalDate fin) {
         return motoDAO.existeSolapamiento(idMoto, inicio, fin);
     }
-
 }

@@ -20,7 +20,9 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
         super(connection);
     }
 
-    // ===== MÉTODOS TEMPLATE =====
+    // -----------------------------------------------------------------
+    // Métodos template (AbstractGenericDAO)
+    // -----------------------------------------------------------------
 
     @Override
     protected String getInsertSQL() {
@@ -73,6 +75,10 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
         ps.setInt(1, id);
     }
 
+    /**
+     * Convierte una fila de ResultSet en un objeto Moto.
+     * Mapea todas las columnas de la tabla moto.
+     */
     @Override
     protected Moto mapResultSetToEntity(ResultSet rs) throws SQLException {
         return new Moto(
@@ -85,6 +91,13 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
         );
     }
 
+    // -----------------------------------------------------------------
+    // Operaciones CRUD implementadas
+    // -----------------------------------------------------------------
+
+    /**
+     * Inserta una nueva moto y le asigna el ID generado por la base de datos.
+     */
     @Override
     public void insertar(Moto moto) {
         try (PreparedStatement ps = getConnection().prepareStatement(getInsertSQL(), Statement.RETURN_GENERATED_KEYS)) {
@@ -101,6 +114,10 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
         }
     }
 
+    /**
+     * Busca una moto por su matrícula exacta.
+     * @return Optional con la moto si existe, vacío si no se encuentra.
+     */
     @Override
     public Optional<Moto> buscarPorMatricula(String matricula) {
         String sql = "SELECT * FROM moto WHERE matricula_moto = ?";
@@ -119,6 +136,14 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
         return resultado;
     }
 
+    // -----------------------------------------------------------------
+    // Listados y reportes de motos
+    // -----------------------------------------------------------------
+
+    /**
+     * Lista las motos con su kilometraje, marca y modelo.
+     * Ordenado por kilometraje descendente.
+     */
     @Override
     public List<MotoDTO> listarMotosConKilometraje() {
         String sql = """
@@ -152,6 +177,10 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
         return lista;
     }
 
+    /**
+     * Obtiene la situación actual de todas las motos (incluyendo la fecha de fin
+     * del contrato activo si la moto está alquilada).
+     */
     @Override
     public List<SituacionMotoDTO> listarSituacionMotos() {
         String sql = """
@@ -193,6 +222,9 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
         return lista;
     }
 
+    /**
+     * Cambia el estado (situación) de una moto.
+     */
     @Override
     public void cambiarEstado(Integer idMoto, Situacion nuevaSituacion) {
         String sql = "UPDATE moto SET id_situacion = ? WHERE id_moto = ?";
@@ -206,6 +238,10 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
         }
     }
 
+    /**
+     * Verifica si una moto está en situación DISPONIBLE.
+     * @return true si la moto está disponible, false en caso contrario.
+     */
     @Override
     public boolean estaDisponible(Integer idMoto) {
         String sql = "SELECT id_situacion FROM moto WHERE id_moto = ?";
@@ -224,17 +260,25 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
         return disponible;
     }
 
+    // -----------------------------------------------------------------
+    // Catálogos (colores, marcas, modelos)
+    // -----------------------------------------------------------------
+
+    /**
+     * Obtiene todos los colores desde la función obtener_colores().
+     */
     public ArrayList<Color> obtenerColores() throws SQLException {
         String sql = "SELECT * FROM obtener_colores()";
         ArrayList<Color> colores = new ArrayList<>();
         try (PreparedStatement ps = getConnection().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                Color color = new Color(
+            boolean hayFila = rs.next();
+            while (hayFila) {
+                colores.add(new Color(
                         rs.getInt("id_color"),
                         rs.getString("nombre_color")
-                );
-                colores.add(color);
+                ));
+                hayFila = rs.next();
             }
         } catch (SQLException e) {
             Logger.logError("Error en obtenerColores: " + e.getMessage());
@@ -243,16 +287,21 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
         return colores;
     }
 
+    /**
+     * Obtiene todas las marcas desde la función obtener_marcas().
+     */
     public ArrayList<Marca> obtenerMarcas() throws SQLException {
         String sql = "SELECT * FROM obtener_marcas()";
         ArrayList<Marca> marcas = new ArrayList<>();
         try (PreparedStatement ps = getConnection().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
+            boolean hayFila = rs.next();
+            while (hayFila) {
                 marcas.add(new Marca(
                         rs.getInt("id_marca"),
                         rs.getString("nombre_marca")
                 ));
+                hayFila = rs.next();
             }
         } catch (SQLException e) {
             Logger.logError("Error al obtener marcas: " + e.getMessage());
@@ -261,18 +310,23 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
         return marcas;
     }
 
+    /**
+     * Obtiene los modelos que pertenecen a una marca específica.
+     */
     public ArrayList<Modelo> obtenerModelosPorMarca(int idMarca) throws SQLException {
         String sql = "SELECT * FROM obtener_modelos_por_marca(?)";
         ArrayList<Modelo> modelos = new ArrayList<>();
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, idMarca);
             try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
+                boolean hayFila = rs.next();
+                while (hayFila) {
                     modelos.add(new Modelo(
                             rs.getInt("id_modelo"),
                             rs.getInt("id_marca"),
                             rs.getString("nombre_modelo")
                     ));
+                    hayFila = rs.next();
                 }
             }
         } catch (SQLException e) {
@@ -282,13 +336,18 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
         return modelos;
     }
 
+    /**
+     * Busca un modelo por su ID utilizando la función obtener_modelo_por_id().
+     * @return el modelo encontrado, o null si no existe.
+     */
     public Modelo obtenerModeloPorId(int idModelo) throws SQLException {
         String sql = "SELECT * FROM obtener_modelo_por_id(?)";
+        Modelo modelo = null;
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, idModelo);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return new Modelo(
+                    modelo = new Modelo(
                             rs.getInt("id_modelo"),
                             rs.getInt("id_marca"),
                             rs.getString("nombre_modelo")
@@ -299,16 +358,21 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
             Logger.logError("Error al obtener modelo por id: " + e.getMessage());
             throw new RuntimeException("Error al obtener modelo por id", e);
         }
-        return null;
+        return modelo;
     }
 
+    /**
+     * Busca una marca por su ID utilizando la función obtener_marca_por_id().
+     * @return la marca encontrada, o null si no existe.
+     */
     public Marca obtenerMarcaPorId(int idMarca) throws SQLException {
         String sql = "SELECT * FROM obtener_marca_por_id(?)";
+        Marca marca = null;
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, idMarca);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return new Marca(
+                    marca = new Marca(
                             rs.getInt("id_marca"),
                             rs.getString("nombre_marca")
                     );
@@ -318,51 +382,72 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
             Logger.logError("Error al obtener marca por id: " + e.getMessage());
             throw new RuntimeException("Error al obtener marca por id", e);
         }
-        return null;
+        return marca;
     }
 
+    /**
+     * Obtiene el id de un color a partir de su nombre.
+     * @return el id del color.
+     * @throws RuntimeException si el color no existe.
+     */
     public int obtenerIdColorPorNombre(String nombreColor) throws SQLException {
         String sql = "SELECT obtener_id_color_por_nombre(?) AS id_color";
+        Integer idColor = null;
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setString(1, nombreColor);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     int id = rs.getInt("id_color");
-                    if (rs.wasNull()) {
-                        throw new RuntimeException("Color no encontrado: " + nombreColor);
+                    if (!rs.wasNull()) {
+                        idColor = id;
                     }
-                    return id;
                 }
             }
         } catch (SQLException e) {
             Logger.logError("Error al obtener id color por nombre: " + e.getMessage());
             throw new RuntimeException("Error al obtener id color por nombre", e);
         }
-        throw new RuntimeException("Color no encontrado: " + nombreColor);
+        if (idColor == null) {
+            throw new RuntimeException("Color no encontrado: " + nombreColor);
+        }
+        return idColor;
     }
 
+    /**
+     * Obtiene el nombre de un color a partir de su id.
+     * @return el nombre del color.
+     * @throws RuntimeException si el color no existe.
+     */
     public String obtenerNombreColorPorId(int idColor) throws SQLException {
         String sql = "SELECT obtener_nombre_color_por_id(?) AS nombre_color";
+        String nombreColor = null;
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, idColor);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     String nombre = rs.getString("nombre_color");
-                    if (rs.wasNull()) {
-                        throw new RuntimeException("Color no encontrado con id: " + idColor);
+                    if (!rs.wasNull()) {
+                        nombreColor = nombre;
                     }
-                    return nombre;
                 }
             }
         } catch (SQLException e) {
             Logger.logError("Error al obtener nombre color por id: " + e.getMessage());
             throw new RuntimeException("Error al obtener nombre color por id", e);
         }
-        throw new RuntimeException("Color no encontrado con id: " + idColor);
+        if (nombreColor == null) {
+            throw new RuntimeException("Color no encontrado con id: " + idColor);
+        }
+        return nombreColor;
     }
 
-    // ===================== REPORTES =====================
+    // -----------------------------------------------------------------
+    // Reportes
+    // -----------------------------------------------------------------
 
+    /**
+     * Obtiene el reporte general de motos desde la función reporte_motos().
+     */
     public List<MotoRepDTO> listarMotosReporte() {
         String sql = "SELECT * FROM reporte_motos()";
         List<MotoRepDTO> lista = new ArrayList<>();
@@ -387,6 +472,9 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
         return lista;
     }
 
+    /**
+     * Obtiene el reporte de situación de motos desde la función reporte_situacion_motos().
+     */
     public List<SitMotoRepDTO> listarSituacionMotosReporte() {
         String sql = "SELECT * FROM reporte_situacion_motos()";
         List<SitMotoRepDTO> lista = new ArrayList<>();
@@ -409,6 +497,15 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
         return lista;
     }
 
+    // -----------------------------------------------------------------
+    // Disponibilidad y solapamiento
+    // -----------------------------------------------------------------
+
+    /**
+     * Lista las motos que están disponibles en un rango de fechas,
+     * utilizando la función motos_disponibles_entre().
+     * @return lista de motos (solo datos básicos).
+     */
     public List<Moto> listarMotosDisponiblesEntre(LocalDate inicio, LocalDate fin) {
         String sql = "SELECT * FROM motos_disponibles_entre(?, ?)";
         List<Moto> lista = new ArrayList<>();
@@ -429,6 +526,11 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
         return lista;
     }
 
+    /**
+     * Lista las motos disponibles en un rango de fechas con detalle de marca,
+     * modelo y color, utilizando la función obtener_motos_libres().
+     * @return lista de DTOs con información completa para mostrar en la interfaz.
+     */
     public List<MotoDisponibleDTO> listarMotosDisponiblesDetalle(LocalDate inicio, LocalDate fin) {
         String sql = "SELECT * FROM obtener_motos_libres(?, ?)";
         List<MotoDisponibleDTO> lista = new ArrayList<>();
@@ -436,7 +538,8 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
             ps.setDate(1, java.sql.Date.valueOf(inicio));
             ps.setDate(2, java.sql.Date.valueOf(fin));
             try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
+                boolean hayFila = rs.next();
+                while (hayFila) {
                     lista.add(new MotoDisponibleDTO(
                             rs.getInt("id_moto"),
                             rs.getString("matricula_moto"),
@@ -444,6 +547,7 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
                             rs.getString("nombre_modelo"),
                             rs.getString("nombre_color")
                     ));
+                    hayFila = rs.next();
                 }
             }
         } catch (SQLException e) {
@@ -453,6 +557,10 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
         return lista;
     }
 
+    /**
+     * Verifica si una moto ya tiene un contrato que se solape con el período indicado.
+     * @return true si existe solapamiento, false en caso contrario.
+     */
     public boolean existeSolapamiento(int idMoto, LocalDate inicio, LocalDate fin) {
         String sql = "SELECT COUNT(*) FROM contrato WHERE id_moto = ? AND (fecha_inicio, fecha_fin) OVERLAPS (?, ?)";
         boolean solapamiento = false;

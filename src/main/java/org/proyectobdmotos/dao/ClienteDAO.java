@@ -24,6 +24,10 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
         super(connection);
     }
 
+    // -----------------------------------------------------------------
+    // Métodos template (AbstractGenericDAO)
+    // -----------------------------------------------------------------
+
     @Override
     protected String getInsertSQL() {
         return "INSERT INTO cliente (ci_cliente, nombre_cliente, primer_apellido, "
@@ -101,6 +105,14 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
         return cliente;
     }
 
+    // -----------------------------------------------------------------
+    // Operaciones CRUD implementadas
+    // -----------------------------------------------------------------
+
+    /**
+     * Inserta un nuevo cliente en la base de datos y le asigna el ID generado.
+     * Utiliza la plantilla SQL definida en getInsertSQL().
+     */
     @Override
     public void insertar(Cliente cliente) {
         try (PreparedStatement ps = getConnection().prepareStatement(getInsertSQL(), Statement.RETURN_GENERATED_KEYS)) {
@@ -118,6 +130,10 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
         }
     }
 
+    /**
+     * Busca un cliente por su carné de identidad exacto.
+     * @return Optional con el cliente si existe, vacío en caso contrario.
+     */
     @Override
     public Optional<Cliente> buscarPorCi(String ci) {
         String sql = "SELECT * FROM cliente WHERE ci_cliente = ?";
@@ -137,6 +153,13 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
         return resultado;
     }
 
+    // -----------------------------------------------------------------
+    // Listados y reportes
+    // -----------------------------------------------------------------
+
+    /**
+     * Lista los clientes agrupados por municipio, incluyendo la cantidad de alquileres realizados.
+     */
     @Override
     public List<ClienteDTO> listarClientesPorMunicipio() {
         String sql = """
@@ -154,14 +177,14 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
         List<ClienteDTO> lista = new ArrayList<>();
         try (PreparedStatement ps = getConnection().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-            boolean hasMore = rs.next();
-            while (hasMore) {
+            boolean hayFila = rs.next();
+            while (hayFila) {
                 lista.add(new ClienteDTO(
                         rs.getString("ci_cliente"),
                         rs.getString("nombre_completo"),
                         rs.getString("nombre_municipio"),
                         rs.getInt("cantidad_alquileres")));
-                hasMore = rs.next();
+                hayFila = rs.next();
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -171,6 +194,9 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
         return lista;
     }
 
+    /**
+     * Obtiene los clientes que han devuelto la moto después de la fecha fin del contrato.
+     */
     @Override
     public List<Cliente> obtenerClientesIncumplidores() {
         String sql = """
@@ -185,10 +211,10 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
         List<Cliente> lista = new ArrayList<>();
         try (PreparedStatement ps = getConnection().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-            boolean hasMore = rs.next();
-            while (hasMore) {
+            boolean hayFila = rs.next();
+            while (hayFila) {
                 lista.add(mapResultSetToEntity(rs));
-                hasMore = rs.next();
+                hayFila = rs.next();
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -198,6 +224,10 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
         return lista;
     }
 
+    /**
+     * Elimina un cliente y todos sus contratos asociados en una transacción.
+     * Si ocurre un error, revierte los cambios.
+     */
     @Override
     public void eliminarConCascada(Integer idCliente) {
         try {
@@ -235,6 +265,14 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
         }
     }
 
+    // -----------------------------------------------------------------
+    // Método de inserción alternativo (consulta directa)
+    // -----------------------------------------------------------------
+
+    /**
+     * Inserta un cliente utilizando una sentencia SQL directa (alternativa a insertar).
+     * @deprecated se recomienda usar el método {@link #insertar(Cliente)}.
+     */
     public Cliente insert(Cliente cliente) throws SQLException {
         String sql = "INSERT INTO cliente (ci_cliente, nombre_cliente, primer_apellido, segundo_apellido, edad, sexo, numero_contacto, municipio, id_usuario) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id_cliente";
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
@@ -256,6 +294,13 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
         return cliente;
     }
 
+    // -----------------------------------------------------------------
+    // Reportes (funciones SQL)
+    // -----------------------------------------------------------------
+
+    /**
+     * Obtiene el reporte de clientes por municipio desde la función listado_clientes().
+     */
     public List<CliRepDTO> listarClientesReporte() {
         String sql = "SELECT * FROM listado_clientes()";
         List<CliRepDTO> lista = new ArrayList<>();
@@ -281,6 +326,9 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
         return lista;
     }
 
+    /**
+     * Obtiene la lista de clientes incumplidores desde la función lista_incumplidores().
+     */
     public List<IncumpDTO> listarIncumplidores() {
         String sql = "SELECT * FROM lista_incumplidores()";
         List<IncumpDTO> lista = new ArrayList<>();
@@ -304,6 +352,13 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
         return lista;
     }
 
+    // -----------------------------------------------------------------
+    // Búsquedas especiales
+    // -----------------------------------------------------------------
+
+    /**
+     * Busca un cliente por su ID utilizando la función buscar_cliente_por_id().
+     */
     public Optional<Cliente> buscarPorId(int idCliente) {
         String sql = "SELECT * FROM buscar_cliente_por_id(?)";
         Optional<Cliente> resultado = Optional.empty();
@@ -322,6 +377,9 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
         return resultado;
     }
 
+    /**
+     * Busca un cliente por el ID del usuario asociado.
+     */
     public Optional<Cliente> buscarPorIdUsuario(int idUsuario) {
         String sql = "SELECT * FROM buscar_cliente_por_id_usuario(?)";
         Optional<Cliente> resultado = Optional.empty();
@@ -340,6 +398,9 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
         return resultado;
     }
 
+    /**
+     * Lista todos los clientes con la información de su usuario (nombre, gmail).
+     */
     public List<ClienteUsuarioDTO> listarClientesConUsuario() {
         String sql = "SELECT * FROM listar_clientes_con_usuario()";
         List<ClienteUsuarioDTO> lista = new ArrayList<>();
@@ -368,6 +429,9 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
         return lista;
     }
 
+    /**
+     * Obtiene el nombre del municipio a partir de su ID.
+     */
     public String obtenerNombreMunicipio(int idMunicipio) {
         String sql = "SELECT obtener_nombre_municipio(?) AS nombre_municipio";
         String nombre = "";
@@ -386,6 +450,9 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
         return nombre;
     }
 
+    /**
+     * Obtiene la lista de todos los municipios disponibles.
+     */
     public List<Municipio> listarMunicipios() {
         String sql = "SELECT * FROM listar_municipios()";
         List<Municipio> lista = new ArrayList<>();
@@ -407,6 +474,9 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
         return lista;
     }
 
+    /**
+     * Busca clientes cuyo nombre, apellido o CI coincidan parcialmente con el texto dado.
+     */
     public List<Cliente> buscarClientesPorTexto(String texto) {
         String sql = "SELECT * FROM buscar_clientes_por_texto(?)";
         List<Cliente> lista = new ArrayList<>();
