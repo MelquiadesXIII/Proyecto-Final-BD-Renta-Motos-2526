@@ -9,6 +9,7 @@ import javafx.util.StringConverter;
 import org.proyectobdmotos.dto.MotoDisponibleDTO;
 import org.proyectobdmotos.models.*;
 import org.proyectobdmotos.services.*;
+import org.proyectobdmotos.utils.AlertUtils;
 import org.proyectobdmotos.utils.Logger;
 import org.proyectobdmotos.services.exceptions.ValidationException;
 
@@ -315,13 +316,13 @@ public class ContratoFormController {
      * Muestra un diálogo de error con el mensaje indicado.
      */
     private void mostrarError(String mensaje) {
-        new Alert(Alert.AlertType.ERROR, mensaje).showAndWait();
+        AlertUtils.mostrarError(mensaje);
     }
 
     /**
      * Muestra un diálogo informativo con el mensaje indicado.
      */
     private void mostrarInfo(String mensaje) {
-        new Alert(Alert.AlertType.INFORMATION, mensaje).showAndWait();
+        AlertUtils.mostrarInfo(mensaje);
     }
 }
