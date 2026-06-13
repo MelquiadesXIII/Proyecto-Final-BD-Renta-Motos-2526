@@ -36,8 +36,9 @@ public class RegistroController {
     private final UsuarioService usuarioService;
     private final ClienteService clienteService;
     private final ReferenceDataStore referenceDataStore;
-    private final AgenciaStore agenciaStore;                     // ← añadido
+    private final AgenciaStore agenciaStore;
 
+    // Mapa estático que asocia el nombre del municipio con su ID en la base de datos
     private static final Map<String, Integer> municipiosMap = new HashMap<>();
     static {
         municipiosMap.put("Playa", 1);
@@ -69,6 +70,14 @@ public class RegistroController {
         this.agenciaStore = agenciaStore;
     }
 
+    // -----------------------------------------------------------------
+    // Inicialización
+    // -----------------------------------------------------------------
+
+    /**
+     * Configura los combos de sexo y municipio, y ajusta la imagen de fondo
+     * al tamaño del contenedor padre al abrir la pantalla.
+     */
     @FXML
     private void initialize() {
         comboSexo.getItems().addAll("Masculino", "Femenino");
@@ -84,69 +93,119 @@ public class RegistroController {
         }
     }
 
+    // -----------------------------------------------------------------
+    // Registro de nuevo usuario
+    // -----------------------------------------------------------------
+
+    /**
+     * Orquesta el proceso de registro: valida los campos obligatorios,
+     * las contraseñas y los términos. Si todo es correcto, crea el usuario
+     * y el cliente asociado de forma atómica.
+     */
     @FXML
     private void registrar() {
-        if (campoNombreUsuario.getText().trim().isEmpty() ||
-                campoGmail.getText().trim().isEmpty() ||
-                campoPassword.getText().trim().isEmpty() ||
-                campoCI.getText().trim().isEmpty() ||
-                campoNombreCliente.getText().trim().isEmpty() ||
-                campoPrimerApellido.getText().trim().isEmpty() ||
-                campoEdad.getText().trim().isEmpty() ||
-                campoTelefono.getText().trim().isEmpty() ||
-                comboSexo.getValue() == null ||
-                comboMunicipio.getValue() == null) {
+        if (!validarCamposObligatorios()) {
             mostrarError("Todos los campos obligatorios (*) deben estar completos.");
         } else if (!campoPassword.getText().equals(campoConfirmarPassword.getText())) {
             mostrarError("Las contraseñas no coinciden.");
         } else if (!checkTerminos.isSelected()) {
             mostrarError("Debe aceptar los términos y condiciones.");
         } else {
-            try {
-                Usuario nuevoUsuario = usuarioService.registrarUsuario(
-                        campoNombreUsuario.getText().trim(),
-                        campoPassword.getText().trim(),
-                        campoGmail.getText().trim());
-
-                try {
-                    Cliente nuevoCliente = new Cliente(
-                            null,
-                            campoCI.getText().trim(),
-                            campoNombreCliente.getText().trim(),
-                            campoPrimerApellido.getText().trim(),
-                            campoSegundoApellido.getText().trim(),
-                            Integer.parseInt(campoEdad.getText().trim()),
-                            comboSexo.getValue().equals("Masculino") ? Sexo.MASCULINO : Sexo.FEMENINO,
-                            campoTelefono.getText().trim(),
-                            municipiosMap.getOrDefault(comboMunicipio.getValue(), -1));
-                    nuevoCliente.setIdUsuario(nuevoUsuario.getId());
-                    clienteService.crearCliente(nuevoCliente);
-
-                    agenciaStore.setClienteActual(nuevoCliente);
-                    irAPantallaUsuario(nuevoUsuario);
-                } catch (Exception ex) {
-                    usuarioService.eliminarUsuario(nuevoUsuario.getId());
-                    throw ex;
-                }
-            } catch (ValidationException e) {
-                e.printStackTrace();
-                mostrarError(e.getMessage());
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-                mostrarError("La edad debe ser un número válido.");
-            } catch (Exception e) {
-                e.printStackTrace();
-                Logger.logError("Error en registro: " + e.getMessage());
-                mostrarError("Error inesperado al crear la cuenta.");
-            }
+            ejecutarRegistro();
         }
     }
 
+    /**
+     * Verifica que todos los campos marcados como obligatorios tengan algún valor.
+     * @return true si todos los campos obligatorios están llenos, false si alguno está vacío.
+     */
+    private boolean validarCamposObligatorios() {
+        boolean nombreUsuarioVacio = campoNombreUsuario.getText().trim().isEmpty();
+        boolean gmailVacio = campoGmail.getText().trim().isEmpty();
+        boolean passwordVacio = campoPassword.getText().trim().isEmpty();
+        boolean ciVacio = campoCI.getText().trim().isEmpty();
+        boolean nombreClienteVacio = campoNombreCliente.getText().trim().isEmpty();
+        boolean primerApellidoVacio = campoPrimerApellido.getText().trim().isEmpty();
+        boolean edadVacio = campoEdad.getText().trim().isEmpty();
+        boolean telefonoVacio = campoTelefono.getText().trim().isEmpty();
+        boolean sexoNulo = comboSexo.getValue() == null;
+        boolean municipioNulo = comboMunicipio.getValue() == null;
+
+        return !nombreUsuarioVacio && !gmailVacio && !passwordVacio && !ciVacio
+                && !nombreClienteVacio && !primerApellidoVacio && !edadVacio
+                && !telefonoVacio && !sexoNulo && !municipioNulo;
+    }
+
+    /**
+     * Ejecuta la creación del usuario y del cliente en la base de datos.
+     * Si la creación del cliente falla, se elimina el usuario recién creado
+     * para mantener la consistencia (operación atómica simulada).
+     */
+    private void ejecutarRegistro() {
+        try {
+            Usuario nuevoUsuario = usuarioService.registrarUsuario(
+                    campoNombreUsuario.getText().trim(),
+                    campoPassword.getText().trim(),
+                    campoGmail.getText().trim());
+
+            try {
+                Cliente nuevoCliente = construirClienteDesdeCampos();
+                nuevoCliente.setIdUsuario(nuevoUsuario.getId());
+                clienteService.crearCliente(nuevoCliente);
+
+                agenciaStore.setClienteActual(nuevoCliente);
+                irAPantallaUsuario(nuevoUsuario);
+            } catch (Exception ex) {
+                usuarioService.eliminarUsuario(nuevoUsuario.getId());
+                throw ex;
+            }
+        } catch (ValidationException e) {
+            e.printStackTrace();
+            mostrarError(e.getMessage());
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            mostrarError("La edad debe ser un número válido.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            Logger.logError("Error en registro: " + e.getMessage());
+            mostrarError("Error inesperado al crear la cuenta.");
+        }
+    }
+
+    /**
+     * Construye un objeto Cliente a partir de los campos del formulario.
+     * @return un nuevo Cliente con los datos ingresados.
+     */
+    private Cliente construirClienteDesdeCampos() {
+        return new Cliente(
+                null,
+                campoCI.getText().trim(),
+                campoNombreCliente.getText().trim(),
+                campoPrimerApellido.getText().trim(),
+                campoSegundoApellido.getText().trim(),
+                Integer.parseInt(campoEdad.getText().trim()),
+                comboSexo.getValue().equals("Masculino") ? Sexo.MASCULINO : Sexo.FEMENINO,
+                campoTelefono.getText().trim(),
+                municipiosMap.getOrDefault(comboMunicipio.getValue(), -1)
+        );
+    }
+
+    // -----------------------------------------------------------------
+    // Navegación
+    // -----------------------------------------------------------------
+
+    /**
+     * Muestra la ventana con los términos y condiciones.
+     */
     @FXML
     private void mostrarTerminos() {
         TermsWindow.show((Stage) campoNombreUsuario.getScene().getWindow());
     }
 
+    /**
+     * Regresa a la pantalla de login. Si no hay historial de navegación,
+     * simplemente registra un mensaje informativo.
+     */
     @FXML
     private void volverAlLogin() {
         Parent anterior = NavigationHistory.goBack(screenLoader);
@@ -158,6 +217,10 @@ public class RegistroController {
         }
     }
 
+    /**
+     * Abre la pantalla principal del usuario después de un registro exitoso.
+     * Guarda el usuario en el store y configura la escena.
+     */
     private void irAPantallaUsuario(Usuario usuario) {
         try {
             Parent userMainRoot = screenLoader.load("/fxml/user-main.fxml");
@@ -176,11 +239,21 @@ public class RegistroController {
         }
     }
 
+    // -----------------------------------------------------------------
+    // Utilidades de alertas
+    // -----------------------------------------------------------------
+
+    /**
+     * Muestra un mensaje de error en un cuadro de diálogo.
+     */
     private void mostrarError(String mensaje) {
         Alert alert = new Alert(Alert.AlertType.ERROR, mensaje);
         alert.showAndWait();
     }
 
+    /**
+     * Muestra un mensaje informativo con un título y contenido descriptivo.
+     */
     private void mostrarInfo(String titulo, String mensaje) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(titulo);
