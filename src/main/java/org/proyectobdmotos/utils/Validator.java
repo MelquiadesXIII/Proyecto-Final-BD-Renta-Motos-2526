@@ -148,50 +148,9 @@ public abstract class Validator {
             );
         }
 
-        // Dígito de control
-        int expected = calculateCIControlDigit(ci);
-        if (controlDigit != expected) {
-            throw new ValidationException(
-                BusinessErrorCode.FORMATO_INVALIDO,
-                "Carnet de identidad inválido: dígito de control inválido"
-                + " (esperado " + expected + ", recibido " + controlDigit
-                + "). Recibido: \"" + ci + "\""
-            );
-        }
-
         return true;
     }
 
-    /**
-     * Calcula el dígito de control del carnet de identidad cubano.
-     *
-     * <p>Algoritmo: se multiplican los 10 primeros dígitos por pesos cíclicos
-     * [2, 3, 4, 5, 6, 7, 8, 9, 2, 3], se suman los productos, y se calcula
-     * {@code 11 - (suma % 11)}. Si el resultado es 10 o 11, el dígito es 0.</p>
-     *
-     * @param ci los 11 dígitos del carnet de identidad
-     * @return el dígito de control esperado (0-9)
-     */
-    private static int calculateCIControlDigit(String ci) {
-        int[] weights = {2, 3, 4, 5, 6, 7, 8, 9, 2, 3};
-        int sum = 0;
-
-        int i = 0;
-        boolean shouldCalculate = true;
-        while (shouldCalculate && i < 10) {
-            int digit = Integer.parseInt(ci.substring(i, i + 1));
-            sum += digit * weights[i];
-            i++;
-            shouldCalculate = (i < 10);
-        }
-
-        int remainder = sum % 11;
-        int result = 11 - remainder;
-
-        boolean isOverTen = (result == 10 || result == 11);
-
-        return isOverTen ? 0 : result;
-    }
 
     /**
      * Valida que el objeto LocalDate pasado no sea nulo.
