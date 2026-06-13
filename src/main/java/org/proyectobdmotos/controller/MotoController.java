@@ -9,6 +9,7 @@ import org.proyectobdmotos.services.exceptions.BusinessException;
 import org.proyectobdmotos.services.exceptions.ValidationException;
 import org.proyectobdmotos.stores.AgenciaStore;
 import org.proyectobdmotos.stores.ReferenceDataStore;
+import org.proyectobdmotos.utils.AlertUtils;
 import org.proyectobdmotos.utils.Logger;
 
 import javafx.concurrent.Task;
@@ -239,21 +240,13 @@ public class MotoController {
      * Muestra un diálogo de error con título y contenido.
      */
     private void showError(String headerText, String contentText) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
-        alert.setHeaderText(headerText);
-        alert.setContentText(contentText);
-        alert.showAndWait();
+        AlertUtils.mostrarErrorConTitulo(headerText,contentText);
     }
 
     /**
      * Muestra un diálogo informativo con un solo texto.
      */
     private void mostrarAlerta(String mensaje) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Información");
-        alert.setHeaderText(null);
-        alert.setContentText(mensaje);
-        alert.showAndWait();
+        AlertUtils.mostrarInfo(mensaje);
     }
 }
