@@ -1,3 +1,9 @@
+
+/* Label con color blanco, para que se vea bien*/
+Label {
+    -fx-text-fill: white;
+}
+
 /* Panel oscuro semitransparente */
 .form-box {
     -fx-background-color: rgba(0, 0, 0, 0.6);
