@@ -9,6 +9,7 @@ import org.proyectobdmotos.services.ModeloService;
 import org.proyectobdmotos.services.MotoService;
 import org.proyectobdmotos.stores.AgenciaStore;
 import org.proyectobdmotos.stores.ReferenceDataStore;
+import org.proyectobdmotos.utils.AlertUtils;
 import org.proyectobdmotos.utils.Logger;
 
 import java.util.ArrayList;
@@ -204,7 +205,7 @@ public class MotoFormController {
             comboModelo.getSelectionModel().select(modelo);
             seleccionarColorPorId(m.getIdColor());
         } else {
-            new Alert(Alert.AlertType.WARNING, "No se pudo cargar el modelo de la moto.").showAndWait();
+            AlertUtils.mostrarAdvertencia("No se pudo cargar el modelo de la moto.");
         }
     }
 
@@ -249,12 +250,13 @@ public class MotoFormController {
         String matricula = campoMatricula.getText().trim();
         Modelo modeloSel = comboModelo.getValue();
         Color colorSel = comboColor.getValue();
+        boolean salida = true;
 
         if (matricula.isEmpty() || modeloSel == null || colorSel == null) {
-            new Alert(Alert.AlertType.ERROR, "Todos los campos obligatorios deben estar completos.").showAndWait();
-            return false;
+            AlertUtils.mostrarError("Todos los campos obligatorios deben estar completos.");
+            salida = false;
         }
-        return true;
+        return salida;
     }
 
     /**
