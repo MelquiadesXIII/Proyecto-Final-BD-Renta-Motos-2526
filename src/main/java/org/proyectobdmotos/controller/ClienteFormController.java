@@ -9,6 +9,7 @@ import org.proyectobdmotos.services.*;
 import org.proyectobdmotos.stores.ReferenceDataStore;
 import org.proyectobdmotos.utils.AlertUtils;
 import org.proyectobdmotos.utils.Logger;
+import org.proyectobdmotos.utils.Validator;
 import org.proyectobdmotos.services.exceptions.ValidationException;
 
 import java.util.List;
@@ -71,6 +72,10 @@ public class ClienteFormController {
     // Inicialización
     // -------------------------------------------------------------
 
+    /**
+     * Prepara los combos, listeners y, si hay datos de edición estáticos,
+     * coloca el formulario en modo edición.
+     */
     @FXML
     private void initialize() {
         configurarComboSexo();
@@ -85,10 +90,16 @@ public class ClienteFormController {
         }
     }
 
+    /**
+     * Agrega las opciones de sexo al combo correspondiente.
+     */
     private void configurarComboSexo() {
         comboSexo.getItems().addAll("Masculino", "Femenino");
     }
 
+    /**
+     * Carga los municipios desde el servicio y configura la visualización del combo.
+     */
     private void configurarComboMunicipio() {
         List<Municipio> municipios = clienteService.listarMunicipios();
         comboMunicipio.getItems().setAll(municipios);
@@ -105,6 +116,9 @@ public class ClienteFormController {
         });
     }
 
+    /**
+     * Oculta o muestra los campos del cliente según el checkbox de administrador.
+     */
     private void configurarListenerAdmin() {
         checkEsAdmin.selectedProperty().addListener((obs, oldVal, newVal) -> {
             boolean visible = !newVal;
@@ -117,6 +131,9 @@ public class ClienteFormController {
         }
     }
 
+    /**
+     * Sincroniza la visibilidad del campo de contraseña con el checkbox de mostrar.
+     */
     private void configurarListenerMostrarPassword() {
         checkVerPassword.selectedProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal) {
@@ -134,6 +151,9 @@ public class ClienteFormController {
     // Modo edición
     // -------------------------------------------------------------
 
+    /**
+     * Activa el modo edición y rellena los campos con los datos del cliente y usuario.
+     */
     public void setModoEdicion(Cliente cliente, Usuario usuario) {
         this.modoEdicion = true;
         this.clienteEditando = cliente;
@@ -147,6 +167,9 @@ public class ClienteFormController {
         }
     }
 
+    /**
+     * Rellena los campos visuales con los datos del cliente.
+     */
     private void cargarDatosCliente(Cliente cliente) {
         campoCI.setText(cliente.getCiCliente());
         campoNombre.setText(cliente.getNombreCliente());
@@ -157,6 +180,9 @@ public class ClienteFormController {
         campoTelefono.setText(cliente.getNumeroContacto());
     }
 
+    /**
+     * Selecciona el municipio en el combo que coincida con el id dado.
+     */
     private void seleccionarMunicipio(int idMunicipio) {
         boolean encontrado = false;
         int indice = 0;
@@ -171,6 +197,9 @@ public class ClienteFormController {
         }
     }
 
+    /**
+     * Rellena los campos visuales con los datos del usuario.
+     */
     private void cargarDatosUsuario(Usuario usuario) {
         campoNombreUsuario.setText(usuario.getNombreUsuario() != null ? usuario.getNombreUsuario() : "");
         campoGmail.setText(usuario.getGmail() != null ? usuario.getGmail() : "");
@@ -187,6 +216,10 @@ public class ClienteFormController {
     // Acción Guardar
     // -------------------------------------------------------------
 
+    /**
+     * Orquesta la validación y el guardado del formulario.
+     * Solo procede si los campos de usuario (y de cliente si aplica) son válidos.
+     */
     @FXML
     private void onGuardar() {
         boolean esAdmin = checkEsAdmin.isSelected();
@@ -203,8 +236,10 @@ public class ClienteFormController {
     // -------------------- Validaciones --------------------
 
     /**
-     * Valida los campos de usuario (nombre, gmail, contraseña).
+     * Valida los campos de usuario utilizando la clase Validator siempre que es posible.
      * Acumula errores y devuelve true solo si todos son correctos.
+     * @param esAdmin indica si se está creando un administrador.
+     * @return true si todos los campos de usuario son válidos.
      */
     private boolean validarCamposUsuario(boolean esAdmin) {
         String nombreUsuario = obtenerTexto(campoNombreUsuario);
@@ -215,21 +250,37 @@ public class ClienteFormController {
         if (!camposObligatorios) {
             mostrarError("Los campos de la cuenta (usuario, gmail) son obligatorios.");
         }
+
         boolean passwordValida = modoEdicion || !password.isEmpty();
         if (!passwordValida) {
             mostrarError("La contraseña es obligatoria para un nuevo usuario.");
         }
-        boolean correoValido = gmail.contains("@") && gmail.contains(".");
+
+        boolean longitudPassword = modoEdicion || password.length() >= 4;
+        if (!longitudPassword) {
+            mostrarError("La contraseña debe tener al menos 4 caracteres.");
+        }
+
+        boolean usuarioFormato = false;
+        try {
+            Validator.validateTextWithNumbers(nombreUsuario);
+            usuarioFormato = true;
+        } catch (ValidationException e) {
+            mostrarError("Nombre de usuario: " + e.getMessage());
+        }
+
+        boolean correoValido = gmail.matches("^[\\w.+-]+@[\\w-]+\\.[\\w.]+$");
         if (!correoValido) {
             mostrarError("El correo electrónico no tiene un formato válido.");
         }
 
-        return camposObligatorios && passwordValida && correoValido;
+        return camposObligatorios && passwordValida && longitudPassword && usuarioFormato && correoValido;
     }
 
     /**
-     * Valida todos los campos del cliente, incluyendo formatos.
-     * Acumula los resultados en una variable local y devuelve un único valor al final.
+     * Valida todos los campos del cliente utilizando la clase Validator.
+     * Acumula los resultados en variables booleanas y devuelve un único valor al final.
+     * @return true si todos los campos del cliente son válidos.
      */
     private boolean validarCamposCliente() {
         String ci = obtenerTexto(campoCI);
@@ -245,28 +296,55 @@ public class ClienteFormController {
             mostrarError("Todos los campos del cliente son obligatorios.");
         }
 
-        boolean ciValido = ci.matches("\\d{11}");
-        if (!ciValido) {
-            mostrarError("El carnet de identidad debe tener exactamente 11 dígitos numéricos.");
+        boolean ciValido = false;
+        try {
+            Validator.validateCI(ci);
+            ciValido = true;
+        } catch (ValidationException e) {
+            mostrarError(e.getMessage());
+        }
+
+        boolean nombreValido = false;
+        try {
+            Validator.validateText(nombre);
+            nombreValido = true;
+        } catch (ValidationException e) {
+            mostrarError("Nombre: " + e.getMessage());
+        }
+
+        boolean apellidoValido = false;
+        try {
+            Validator.validateText(primerApellido);
+            apellidoValido = true;
+        } catch (ValidationException e) {
+            mostrarError("Primer apellido: " + e.getMessage());
         }
 
         int edad = parsearEntero(edadTexto, -1);
-        boolean edadValida = edad >= 18 && edad <= 99;
-        if (!edadValida) {
-            mostrarError("La edad debe ser un número entre 18 y 99.");
+        boolean edadValida = false;
+        try {
+            Validator.validateAge(edad);
+            edadValida = true;
+        } catch (ValidationException e) {
+            mostrarError("Edad: " + e.getMessage());
         }
 
-        boolean telefonoValido = telefono.matches("[56]\\d{7}");
-        if (!telefonoValido) {
-            mostrarError("El teléfono debe tener 8 dígitos y empezar con 5 o 6.");
+        boolean telefonoValido = false;
+        try {
+            Validator.validateTelephoneNumber(telefono);
+            telefonoValido = true;
+        } catch (ValidationException e) {
+            mostrarError(e.getMessage());
         }
 
-
-        return camposLlenos && ciValido && edadValida && telefonoValido;
+        return camposLlenos && ciValido && nombreValido && apellidoValido && edadValida && telefonoValido;
     }
 
     // -------------------- Ejecución del guardado --------------------
 
+    /**
+     * Ejecuta la operación de guardado (creación o actualización) y maneja los errores.
+     */
     private void ejecutarGuardado(boolean esAdmin) {
         try {
             if (modoEdicion) {
@@ -285,6 +363,9 @@ public class ClienteFormController {
         }
     }
 
+    /**
+     * Actualiza las entidades existentes (cliente y/o usuario) según el rol.
+     */
     private void actualizarEntidades(boolean esAdmin) {
         if (!esAdmin) {
             actualizarClienteExistente();
@@ -292,6 +373,9 @@ public class ClienteFormController {
         actualizarUsuarioExistente();
     }
 
+    /**
+     * Crea un nuevo usuario y, si no es admin, un nuevo cliente asociado.
+     */
     private void crearNuevoUsuarioYCliente(boolean esAdmin) {
         Usuario nuevoUsuario = usuarioService.registrarUsuarioConRol(
                 obtenerTexto(campoNombreUsuario),
@@ -306,6 +390,9 @@ public class ClienteFormController {
         }
     }
 
+    /**
+     * Aplica los valores de los campos al cliente en edición y lo persiste.
+     */
     private void actualizarClienteExistente() {
         if (clienteEditando != null) {
             clienteEditando.setCiCliente(obtenerTexto(campoCI));
@@ -320,6 +407,10 @@ public class ClienteFormController {
         }
     }
 
+    /**
+     * Aplica los valores de los campos al usuario en edición y lo persiste.
+     * Solo actualiza la contraseña si se ha escrito una nueva.
+     */
     private void actualizarUsuarioExistente() {
         if (usuarioEditando != null) {
             Integer idUsuario = usuarioEditando.getId();
@@ -347,6 +438,7 @@ public class ClienteFormController {
     /**
      * Construye un objeto Cliente a partir de los campos del formulario.
      * Las validaciones de formato ya se realizaron antes de llamar a este método.
+     * @return el nuevo cliente listo para persistir.
      */
     private Cliente construirClienteDesdeCampos() {
         Cliente nuevo = new Cliente();
@@ -365,6 +457,9 @@ public class ClienteFormController {
     // Cancelar
     // -------------------------------------------------------------
 
+    /**
+     * Cancela el formulario y vuelve a la pantalla anterior.
+     */
     @FXML
     private void onCancelar() {
         MainController.getInstance().onGoBack();
@@ -374,13 +469,18 @@ public class ClienteFormController {
     // Utilidades de campos
     // -------------------------------------------------------------
 
+    /**
+     * Obtiene el texto de un campo de texto y lo devuelve recortado.
+     * Si el campo es nulo, devuelve cadena vacía.
+     * @return el texto sin espacios en los extremos.
+     */
     private String obtenerTexto(TextField campo) {
         return campo.getText() != null ? campo.getText().trim() : "";
     }
 
     /**
-     * Convierte una cadena a entero con un valor por defecto si falla.
-     * Solo tiene un return al final.
+     * Convierte una cadena a entero, devolviendo el valor por defecto si falla la conversión.
+     * @return el entero parseado o el valor por defecto.
      */
     private int parsearEntero(String texto, int valorPorDefecto) {
         int resultado = valorPorDefecto;
@@ -396,6 +496,9 @@ public class ClienteFormController {
     // Alertas
     // -------------------------------------------------------------
 
+    /**
+     * Muestra un mensaje de error usando la utilidad centralizada de alertas.
+     */
     private void mostrarError(String mensaje) {
         AlertUtils.mostrarError(mensaje);
     }
