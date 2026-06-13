@@ -33,6 +33,14 @@ public class ContratoUsuarioFormController {
         this.agenciaStore = agenciaStore;
     }
 
+    // -----------------------------------------------------------------
+    // Inicialización
+    // -----------------------------------------------------------------
+
+    /**
+     * Configura los componentes visuales y enlaza los eventos de cambio
+     * en las fechas y la moto para mantener actualizado el formulario.
+     */
     @FXML
     private void initialize() {
         configurarComboMoto();
@@ -46,6 +54,14 @@ public class ContratoUsuarioFormController {
         dateFin.valueProperty().addListener((obs, oldDate, newDate) -> actualizarPrecioEstimado());
     }
 
+    // -----------------------------------------------------------------
+    // Carga de motos según fechas
+    // -----------------------------------------------------------------
+
+    /**
+     * Consulta las motos disponibles en el rango de fechas seleccionado
+     * y llena el combo. Si no hay motos, muestra un mensaje informativo.
+     */
     private void cargarMotosSegunFechas() {
         LocalDate inicio = dateInicio.getValue();
         LocalDate fin = dateFin.getValue();
@@ -68,8 +84,27 @@ public class ContratoUsuarioFormController {
         }
     }
 
+    // -----------------------------------------------------------------
+    // Acción Guardar
+    // -----------------------------------------------------------------
+
+    /**
+     * Orquesta el guardado del contrato: valida los campos y, si todo es correcto,
+     * crea el contrato asociado al cliente actual.
+     */
     @FXML
     private void onGuardar() {
+        if (validarFormulario()) {
+            crearContrato();
+        }
+    }
+
+    /**
+     * Comprueba que los campos obligatorios estén rellenados y que la fecha
+     * de inicio no sea posterior a la de fin.
+     * @return true si los datos son válidos, false en caso contrario.
+     */
+    private boolean validarFormulario() {
         MotoDisponibleDTO motoSeleccionada = comboMoto.getValue();
         LocalDate inicio = dateInicio.getValue();
         LocalDate fin = dateFin.getValue();
@@ -77,41 +112,66 @@ public class ContratoUsuarioFormController {
 
         if (motoSeleccionada == null || inicio == null || fin == null || formaPago == null) {
             mostrarError("Todos los campos obligatorios deben estar completos.");
-        } else if (inicio.isAfter(fin)) {
+            return false;
+        }
+        if (inicio.isAfter(fin)) {
             mostrarError("La fecha de inicio debe ser anterior o igual a la fecha fin.");
-        } else {
-            Cliente cliente = agenciaStore.getClienteActual();
-            if (cliente == null) {
-                mostrarError("No se ha identificado al cliente.");
-            } else {
-                try {
-                    Contrato nuevoContrato = new Contrato(
-                            0.0, 0.0,
-                            cliente.getIdCliente(),
-                            0, null,
-                            fin, inicio,
-                            formaPago,
-                            motoSeleccionada.getIdMoto(),
-                            false, 20.0, 40.0
-                    );
-                    contratoService.crearContrato(nuevoContrato);
-                    mostrarInfo("Contrato creado correctamente.");
-                    UserMainController.getInstance().onGoBack();
-                } catch (ValidationException e) {
-                    mostrarError(e.getMessage());
-                } catch (Exception e) {
-                    Logger.logError("Error al guardar contrato: " + e.getMessage());
-                    mostrarError("Error inesperado al guardar el contrato.");
-                }
-            }
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Construye el objeto Contrato con los datos del formulario y lo envía al servicio.
+     * Si ocurre un error, muestra el mensaje correspondiente.
+     */
+    private void crearContrato() {
+        Cliente cliente = agenciaStore.getClienteActual();
+        if (cliente == null) {
+            mostrarError("No se ha identificado al cliente.");
+            return;
+        }
+
+        try {
+            Contrato nuevoContrato = new Contrato(
+                    0.0, 0.0,
+                    cliente.getIdCliente(),
+                    0, null,
+                    dateFin.getValue(), dateInicio.getValue(),
+                    comboPago.getValue(),
+                    comboMoto.getValue().getIdMoto(),
+                    false, 20.0, 40.0
+            );
+            contratoService.crearContrato(nuevoContrato);
+            mostrarInfo("Contrato creado correctamente.");
+            UserMainController.getInstance().onGoBack();
+        } catch (ValidationException e) {
+            mostrarError(e.getMessage());
+        } catch (Exception e) {
+            Logger.logError("Error al guardar contrato: " + e.getMessage());
+            mostrarError("Error inesperado al guardar el contrato.");
         }
     }
 
+    // -----------------------------------------------------------------
+    // Cancelar
+    // -----------------------------------------------------------------
+
+    /**
+     * Vuelve a la pantalla anterior sin guardar cambios.
+     */
     @FXML
     private void onCancelar() {
         UserMainController.getInstance().onGoBack();
     }
 
+    // -----------------------------------------------------------------
+    // Configuración de componentes visuales
+    // -----------------------------------------------------------------
+
+    /**
+     * Configura el combo de motos para mostrar marca, modelo y color.
+     */
     private void configurarComboMoto() {
         comboMoto.setCellFactory(param -> new ListCell<MotoDisponibleDTO>() {
             @Override
@@ -137,6 +197,10 @@ public class ContratoUsuarioFormController {
         });
     }
 
+    /**
+     * Llena el combo de forma de pago con los valores del enumerado FormaPago
+     * y selecciona la primera opción por defecto.
+     */
     private void configurarComboPago() {
         comboPago.getItems().setAll(FormaPago.values());
         comboPago.setCellFactory(param -> new ListCell<FormaPago>() {
@@ -155,6 +219,14 @@ public class ContratoUsuarioFormController {
         comboPago.getSelectionModel().selectFirst();
     }
 
+    // -----------------------------------------------------------------
+    // Cálculo del precio estimado
+    // -----------------------------------------------------------------
+
+    /**
+     * Calcula el precio estimado en función de la moto y el número de días.
+     * Muestra 0.00 CUP si falta algún dato.
+     */
     private void actualizarPrecioEstimado() {
         MotoDisponibleDTO motoSeleccionada = comboMoto.getValue();
         LocalDate inicio = dateInicio.getValue();
@@ -168,10 +240,20 @@ public class ContratoUsuarioFormController {
         }
     }
 
+    // -----------------------------------------------------------------
+    // Alertas
+    // -----------------------------------------------------------------
+
+    /**
+     * Muestra un mensaje de error en un cuadro de diálogo.
+     */
     private void mostrarError(String mensaje) {
         new Alert(Alert.AlertType.ERROR, mensaje).showAndWait();
     }
 
+    /**
+     * Muestra un mensaje informativo en un cuadro de diálogo.
+     */
     private void mostrarInfo(String mensaje) {
         new Alert(Alert.AlertType.INFORMATION, mensaje).showAndWait();
     }
