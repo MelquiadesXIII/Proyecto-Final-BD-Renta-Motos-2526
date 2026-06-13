@@ -19,6 +19,10 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
         super(connection);
     }
 
+    // -----------------------------------------------------------------
+    // Métodos template (AbstractGenericDAO)
+    // -----------------------------------------------------------------
+
     @Override
     protected String getInsertSQL() {
         return "INSERT INTO contrato (fecha_inicio, id_moto, id_cliente, "
@@ -96,6 +100,10 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
         ps.setInt(1, id);
     }
 
+    /**
+     * Convierte una fila de ResultSet en un objeto Contrato.
+     * Maneja correctamente los campos nulos (fecha de entrega) y los tipos de datos.
+     */
     @Override
     protected Contrato mapResultSetToEntity(ResultSet rs) throws SQLException {
         java.sql.Date fechaEntregaSql = rs.getDate("fecha_entrega");
@@ -127,6 +135,13 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
         return contrato;
     }
 
+    // -----------------------------------------------------------------
+    // Listados y reportes
+    // -----------------------------------------------------------------
+
+    /**
+     * Obtiene todos los contratos con información completa (joins a cliente y moto).
+     */
     @Override
     public List<Contrato> listarContratosCompletos() {
         String sql = """
@@ -153,8 +168,9 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
         return lista;
     }
 
-    // ===================== REPORTES =====================
-
+    /**
+     * Obtiene el reporte de contratos desde la función listado_contratos().
+     */
     public List<ContRepDTO> listarContratosReporte() {
         String sql = "SELECT * FROM listado_contratos()";
         List<ContRepDTO> lista = new ArrayList<>();
@@ -184,6 +200,9 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
         return lista;
     }
 
+    /**
+     * Obtiene el resumen de contratos por marcas y modelos.
+     */
     public List<ResMarModDTO> resumenMarcasModelos() {
         String sql = "SELECT * FROM resumen_contratos_por_marcas_modelos()";
         List<ResMarModDTO> lista = new ArrayList<>();
@@ -213,6 +232,9 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
         return lista;
     }
 
+    /**
+     * Obtiene el resumen de contratos por municipios.
+     */
     public List<ResMunDTO> resumenMunicipios() {
         String sql = "SELECT * FROM resumen_contratos_por_municipios()";
         List<ResMunDTO> lista = new ArrayList<>();
@@ -240,6 +262,9 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
         return lista;
     }
 
+    /**
+     * Obtiene el reporte de ingresos anuales.
+     */
     public List<IngAnualDTO> ingresosAnuales() {
         String sql = "SELECT * FROM listado_ingresos_anuales()";
         List<IngAnualDTO> lista = new ArrayList<>();
@@ -263,6 +288,10 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
         return lista;
     }
 
+    /**
+     * Obtiene los contratos de un cliente específico, incluyendo información de la moto,
+     * fechas y costos. La fecha de entrega se muestra como texto ("Sin entregar" si es nula).
+     */
     public List<MisContratosDTO> listarMisContratos(int idCliente) {
         String sql = """
         SELECT co.id_contrato,
@@ -284,7 +313,8 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, idCliente);
             try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
+                boolean hayFila = rs.next();
+                while (hayFila) {
                     String fechaEntregaStr = rs.getDate("fecha_entrega") != null ?
                             rs.getDate("fecha_entrega").toLocalDate().toString() : "Sin entregar";
                     lista.add(new MisContratosDTO(
@@ -295,6 +325,7 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
                             rs.getDouble("importe"),
                             fechaEntregaStr
                     ));
+                    hayFila = rs.next();
                 }
             }
         } catch (SQLException e) {
