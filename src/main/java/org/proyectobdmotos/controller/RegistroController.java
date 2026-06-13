@@ -13,6 +13,7 @@ import org.proyectobdmotos.stores.AgenciaStore;
 import org.proyectobdmotos.stores.ReferenceDataStore;
 import org.proyectobdmotos.ui.navigation.NavigationHistory;
 import org.proyectobdmotos.ui.navigation.ScreenLoader;
+import org.proyectobdmotos.utils.AlertUtils;
 import org.proyectobdmotos.utils.Logger;
 import org.proyectobdmotos.services.exceptions.ValidationException;
 import org.proyectobdmotos.utils.ScreenUtils;
@@ -234,6 +235,7 @@ public class RegistroController {
             stage.setMaximized(true);
             Logger.logInfo("Registro cliente exitoso: " + usuario.getNombreUsuario());
         } catch (IOException e) {
+            e.printStackTrace();
             Logger.logError("Error al cargar user-main.fxml: " + e.getMessage());
             mostrarError("No se pudo abrir la interfaz de usuario.");
         }
@@ -247,18 +249,13 @@ public class RegistroController {
      * Muestra un mensaje de error en un cuadro de diálogo.
      */
     private void mostrarError(String mensaje) {
-        Alert alert = new Alert(Alert.AlertType.ERROR, mensaje);
-        alert.showAndWait();
+        AlertUtils.mostrarError(mensaje);
     }
 
     /**
      * Muestra un mensaje informativo con un título y contenido descriptivo.
      */
     private void mostrarInfo(String titulo, String mensaje) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(titulo);
-        alert.setHeaderText(null);
-        alert.setContentText(mensaje);
-        alert.showAndWait();
+        AlertUtils.mostrarInfoCabecera(titulo,mensaje);
     }
 }
