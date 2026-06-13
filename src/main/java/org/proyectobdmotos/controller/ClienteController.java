@@ -13,6 +13,7 @@ import org.proyectobdmotos.services.exceptions.ValidationException;
 import org.proyectobdmotos.stores.AgenciaStore;
 import org.proyectobdmotos.stores.ReferenceDataStore;
 import org.proyectobdmotos.ui.navigation.ScreenLoader;
+import org.proyectobdmotos.utils.AlertUtils;
 import org.proyectobdmotos.utils.Logger;
 
 import javafx.concurrent.Task;
@@ -301,11 +302,7 @@ public class ClienteController {
      * Centraliza la creación de alertas de error para mantener consistencia.
      */
     private void showError(String headerText, String contentText) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
-        alert.setHeaderText(headerText);
-        alert.setContentText(contentText);
-        alert.showAndWait();
+        AlertUtils.mostrarErrorTitulo(headerText, contentText);
     }
 
     /**
@@ -313,10 +310,6 @@ public class ClienteController {
      * Simplifica la comunicación de eventos no críticos.
      */
     private void mostrarAlerta(String mensaje) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Información");
-        alert.setHeaderText(null);
-        alert.setContentText(mensaje);
-        alert.showAndWait();
+        AlertUtils.mostrarError(mensaje);
     }
 }
