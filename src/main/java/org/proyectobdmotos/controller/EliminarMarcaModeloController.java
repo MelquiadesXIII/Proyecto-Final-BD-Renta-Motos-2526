@@ -115,7 +115,7 @@ public class EliminarMarcaModeloController {
         Marca marca = comboMarca.getValue();
 
         if (modelo == null && marca == null) {
-            mostrarAlerta("Seleccione un modelo o una marca");
+            AlertUtils.mostrarError("Seleccione un modelo o una marca");
         } else if (modelo != null) {
             eliminarModeloSiEsPosible(modelo);
         } else {
@@ -125,29 +125,43 @@ public class EliminarMarcaModeloController {
 
     /**
      * Verifica si el modelo tiene motos asociadas. Si no las tiene,
-     * lo elimina y vuelve a la pantalla anterior. Si tiene, muestra un error.
+     * pide confirmación y, si se acepta, lo elimina.
      */
     private void eliminarModeloSiEsPosible(Modelo modelo) {
         if (modeloService.existeMotoConModelo(modelo.getIdModelo())) {
-            mostrarAlerta("No se puede eliminar: hay motos que usan este modelo");
+            AlertUtils.mostrarError("No se puede eliminar: hay motos que usan este modelo");
         } else {
-            modeloService.eliminarModelo(modelo.getIdModelo());
-            MainController.getInstance().onGoBack();
+            boolean confirmado = AlertUtils.mostrarConfirmacion(
+                    "Eliminar modelo",
+                    "¿Eliminar el modelo \"" + modelo.getNombreModelo() + "\"?",
+                    "Esta acción no se puede deshacer."
+            );
+            if (confirmado) {
+                modeloService.eliminarModelo(modelo.getIdModelo());
+                MainController.getInstance().onGoBack();
+            }
         }
     }
 
     /**
      * Verifica si la marca tiene modelos o motos asociadas. Si no las tiene,
-     * la elimina y vuelve a la pantalla anterior. Si tiene, muestra un error.
+     * pide confirmación y, si se acepta, la elimina.
      */
     private void eliminarMarcaSiEsPosible(Marca marca) {
         boolean tieneDependencias = marcaService.existenModelosConMarca(marca.getIdMarca())
                 || marcaService.existenMotosConMarca(marca.getIdMarca());
         if (tieneDependencias) {
-            mostrarAlerta("No se puede eliminar: la marca tiene modelos o motos asociadas");
+            AlertUtils.mostrarError("No se puede eliminar: la marca tiene modelos o motos asociadas");
         } else {
-            marcaService.eliminarMarca(marca.getIdMarca());
-            MainController.getInstance().onGoBack();
+            boolean confirmado = AlertUtils.mostrarConfirmacion(
+                    "Eliminar marca",
+                    "¿Eliminar la marca \"" + marca.getNombreMarca() + "\"?",
+                    "Esta acción no se puede deshacer."
+            );
+            if (confirmado) {
+                marcaService.eliminarMarca(marca.getIdMarca());
+                MainController.getInstance().onGoBack();
+            }
         }
     }
 
@@ -161,16 +175,5 @@ public class EliminarMarcaModeloController {
     @FXML
     private void onCancelar() {
         MainController.getInstance().onGoBack();
-    }
-
-    // -----------------------------------------------------------------
-    // Alerta
-    // -----------------------------------------------------------------
-
-    /**
-     * Muestra un diálogo de error con el mensaje indicado.
-     */
-    private void mostrarAlerta(String mensaje) {
-        AlertUtils.mostrarError(mensaje);
     }
 }
