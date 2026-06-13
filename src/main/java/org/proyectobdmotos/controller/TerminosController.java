@@ -19,6 +19,10 @@ public class TerminosController {
         this.screenLoader = screenLoader;
     }
 
+    /**
+     * Al cargar la ventana, muestra el texto completo de los términos y condiciones.
+     * El contenido es estático y no requiere procesamiento adicional.
+     */
     @FXML
     private void initialize() {
         areaTexto.setText(
@@ -96,6 +100,10 @@ public class TerminosController {
                         "y aceptado de manera irrevocable la totalidad de los presentes Términos y Condiciones.");
     }
 
+    /**
+     * Cierra la ventana de términos y regresa a la pantalla anterior.
+     * Si no hay historial de navegación, cierra la ventana directamente.
+     */
     @FXML
     private void cerrarVentana() {
         Parent anterior = NavigationHistory.goBack(screenLoader);
