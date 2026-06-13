@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 
 import org.proyectobdmotos.services.exceptions.BusinessErrorCode;
@@ -104,75 +105,7 @@ public abstract class Validator {
      * </ul>
      */
     public static boolean validateCI(String ci) {
-        boolean valid = false;
-
-        if (nonNull(ci) && ci.matches("^\\d{11}$")) {
-            boolean dateValid = false;
-            boolean centuryValid = false;
-            boolean sexValid = false;
-            boolean controlDigitValid = false;
-
-            int year2digits = Integer.parseInt(ci.substring(0, 2));
-            int month = Integer.parseInt(ci.substring(2, 4));
-            int day = Integer.parseInt(ci.substring(4, 6));
-            int centuryDigit = Integer.parseInt(ci.substring(6, 7));
-            int sexDigit = Integer.parseInt(ci.substring(9, 10));
-            int controlDigit = Integer.parseInt(ci.substring(10, 11));
-
-            int fullYear = 0;
-            if (centuryDigit == 9) {
-                fullYear = 1800 + year2digits;
-                centuryValid = true;
-            } else if (centuryDigit >= 0 && centuryDigit <= 5) {
-                fullYear = 1900 + year2digits;
-                centuryValid = true;
-            } else if (centuryDigit >= 6 && centuryDigit <= 8) {
-                fullYear = 2000 + year2digits;
-                centuryValid = true;
-            }
-
-            if (centuryValid) {
-                try {
-                    java.time.LocalDate date = java.time.LocalDate.of(fullYear, month, day);
-                    dateValid = true;
-                } catch (java.time.DateTimeException e) {
-                    dateValid = false;
-                }
-            }
-
-            sexValid = true;
-
-            int expectedControlDigit = calculateCIControlDigit(ci);
-            controlDigitValid = (controlDigit == expectedControlDigit);
-
-            valid = centuryValid && dateValid && sexValid && controlDigitValid;
-
-            if (!valid) {
-                StringBuilder errorMsg = new StringBuilder("Carnet de identidad inválido:");
-
-                if (!centuryValid) {
-                    errorMsg.append(" dígito de siglo inválido (").append(centuryDigit).append(").");
-                }
-                if (!dateValid) {
-                    errorMsg.append(" fecha de nacimiento inválida (")
-                            .append(fullYear).append("-")
-                            .append(String.format("%02d", month)).append("-")
-                            .append(String.format("%02d", day)).append(").");
-                }
-                if (!controlDigitValid) {
-                    errorMsg.append(" dígito de control inválido (esperado ")
-                            .append(expectedControlDigit).append(", recibido ").append(controlDigit).append(").");
-                }
-                errorMsg.append(" Recibido: \"").append(ci).append("\"");
-
-                throw new ValidationException(
-                    BusinessErrorCode.FORMATO_INVALIDO,
-                    errorMsg.toString()
-                );
-            }
-        }
-
-        if (!valid) {
+        if (ci == null || !ci.matches("^\\d{11}$")) {
             throw new ValidationException(
                 BusinessErrorCode.FORMATO_INVALIDO,
                 "Carnet de identidad inválido: debe tener exactamente 11 dígitos."
@@ -180,7 +113,53 @@ public abstract class Validator {
             );
         }
 
-        return valid;
+        int year2digits   = Integer.parseInt(ci.substring(0, 2));
+        int month         = Integer.parseInt(ci.substring(2, 4));
+        int day           = Integer.parseInt(ci.substring(4, 6));
+        int centuryDigit  = Integer.parseInt(ci.substring(6, 7));
+        int controlDigit  = Integer.parseInt(ci.substring(10, 11));
+
+        // Siglo
+        int fullYear;
+        if (centuryDigit == 9) {
+            fullYear = 1800 + year2digits;
+        } else if (centuryDigit <= 5) {      // 0-5 → 1900s
+            fullYear = 1900 + year2digits;
+        } else if (centuryDigit <= 8) {      // 6-8 → 2000s
+            fullYear = 2000 + year2digits;
+        } else {
+            throw new ValidationException(
+                BusinessErrorCode.FORMATO_INVALIDO,
+                "Carnet de identidad inválido: dígito de siglo inválido ("
+                + centuryDigit + "). Recibido: \"" + ci + "\""
+            );
+        }
+
+        // Fecha
+        try {
+            LocalDate.of(fullYear, month, day);
+        } catch (DateTimeException e) {
+            throw new ValidationException(
+                BusinessErrorCode.FORMATO_INVALIDO,
+                "Carnet de identidad inválido: fecha de nacimiento inválida ("
+                + fullYear + "-" + String.format("%02d", month)
+                + "-" + String.format("%02d", day)
+                + "). Recibido: \"" + ci + "\""
+            );
+        }
+
+        // Dígito de control
+        int expected = calculateCIControlDigit(ci);
+        if (controlDigit != expected) {
+            throw new ValidationException(
+                BusinessErrorCode.FORMATO_INVALIDO,
+                "Carnet de identidad inválido: dígito de control inválido"
+                + " (esperado " + expected + ", recibido " + controlDigit
+                + "). Recibido: \"" + ci + "\""
+            );
+        }
+
+        return true;
     }
 
     /**
