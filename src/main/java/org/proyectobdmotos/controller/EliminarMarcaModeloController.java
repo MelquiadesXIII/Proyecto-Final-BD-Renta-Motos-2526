@@ -6,6 +6,7 @@ import org.proyectobdmotos.models.Marca;
 import org.proyectobdmotos.models.Modelo;
 import org.proyectobdmotos.services.MarcaService;
 import org.proyectobdmotos.services.ModeloService;
+import org.proyectobdmotos.utils.AlertUtils;
 
 import java.util.List;
 
@@ -170,6 +171,6 @@ public class EliminarMarcaModeloController {
      * Muestra un diálogo de error con el mensaje indicado.
      */
     private void mostrarAlerta(String mensaje) {
-        new Alert(Alert.AlertType.ERROR, mensaje).showAndWait();
+        AlertUtils.mostrarError(mensaje);
     }
 }
