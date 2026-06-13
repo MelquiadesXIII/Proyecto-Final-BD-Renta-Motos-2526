@@ -72,6 +72,7 @@ public class ContratoUsuarioFormController {
         if (inicio != null && fin != null && !fin.isBefore(inicio)) {
             List<MotoDisponibleDTO> disponibles = motoService.listarMotosDisponiblesDetalle(inicio, fin);
             comboMoto.getItems().setAll(disponibles);
+            comboMoto.getSelectionModel().clearSelection();
             if (disponibles.isEmpty()) {
                 comboMoto.setPromptText("No hay motos disponibles");
                 labelSinMotos.setVisible(true);
@@ -102,7 +103,7 @@ public class ContratoUsuarioFormController {
 
     /**
      * Comprueba que los campos obligatorios estén rellenados y que la fecha
-     * de inicio no sea posterior a la de fin.
+     * de inicio no sea posterior a la de fin ni anterior a hoy.
      * @return true si los datos son válidos, false en caso contrario.
      */
     private boolean validarFormulario() {
@@ -111,15 +112,22 @@ public class ContratoUsuarioFormController {
         LocalDate fin = dateFin.getValue();
         FormaPago formaPago = comboPago.getValue();
 
-        if (motoSeleccionada == null || inicio == null || fin == null || formaPago == null) {
+        boolean camposCompletos = motoSeleccionada != null && inicio != null && fin != null && formaPago != null;
+        if (!camposCompletos) {
             mostrarError("Todos los campos obligatorios deben estar completos.");
-            return false;
         }
-        if (inicio.isAfter(fin)) {
+
+        boolean fechaPasada = inicio != null && inicio.isBefore(LocalDate.now());
+        if (fechaPasada) {
+            mostrarError("La fecha de inicio no puede ser anterior a hoy.");
+        }
+
+        boolean fechasInvertidas = inicio != null && fin != null && inicio.isAfter(fin);
+        if (fechasInvertidas) {
             mostrarError("La fecha de inicio debe ser anterior o igual a la fecha fin.");
-            return false;
         }
-        return true;
+
+        return camposCompletos && !fechaPasada && !fechasInvertidas;
     }
 
     /**
@@ -128,29 +136,30 @@ public class ContratoUsuarioFormController {
      */
     private void crearContrato() {
         Cliente cliente = agenciaStore.getClienteActual();
-        if (cliente == null) {
+        if (cliente != null) {
+            try {
+                Contrato nuevoContrato = new Contrato(
+                        0.0, 0.0,
+                        cliente.getIdCliente(),
+                        0, null,
+                        dateFin.getValue(), dateInicio.getValue(),
+                        comboPago.getValue(),
+                        comboMoto.getValue().getIdMoto(),
+                        false, 20.0, 40.0
+                );
+                contratoService.crearContrato(nuevoContrato);
+                mostrarInfo("Contrato creado correctamente.");
+                UserMainController.getInstance().onGoBack();
+            } catch (ValidationException e) {
+                e.printStackTrace();
+                mostrarError(e.getMessage());
+            } catch (Exception e) {
+                e.printStackTrace();
+                Logger.logError("Error al guardar contrato: " + e.getMessage());
+                mostrarError("Error inesperado al guardar el contrato.");
+            }
+        } else {
             mostrarError("No se ha identificado al cliente.");
-            return;
-        }
-
-        try {
-            Contrato nuevoContrato = new Contrato(
-                    0.0, 0.0,
-                    cliente.getIdCliente(),
-                    0, null,
-                    dateFin.getValue(), dateInicio.getValue(),
-                    comboPago.getValue(),
-                    comboMoto.getValue().getIdMoto(),
-                    false, 20.0, 40.0
-            );
-            contratoService.crearContrato(nuevoContrato);
-            mostrarInfo("Contrato creado correctamente.");
-            UserMainController.getInstance().onGoBack();
-        } catch (ValidationException e) {
-            mostrarError(e.getMessage());
-        } catch (Exception e) {
-            Logger.logError("Error al guardar contrato: " + e.getMessage());
-            mostrarError("Error inesperado al guardar el contrato.");
         }
     }
 
