@@ -27,16 +27,16 @@ public class MisContratosController {
     @FXML private TableView<MisContratosDTO> tablaContratos;
     @FXML private TableColumn<MisContratosDTO, String> colContratoMoto, colFechaInicio, colFechaFin;
     @FXML private TableColumn<MisContratosDTO, Double> colCosto;
+    @FXML private TableColumn<MisContratosDTO, String> colFechaEntrega;
 
     @FXML private Label labelSinContratos;
     @FXML private Button btnFinalizarContrato;
-
-    @FXML private TableColumn<MisContratosDTO, String> colFechaEntrega;
 
     private final MotoService motoService;
     private final ContratoService contratoService;
     private final AgenciaStore agenciaStore;
 
+    // Cachés para evitar múltiples consultas a la base de datos
     private final Map<Integer, String> cacheMarcas = new HashMap<>();
     private final Map<Integer, String> cacheModelos = new HashMap<>();
     private final Map<Integer, String> cacheColores = new HashMap<>();
@@ -48,6 +48,14 @@ public class MisContratosController {
         this.agenciaStore = agenciaStore;
     }
 
+    // -----------------------------------------------------------------
+    // Inicialización
+    // -----------------------------------------------------------------
+
+    /**
+     * Configura las columnas de ambas tablas, carga los datos iniciales
+     * y deshabilita el botón de finalizar hasta que se seleccione un contrato.
+     */
     @FXML
     private void initialize() {
         configurarColumnasMotos();
@@ -56,11 +64,21 @@ public class MisContratosController {
         cargarContratos();
         btnFinalizarContrato.setDisable(true);
 
+        // Habilita el botón Finalizar solo cuando haya un contrato seleccionado
         tablaContratos.getSelectionModel().selectedItemProperty().addListener((obs, old, newVal) -> {
             btnFinalizarContrato.setDisable(newVal == null);
         });
     }
 
+    // -----------------------------------------------------------------
+    // Configuración de columnas
+    // -----------------------------------------------------------------
+
+    /**
+     * Define cómo se muestra cada columna de la tabla de motos.
+     * Las columnas de marca, modelo y color se obtienen dinámicamente
+     * a partir de los identificadores, usando cachés para mejorar el rendimiento.
+     */
     private void configurarColumnasMotos() {
         colMatricula.setCellValueFactory(cellData ->
                 new javafx.beans.property.SimpleStringProperty(cellData.getValue().getMatriculaMoto()));
@@ -84,6 +102,26 @@ public class MisContratosController {
                 new javafx.beans.property.SimpleDoubleProperty(cellData.getValue().getCantKmRecorridos()).asObject());
     }
 
+    /**
+     * Configura las columnas de la tabla de contratos del usuario.
+     */
+    private void configurarColumnasContratos() {
+        colContratoMoto.setCellValueFactory(new PropertyValueFactory<>("motoInfo"));
+        colFechaInicio.setCellValueFactory(new PropertyValueFactory<>("fechaInicio"));
+        colFechaFin.setCellValueFactory(new PropertyValueFactory<>("fechaFin"));
+        colCosto.setCellValueFactory(new PropertyValueFactory<>("costoTotal"));
+        colFechaEntrega.setCellValueFactory(new PropertyValueFactory<>("fechaEntrega"));
+    }
+
+    // -----------------------------------------------------------------
+    // Métodos auxiliares para obtener nombres a partir de IDs
+    // -----------------------------------------------------------------
+
+    /**
+     * Obtiene el ID de la marca asociada a una moto, a través de su modelo.
+     * Si no se puede determinar, devuelve -1.
+     * @return el ID de la marca, o -1 si no se encuentra.
+     */
     private int obtenerIdMarcaDeMoto(Moto moto) {
         int idModelo = moto.getIdModelo();
         Modelo modelo = null;
@@ -92,71 +130,87 @@ public class MisContratosController {
         } catch (Exception e) {
             modelo = null;
         }
+        int idMarca = -1;
         if (modelo != null) {
-            return modelo.getIdMarca();
+            idMarca = modelo.getIdMarca();
         }
-        return -1;
+        return idMarca;
     }
 
+    /**
+     * Obtiene el nombre de una marca a partir de su ID, usando caché.
+     * Si no se encuentra, devuelve "Desconocida".
+     * @return el nombre de la marca.
+     */
     private String obtenerNombreMarca(int idMarca) {
-        if (cacheMarcas.containsKey(idMarca)) {
-            return cacheMarcas.get(idMarca);
+        String nombre = cacheMarcas.get(idMarca);
+        if (nombre == null) {
+            Marca marca = null;
+            try {
+                marca = motoService.obtenerMarcaPorId(idMarca);
+            } catch (Exception e) {
+                marca = null;
+            }
+            nombre = (marca != null) ? marca.getNombreMarca() : "Desconocida";
+            cacheMarcas.put(idMarca, nombre);
         }
-        Marca marca = null;
-        try {
-            marca = motoService.obtenerMarcaPorId(idMarca);
-        } catch (Exception e) {
-            marca = null;
-        }
-        String nombre = (marca != null) ? marca.getNombreMarca() : "Desconocida";
-        cacheMarcas.put(idMarca, nombre);
         return nombre;
     }
 
+    /**
+     * Obtiene el nombre de un modelo a partir de su ID, usando caché.
+     * Si no se encuentra, devuelve "Desconocido".
+     * @return el nombre del modelo.
+     */
     private String obtenerNombreModelo(int idModelo) {
-        if (cacheModelos.containsKey(idModelo)) {
-            return cacheModelos.get(idModelo);
+        String nombre = cacheModelos.get(idModelo);
+        if (nombre == null) {
+            Modelo modelo = null;
+            try {
+                modelo = motoService.obtenerModeloPorId(idModelo);
+            } catch (Exception e) {
+                modelo = null;
+            }
+            nombre = (modelo != null) ? modelo.getNombreModelo() : "Desconocido";
+            cacheModelos.put(idModelo, nombre);
         }
-        Modelo modelo = null;
-        try {
-            modelo = motoService.obtenerModeloPorId(idModelo);
-        } catch (Exception e) {
-            modelo = null;
-        }
-        String nombre = (modelo != null) ? modelo.getNombreModelo() : "Desconocido";
-        cacheModelos.put(idModelo, nombre);
         return nombre;
     }
 
+    /**
+     * Obtiene el nombre de un color a partir de su ID, usando caché.
+     * Si no se encuentra, devuelve "Color #" seguido del ID.
+     * @return el nombre del color.
+     */
     private String obtenerNombreColor(int idColor) {
-        if (cacheColores.containsKey(idColor)) {
-            return cacheColores.get(idColor);
+        String nombre = cacheColores.get(idColor);
+        if (nombre == null) {
+            try {
+                nombre = motoService.obtenerNombreColorPorId(idColor);
+            } catch (Exception e) {
+                nombre = "Color #" + idColor;
+            }
+            cacheColores.put(idColor, nombre);
         }
-        String nombre = "Color #" + idColor;
-        try {
-            nombre = motoService.obtenerNombreColorPorId(idColor);
-        } catch (Exception e) {
-
-        }
-        cacheColores.put(idColor, nombre);
         return nombre;
     }
 
+    // -----------------------------------------------------------------
+    // Carga de datos
+    // -----------------------------------------------------------------
 
-
-    private void configurarColumnasContratos() {
-        colContratoMoto.setCellValueFactory(new PropertyValueFactory<>("motoInfo"));
-        colFechaInicio.setCellValueFactory(new PropertyValueFactory<>("fechaInicio"));
-        colFechaFin.setCellValueFactory(new PropertyValueFactory<>("fechaFin"));
-        colCosto.setCellValueFactory(new PropertyValueFactory<>("costoTotal"));
-        colFechaEntrega.setCellValueFactory(new PropertyValueFactory<>("fechaEntrega"));  // nueva
-    }
-
+    /**
+     * Carga la lista completa de motos y las muestra en la tabla superior.
+     */
     private void cargarMotos() {
         List<Moto> motos = motoService.listarTodos();
         tablaMotos.getItems().setAll(motos);
     }
 
+    /**
+     * Carga los contratos del cliente actual y actualiza la tabla inferior.
+     * Muestra u oculta el mensaje "Sin Ningún Contrato" según corresponda.
+     */
     private void cargarContratos() {
         int idCliente = agenciaStore.getClienteActual().getIdCliente();
         List<MisContratosDTO> contratos = contratoService.listarMisContratos(idCliente);
@@ -166,11 +220,23 @@ public class MisContratosController {
         labelSinContratos.setManaged(sinContratos);
     }
 
+    // -----------------------------------------------------------------
+    // Acciones del usuario
+    // -----------------------------------------------------------------
+
+    /**
+     * Abre el formulario para crear un nuevo contrato.
+     */
     @FXML
     private void onCrearNuevoContrato() {
         UserMainController.getInstance().cargarVista("/fxml/contrato-usuario-form.fxml", "Nuevo Contrato");
     }
 
+    /**
+     * Inicia el proceso de finalización de un contrato seleccionado.
+     * Muestra un diálogo para ingresar los datos de entrega y, si son válidos,
+     * procede a finalizar el contrato.
+     */
     @FXML
     private void onFinalizarContrato() {
         MisContratosDTO seleccionado = tablaContratos.getSelectionModel().getSelectedItem();
@@ -187,6 +253,11 @@ public class MisContratosController {
         }
     }
 
+    /**
+     * Muestra un cuadro de diálogo modal para que el usuario ingrese
+     * el kilometraje de llegada y la fecha de entrega.
+     * @return un Optional con los datos si el usuario acepta, Optional.empty() si cancela.
+     */
     private Optional<DatosFinalizacion> mostrarDialogoFinalizacion() {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Finalizar contrato");
@@ -212,52 +283,64 @@ public class MisContratosController {
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
         Optional<ButtonType> resultado = dialog.showAndWait();
+        DatosFinalizacion datos = null;
         if (resultado.isPresent() && resultado.get() == ButtonType.OK) {
             try {
                 double km = Double.parseDouble(kmField.getText().trim());
                 if (datePicker.getValue() == null) {
                     new Alert(Alert.AlertType.ERROR, "Debe seleccionar una fecha.").showAndWait();
-                    return Optional.empty();
+                } else {
+                    datos = new DatosFinalizacion(km, datePicker.getValue());
                 }
-                return Optional.of(new DatosFinalizacion(km, datePicker.getValue()));
             } catch (NumberFormatException e) {
                 e.printStackTrace();
                 new Alert(Alert.AlertType.ERROR, "Ingrese un número válido para los kilómetros.").showAndWait();
             }
         }
-        return Optional.empty();
+        return Optional.ofNullable(datos);
     }
 
+    /**
+     * Ejecuta la lógica de finalización del contrato: valida los kilómetros y la fecha,
+     * actualiza el contrato y recarga la tabla de contratos.
+     */
     private void procesarFinalizacion(MisContratosDTO dto, double kmLlegada, LocalDate fechaEntrega) {
         Optional<Contrato> optContrato = contratoService.buscarPorId(dto.getIdContrato());
         if (optContrato.isEmpty()) {
             new Alert(Alert.AlertType.ERROR, "El contrato ya no existe.").showAndWait();
         } else {
             Contrato contrato = optContrato.get();
-            if (kmLlegada < contrato.getCantKmSalida()) {
+            boolean kmValido = kmLlegada >= contrato.getCantKmSalida();
+            boolean fechaValida = !fechaEntrega.isAfter(LocalDate.now());
+            if (!kmValido) {
                 new Alert(Alert.AlertType.ERROR,
                         "Los kilómetros de llegada no pueden ser menores que los de salida ("
                                 + contrato.getCantKmSalida() + " km).").showAndWait();
-                return;
-            }
-            if (fechaEntrega.isAfter(LocalDate.now())) {
+            } else if (!fechaValida) {
                 new Alert(Alert.AlertType.ERROR,
                         "La fecha de entrega no puede ser posterior a hoy.").showAndWait();
-                return;
-            }
-
-            contrato.setCantKmLlegada(kmLlegada);
-            contrato.setFechaEntrega(fechaEntrega);
-            try {
-                contratoService.finalizarContrato(contrato);
-                cargarContratos();
-            } catch (Exception e) {
-                e.printStackTrace();
-                new Alert(Alert.AlertType.ERROR, "Error al finalizar: " + e.getMessage()).showAndWait();
+            } else {
+                contrato.setCantKmLlegada(kmLlegada);
+                contrato.setFechaEntrega(fechaEntrega);
+                try {
+                    contratoService.finalizarContrato(contrato);
+                    cargarContratos();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    new Alert(Alert.AlertType.ERROR, "Error al finalizar: " + e.getMessage()).showAndWait();
+                }
             }
         }
     }
 
+    // -----------------------------------------------------------------
+    // Clase interna para agrupar los datos del diálogo
+    // -----------------------------------------------------------------
+
+    /**
+     * Almacena el kilometraje de llegada y la fecha de entrega
+     * ingresados por el usuario en el diálogo de finalización.
+     */
     private static class DatosFinalizacion {
         final double kmLlegada;
         final LocalDate fechaEntrega;
