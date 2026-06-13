@@ -11,6 +11,7 @@ import org.proyectobdmotos.services.exceptions.BusinessException;
 import org.proyectobdmotos.services.exceptions.ValidationException;
 import org.proyectobdmotos.stores.AgenciaStore;
 import org.proyectobdmotos.stores.ReferenceDataStore;
+import org.proyectobdmotos.utils.AlertUtils;
 import org.proyectobdmotos.utils.Logger;
 
 import javafx.beans.property.SimpleStringProperty;
@@ -461,10 +462,6 @@ public class ContratoController {
      * Muestra un diálogo informativo con un solo texto.
      */
     private void mostrarAlerta(String mensaje) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Información");
-        alert.setHeaderText(null);
-        alert.setContentText(mensaje);
-        alert.showAndWait();
+        AlertUtils.mostrarInfo(mensaje);
     }
 }
