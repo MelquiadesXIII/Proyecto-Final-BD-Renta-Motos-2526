@@ -9,6 +9,7 @@ import org.proyectobdmotos.dto.MotoDisponibleDTO;
 import org.proyectobdmotos.models.*;
 import org.proyectobdmotos.services.*;
 import org.proyectobdmotos.stores.AgenciaStore;
+import org.proyectobdmotos.utils.AlertUtils;
 import org.proyectobdmotos.utils.Logger;
 import org.proyectobdmotos.services.exceptions.ValidationException;
 
@@ -248,13 +249,13 @@ public class ContratoUsuarioFormController {
      * Muestra un mensaje de error en un cuadro de diálogo.
      */
     private void mostrarError(String mensaje) {
-        new Alert(Alert.AlertType.ERROR, mensaje).showAndWait();
+        AlertUtils.mostrarError(mensaje);
     }
 
     /**
      * Muestra un mensaje informativo en un cuadro de diálogo.
      */
     private void mostrarInfo(String mensaje) {
-        new Alert(Alert.AlertType.INFORMATION, mensaje).showAndWait();
+        AlertUtils.mostrarInfo(mensaje);
     }
 }
