@@ -1,7 +1,10 @@
 package org.proyectobdmotos.utils;
 
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+
+import java.util.Optional;
 
 public final class AlertUtils {
 
@@ -90,6 +93,24 @@ public final class AlertUtils {
         alert.setHeaderText(titulo);
         alert.getDialogPane().setContent(crearContenido(mensaje));
         alert.showAndWait();
+    }
+
+    /**
+     * Muestra un diálogo de confirmación con botones Aceptar/Cancelar.
+     * @param titulo    título de la ventana.
+     * @param encabezado texto del encabezado (puede ser null).
+     * @param mensaje   contenido del mensaje.
+     * @return true si el usuario elige Aceptar, false en caso contrario.
+     */
+    public static boolean mostrarConfirmacion(String titulo, String encabezado, String mensaje) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle(titulo);
+        alert.setHeaderText(encabezado);
+        alert.getDialogPane().setContent(crearContenido(mensaje));
+
+        Optional<ButtonType> resultado = alert.showAndWait();
+        boolean aceptado = resultado.isPresent() && resultado.get() == ButtonType.OK;
+        return aceptado;
     }
 
 }
