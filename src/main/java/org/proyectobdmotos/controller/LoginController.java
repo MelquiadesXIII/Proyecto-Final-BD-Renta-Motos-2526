@@ -17,6 +17,7 @@ import org.proyectobdmotos.services.UsuarioService;
 import org.proyectobdmotos.stores.AgenciaStore;
 import org.proyectobdmotos.ui.navigation.NavigationHistory;
 import org.proyectobdmotos.ui.navigation.ScreenLoader;
+import org.proyectobdmotos.utils.AlertUtils;
 import org.proyectobdmotos.utils.Logger;
 import org.proyectobdmotos.utils.ScreenUtils;
 import org.proyectobdmotos.utils.TermsWindow;
@@ -194,6 +195,7 @@ public class LoginController {
             stage.setTitle("Crear cuenta");
             stage.setMaximized(true);
         } catch (IOException e) {
+            e.printStackTrace();
             Logger.logError("Error al cargar registro: " + e.getMessage());
             mostrarError("Error", "No se pudo abrir el registro.");
         }
@@ -235,10 +237,6 @@ public class LoginController {
     }
     
     private void mostrarError(String titulo, String mensaje) {
-        Alert alerta = new Alert(Alert.AlertType.ERROR);
-        alerta.setTitle(titulo);
-        alerta.setHeaderText(null);
-        alerta.setContentText(mensaje);
-        alerta.showAndWait();
+        AlertUtils.mostrarErrorTitulo(titulo, mensaje);
     }
 }
