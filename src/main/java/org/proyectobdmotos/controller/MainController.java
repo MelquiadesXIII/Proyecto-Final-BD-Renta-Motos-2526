@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Stack;
 
 import org.proyectobdmotos.ui.navigation.ScreenLoader;
+import org.proyectobdmotos.utils.AlertUtils;
 import org.proyectobdmotos.utils.Logger;
 
 import javafx.fxml.FXML;
@@ -227,11 +228,7 @@ public class MainController {
      * Muestra un diálogo de error cuando una vista no puede cargarse.
      */
     private void showLoadError(String viewName, Exception exception) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error de navegación");
-        alert.setHeaderText("No se pudo abrir la vista de " + viewName);
-        alert.setContentText(exception.getMessage());
-        alert.showAndWait();
+        AlertUtils.mostrarErrorCabecera(viewName, exception);
     }
 
     // -----------------------------------------------------------------
