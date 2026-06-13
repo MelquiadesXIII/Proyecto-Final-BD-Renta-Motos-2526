@@ -14,6 +14,10 @@ public class ModeloDAO extends AbstractGenericDAO<Modelo, Integer> implements IM
         super(connection);
     }
 
+    // -----------------------------------------------------------------
+    // Métodos template (AbstractGenericDAO)
+    // -----------------------------------------------------------------
+
     @Override
     protected String getInsertSQL() { return "INSERT INTO modelo (id_marca, nombre_modelo) VALUES (?, ?)"; }
     @Override
@@ -45,16 +49,24 @@ public class ModeloDAO extends AbstractGenericDAO<Modelo, Integer> implements IM
         return new Modelo(rs.getInt("id_modelo"), rs.getInt("id_marca"), rs.getString("nombre_modelo"));
     }
 
-    // Crear usando función SQL
+    // -----------------------------------------------------------------
+    // Operaciones específicas de Modelo
+    // -----------------------------------------------------------------
+
+    /**
+     * Crea un nuevo modelo asociado a una marca utilizando la función SQL insertar_modelo().
+     * @return el modelo creado con su ID asignado, o null si no se pudo crear.
+     */
     public Modelo crearModelo(int idMarca, String nombre) {
         String sql = "SELECT insertar_modelo(?, ?) AS id_modelo";
+        Modelo nuevoModelo = null;
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, idMarca);
             ps.setString(2, nombre);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     int id = rs.getInt("id_modelo");
-                    return new Modelo(id, idMarca, nombre);
+                    nuevoModelo = new Modelo(id, idMarca, nombre);
                 }
             }
         } catch (SQLException e) {
@@ -62,18 +74,23 @@ public class ModeloDAO extends AbstractGenericDAO<Modelo, Integer> implements IM
             Logger.logError("Error al crear modelo: " + e.getMessage());
             throw new RuntimeException("Error al crear modelo", e);
         }
-        return null;
+        return nuevoModelo;
     }
 
-    // Verificar existencia insensible a mayúsculas
+    /**
+     * Verifica si ya existe un modelo con el mismo nombre dentro de una marca.
+     * La comparación es insensible a mayúsculas/minúsculas.
+     * @return true si el modelo ya existe en esa marca, false en caso contrario.
+     */
     public boolean existeModelo(int idMarca, String nombre) {
         String sql = "SELECT existe_modelo(?, ?) AS existe";
+        boolean existe = false;
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, idMarca);
             ps.setString(2, nombre);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return rs.getBoolean("existe");
+                    existe = rs.getBoolean("existe");
                 }
             }
         } catch (SQLException e) {
@@ -81,20 +98,29 @@ public class ModeloDAO extends AbstractGenericDAO<Modelo, Integer> implements IM
             Logger.logError("Error al verificar modelo: " + e.getMessage());
             throw new RuntimeException("Error al verificar modelo", e);
         }
-        return false;
+        return existe;
     }
 
+    /**
+     * Verifica si hay alguna moto que use este modelo.
+     * @return true si al menos una moto referencia este modelo.
+     */
     public boolean existeMotoConModelo(int idModelo) {
         String sql = "SELECT existe_moto_con_modelo(?)";
+        boolean existe = false;
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, idModelo);
             ResultSet rs = ps.executeQuery();
-            return rs.next() && rs.getBoolean(1);
+            existe = rs.next() && rs.getBoolean(1);
         } catch (SQLException e) {
             throw new RuntimeException("Error al verificar moto con modelo", e);
         }
+        return existe;
     }
 
+    /**
+     * Elimina un modelo por su identificador.
+     */
     public void eliminarModelo(int idModelo) {
         String sql = "DELETE FROM modelo WHERE id_modelo = ?";
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
@@ -105,17 +131,22 @@ public class ModeloDAO extends AbstractGenericDAO<Modelo, Integer> implements IM
         }
     }
 
-    // Listar todos los modelos con su marca (para la tabla)
+    /**
+     * Obtiene todos los modelos junto con el nombre de su marca asociada.
+     * @return lista de DTOs con id y nombre del modelo e id y nombre de la marca.
+     */
     public List<ModeloConMarcaDTO> listarModelosConMarca() {
         String sql = "SELECT mo.id_modelo, mo.nombre_modelo, ma.id_marca, ma.nombre_marca FROM modelo mo JOIN marca ma ON mo.id_marca = ma.id_marca ORDER BY ma.nombre_marca, mo.nombre_modelo";
         List<ModeloConMarcaDTO> lista = new ArrayList<>();
         try (PreparedStatement ps = getConnection().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
+            boolean hayFila = rs.next();
+            while (hayFila) {
                 lista.add(new ModeloConMarcaDTO(
                         rs.getInt("id_modelo"), rs.getString("nombre_modelo"),
                         rs.getInt("id_marca"), rs.getString("nombre_marca")
                 ));
+                hayFila = rs.next();
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error al listar modelos con marca", e);
@@ -123,6 +154,9 @@ public class ModeloDAO extends AbstractGenericDAO<Modelo, Integer> implements IM
         return lista;
     }
 
+    /**
+     * Actualiza los datos de un modelo existente (nombre y marca asociada).
+     */
     public void actualizarModelo(Modelo modelo) {
         String sql = "UPDATE modelo SET id_marca = ?, nombre_modelo = ? WHERE id_modelo = ?";
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
