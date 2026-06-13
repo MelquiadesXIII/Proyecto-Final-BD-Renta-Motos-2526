@@ -26,8 +26,21 @@ public class UserMainController {
         instance = this;
     }
 
-    public static UserMainController getInstance() { return instance; }
+    /**
+     * @return la instancia única de UserMainController.
+     */
+    public static UserMainController getInstance() {
+        return instance;
+    }
 
+    // -----------------------------------------------------------------
+    // Inicialización
+    // -----------------------------------------------------------------
+
+    /**
+     * Prepara el contenedor central, muestra la vista inicial
+     * y configura el atajo de teclado para retroceder.
+     */
     @FXML
     private void initialize() {
         Logger.log("Inicializando UserMainController...");
@@ -37,10 +50,32 @@ public class UserMainController {
         setupKeyboardShortcut();
     }
 
-    @FXML private void onShowPerfil() { loadView("/fxml/perfil.fxml", "Perfil"); }
-    @FXML private void onShowMisContratos() { loadView("/fxml/mis-contratos.fxml", "Mis Contratos"); }
-    @FXML private void onShowAyuda() { loadView("/fxml/ayuda.fxml", "Ayuda"); }
+    // -----------------------------------------------------------------
+    // Acciones de navegación (botones de la barra lateral)
+    // -----------------------------------------------------------------
 
+    /** Abre la vista de perfil del usuario. */
+    @FXML
+    private void onShowPerfil() {
+        loadView("/fxml/perfil.fxml", "Perfil");
+    }
+
+    /** Abre la vista de mis contratos. */
+    @FXML
+    private void onShowMisContratos() {
+        loadView("/fxml/mis-contratos.fxml", "Mis Contratos");
+    }
+
+    /** Abre la vista de ayuda. */
+    @FXML
+    private void onShowAyuda() {
+        loadView("/fxml/ayuda.fxml", "Ayuda");
+    }
+
+    /**
+     * Retrocede a la vista anterior. Si el historial está vacío,
+     * simplemente registra un mensaje informativo.
+     */
     public void onGoBack() {
         if (historial.isEmpty()) {
             Logger.logInfo("Historial vacío, no se puede retroceder");
@@ -59,23 +94,49 @@ public class UserMainController {
         }
     }
 
-    public void cargarVista(String fxmlPath, String nombreVista) { loadView(fxmlPath, nombreVista); }
+    /**
+     * Carga una vista en el panel central desde otro controlador.
+     * @param fxmlPath   ruta del archivo FXML.
+     * @param nombreVista nombre descriptivo para el log.
+     */
+    public void cargarVista(String fxmlPath, String nombreVista) {
+        loadView(fxmlPath, nombreVista);
+    }
 
+    // -----------------------------------------------------------------
+    // Métodos privados de navegación
+    // -----------------------------------------------------------------
+
+    /**
+     * Establece la vista inicial de la aplicación (bienvenida del usuario).
+     * Limpia el historial antes de cargar la nueva vista.
+     */
     private void showInitialView() {
         historial.clear();
         loadView("/fxml/bienvenido-usuario.fxml", "Bienvenida");
     }
 
+    /**
+     * Carga una vista en el contenedor central, gestionando el historial
+     * y los errores de carga.
+     */
     private void loadView(String fxmlPath, String viewName) {
-        if (fxmlActual != null) { historial.push(fxmlActual); }
+        if (fxmlActual != null) {
+            historial.push(fxmlActual);
+        }
+
+        boolean cargaExitosa = false;
         Parent viewRoot = null;
+
         try {
             viewRoot = screenLoader.load(fxmlPath);
+            cargaExitosa = true;
         } catch (IOException e) {
             Logger.logError("Error cargando vista " + viewName + ": " + e.getMessage());
             showLoadError(viewName, e);
         }
-        if (viewRoot != null) {
+
+        if (cargaExitosa) {
             fxmlActual = fxmlPath;
             configurarEscalado(viewRoot);
             contentContainer.getChildren().setAll(viewRoot);
@@ -83,6 +144,10 @@ public class UserMainController {
         }
     }
 
+    /**
+     * Configura el nodo raíz de una vista para que se expanda
+     * al máximo del contenedor.
+     */
     private void configurarEscalado(Parent root) {
         if (root instanceof Region) {
             Region region = (Region) root;
@@ -91,6 +156,9 @@ public class UserMainController {
         }
     }
 
+    /**
+     * Muestra un diálogo de error cuando una vista no puede cargarse.
+     */
     private void showLoadError(String viewName, Exception exception) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error de navegación");
@@ -99,6 +167,14 @@ public class UserMainController {
         alert.showAndWait();
     }
 
+    // -----------------------------------------------------------------
+    // Atajo de teclado
+    // -----------------------------------------------------------------
+
+    /**
+     * Configura el atajo de teclado Ctrl+Backspace para retroceder
+     * a la vista anterior.
+     */
     private void setupKeyboardShortcut() {
         contentContainer.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
