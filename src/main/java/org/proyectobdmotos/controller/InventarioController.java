@@ -99,6 +99,7 @@ public class InventarioController {
         } catch (Exception e) {
             e.printStackTrace();
             Logger.logError("Error al cargar inventario: " + e.getMessage());
+
         }
     }
 }
