@@ -90,14 +90,88 @@ public abstract class Validator {
     }
 
     /**
-     * Valida carnet de identidad. La lógica completa se implementará posteriormente.
-     * El carnet de identidad cubano debe tener 11 digitos
+     * Valida carnet de identidad cubano (11 dígitos).
+     *
+     * <p>Estructura del CI:</p>
+     * <ul>
+     *   <li>Dígitos 1-2: año de nacimiento (últimos dos dígitos)</li>
+     *   <li>Dígitos 3-4: mes de nacimiento (01-12)</li>
+     *   <li>Dígitos 5-6: día de nacimiento (01-31)</li>
+     *   <li>Dígito 7: siglo (9=XIX, 0-5=XX, 6-8=XXI)</li>
+     *   <li>Dígitos 8-9: número secuencial (00-99)</li>
+     *   <li>Dígito 10: sexo (par=varón, impar=hembra)</li>
+     *   <li>Dígito 11: dígito de control</li>
+     * </ul>
      */
     public static boolean validateCI(String ci) {
         boolean valid = false;
+
         if (nonNull(ci) && ci.matches("^\\d{11}$")) {
-            valid = true;
+            boolean dateValid = false;
+            boolean centuryValid = false;
+            boolean sexValid = false;
+            boolean controlDigitValid = false;
+
+            int year2digits = Integer.parseInt(ci.substring(0, 2));
+            int month = Integer.parseInt(ci.substring(2, 4));
+            int day = Integer.parseInt(ci.substring(4, 6));
+            int centuryDigit = Integer.parseInt(ci.substring(6, 7));
+            int sexDigit = Integer.parseInt(ci.substring(9, 10));
+            int controlDigit = Integer.parseInt(ci.substring(10, 11));
+
+            int fullYear = 0;
+            if (centuryDigit == 9) {
+                fullYear = 1800 + year2digits;
+                centuryValid = true;
+            } else if (centuryDigit >= 0 && centuryDigit <= 5) {
+                fullYear = 1900 + year2digits;
+                centuryValid = true;
+            } else if (centuryDigit >= 6 && centuryDigit <= 8) {
+                fullYear = 2000 + year2digits;
+                centuryValid = true;
+            }
+
+            if (centuryValid) {
+                try {
+                    java.time.LocalDate date = java.time.LocalDate.of(fullYear, month, day);
+                    dateValid = true;
+                } catch (java.time.DateTimeException e) {
+                    dateValid = false;
+                }
+            }
+
+            sexValid = true;
+
+            int expectedControlDigit = calculateCIControlDigit(ci);
+            controlDigitValid = (controlDigit == expectedControlDigit);
+
+            valid = centuryValid && dateValid && sexValid && controlDigitValid;
+
+            if (!valid) {
+                StringBuilder errorMsg = new StringBuilder("Carnet de identidad inválido:");
+
+                if (!centuryValid) {
+                    errorMsg.append(" dígito de siglo inválido (").append(centuryDigit).append(").");
+                }
+                if (!dateValid) {
+                    errorMsg.append(" fecha de nacimiento inválida (")
+                            .append(fullYear).append("-")
+                            .append(String.format("%02d", month)).append("-")
+                            .append(String.format("%02d", day)).append(").");
+                }
+                if (!controlDigitValid) {
+                    errorMsg.append(" dígito de control inválido (esperado ")
+                            .append(expectedControlDigit).append(", recibido ").append(controlDigit).append(").");
+                }
+                errorMsg.append(" Recibido: \"").append(ci).append("\"");
+
+                throw new ValidationException(
+                    BusinessErrorCode.FORMATO_INVALIDO,
+                    errorMsg.toString()
+                );
+            }
         }
+
         if (!valid) {
             throw new ValidationException(
                 BusinessErrorCode.FORMATO_INVALIDO,
@@ -105,7 +179,39 @@ public abstract class Validator {
                 + " Recibido: \"" + ci + "\""
             );
         }
+
         return valid;
+    }
+
+    /**
+     * Calcula el dígito de control del carnet de identidad cubano.
+     *
+     * <p>Algoritmo: se multiplican los 10 primeros dígitos por pesos cíclicos
+     * [2, 3, 4, 5, 6, 7, 8, 9, 2, 3], se suman los productos, y se calcula
+     * {@code 11 - (suma % 11)}. Si el resultado es 10 o 11, el dígito es 0.</p>
+     *
+     * @param ci los 11 dígitos del carnet de identidad
+     * @return el dígito de control esperado (0-9)
+     */
+    private static int calculateCIControlDigit(String ci) {
+        int[] weights = {2, 3, 4, 5, 6, 7, 8, 9, 2, 3};
+        int sum = 0;
+
+        int i = 0;
+        boolean shouldCalculate = true;
+        while (shouldCalculate && i < 10) {
+            int digit = Integer.parseInt(ci.substring(i, i + 1));
+            sum += digit * weights[i];
+            i++;
+            shouldCalculate = (i < 10);
+        }
+
+        int remainder = sum % 11;
+        int result = 11 - remainder;
+
+        boolean isOverTen = (result == 10 || result == 11);
+
+        return isOverTen ? 0 : result;
     }
 
     /**
