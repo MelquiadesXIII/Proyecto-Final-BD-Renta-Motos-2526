@@ -41,24 +41,11 @@
             GridPane.rowIndex="1" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" />
       </GridPane>
 
-      <Button text="Iniciar sesión"
-            onAction="#onIngresar"
-            styleClass="login-button" />
+      <Button text="Iniciar sesión" onAction="#onIngresar" styleClass="login-button" />
 
-      <Hyperlink
-         onAction="#goToRegister"
-         styleClass="login-link"
+      <Hyperlink onAction="#goToRegister" styleClass="login-link"
          text="¿No tienes cuenta? Crear usuario" />
-
-      <Hyperlink
-         onAction="#goToTerms"
-         styleClass="login-link"
+      <Hyperlink onAction="#goToTerms" styleClass="login-link"
          text="Condiciones y Servicios" />
-
-      <Hyperlink
-         onAction="#goToCredits"
-         styleClass="login-link"
-         text="Acerca de" />
-
    </VBox>
 </StackPane>
