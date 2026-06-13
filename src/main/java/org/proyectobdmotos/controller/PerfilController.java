@@ -14,6 +14,10 @@ public class PerfilController {
         this.agenciaStore = agenciaStore;
     }
 
+    /**
+     * Al cargar la pantalla de perfil, obtiene el cliente actual del store
+     * y muestra un saludo personalizado. Si no hay cliente, muestra un mensaje genérico.
+     */
     @FXML
     private void initialize() {
         Cliente cliente = agenciaStore.getClienteActual();
