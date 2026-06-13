@@ -103,9 +103,11 @@ public class ContratoFormController {
     private void cargarMotosSegunFechas() {
         LocalDate inicio = dateInicio.getValue();
         LocalDate fin = dateFin.getValue();
+
         if (inicio != null && fin != null && !fin.isBefore(inicio)) {
             List<MotoDisponibleDTO> disponibles = motoService.listarMotosDisponiblesDetalle(inicio, fin);
             comboMoto.getItems().setAll(disponibles);
+            comboMoto.getSelectionModel().clearSelection();
             comboMoto.setPromptText("Seleccione una moto");
         } else {
             comboMoto.getItems().clear();
@@ -149,6 +151,11 @@ public class ContratoFormController {
         FormaPago formaPago = comboPago.getValue();
         if (motoSeleccionada == null || inicio == null || fin == null || formaPago == null) {
             mostrarError("Todos los campos obligatorios deben estar completos.");
+            valido = false;
+        }
+
+        if (inicio != null && inicio.isBefore(LocalDate.now())) {
+            mostrarError("La fecha de inicio no puede ser anterior a hoy.");
             valido = false;
         }
 
