@@ -53,7 +53,7 @@ public class ContratoServiceContractTest extends TestCase {
         FakeContratoDAO contratoDAO = new FakeContratoDAO();
         FakeClienteDAO clienteDAO = new FakeClienteDAO();
         FakeMotoDAO motoDAO = new FakeMotoDAO();
-        clienteDAO.cliente = Optional.of(new Cliente(1, "99123112345", "Ana", "Perez", "Lopez", 30, Sexo.FEMENINO, "65512345", 1));
+        clienteDAO.cliente = Optional.of(new Cliente(1, "99123112351", "Ana", "Perez", "Lopez", 30, Sexo.FEMENINO, "65512345", 1));
         motoDAO.moto = Optional.of(crearMoto(1, "MO0001"));
         motoDAO.solapamiento = true;   // simula que la moto no está disponible (solapamiento de fechas)
         ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
@@ -75,7 +75,7 @@ public class ContratoServiceContractTest extends TestCase {
         FakeContratoDAO contratoDAO = new FakeContratoDAO();
         FakeClienteDAO clienteDAO = new FakeClienteDAO();
         FakeMotoDAO motoDAO = new FakeMotoDAO();
-        clienteDAO.cliente = Optional.of(new Cliente(1, "99123112345", "Ana", "Perez", "Lopez", 30, Sexo.FEMENINO, "65512345", 1));
+        clienteDAO.cliente = Optional.of(new Cliente(1, "99123112351", "Ana", "Perez", "Lopez", 30, Sexo.FEMENINO, "65512345", 1));
         motoDAO.moto = Optional.of(crearMoto(1, "MO0001"));
         motoDAO.solapamiento = false;
         ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
