@@ -15,11 +15,9 @@ import org.proyectobdmotos.services.exceptions.ValidationException;
 import org.proyectobdmotos.utils.Logger;
 
 /**
- * ContratoService: orquesta operaciones de contratos.
- * Necesita acceso a todos los DAOs porque un contrato involucra:
- * - Cliente (quien renta)
- * - Moto (qué se renta)
- * - Contrato (el registro de la renta)
+ * Orquesta las operaciones de negocio relacionadas con los contratos.
+ * Valida la existencia del cliente y la disponibilidad de la moto antes
+ * de crear o finalizar un contrato, delegando la persistencia en los DAOs.
  */
 public class ContratoService {
 
@@ -33,9 +31,14 @@ public class ContratoService {
         this.motoDAO = motoDAO;
     }
 
+    // -----------------------------------------------------------------
+    // Creación de contrato
+    // -----------------------------------------------------------------
+
     /**
-     * Crea un nuevo contrato validando que el cliente exista y la moto esté disponible.
-     * El trigger de BD se encarga de poner la moto en estado 'alquilada'.
+     * Crea un nuevo contrato tras validar que el cliente existe y que la moto
+     * está disponible en el período solicitado. Si alguna validación falla,
+     * lanza una excepción con el código de error correspondiente.
      */
     public void crearContrato(Contrato contrato) {
         Integer idCliente = contrato.getIdCliente();
@@ -102,8 +105,15 @@ public class ContratoService {
         }
     }
 
+    // -----------------------------------------------------------------
+    // Finalización de contrato
+    // -----------------------------------------------------------------
+
     /**
-     * Finaliza un contrato: registra la fecha de entrega y devuelve la moto a 'disponible'.
+     * Finaliza un contrato existente. Valida que el contrato no esté ya finalizado,
+     * que la moto exista, que la fecha de entrega sea válida y que el kilometraje
+     * de llegada no sea inferior al de salida. Si todo es correcto, actualiza el
+     * contrato y cambia el estado de la moto a DISPONIBLE.
      */
     public void finalizarContrato(Contrato contrato) {
         Integer idMoto = contrato.getIdMoto();
@@ -246,91 +256,54 @@ public class ContratoService {
         }
     }
 
+    // -----------------------------------------------------------------
+    // Actualización y eliminación
+    // -----------------------------------------------------------------
+
+    /**
+     * Actualiza los datos de un contrato existente. Si no se encuentra,
+     * lanza una excepción de validación.
+     */
     public void actualizarContrato(Contrato contrato) {
         boolean contratoExiste = contratoDAO.buscarPorId(contrato.getIdContrato()).isPresent();
-        boolean puedeActualizar = false;
-        ValidationException validationException = null;
-
-        if (!contratoExiste) {
+        if (contratoExiste) {
+            Logger.log("Actualizando contrato: idMoto=" + contrato.getIdMoto());
+            contratoDAO.actualizar(contrato);
+        } else {
             Logger.logError("Contrato no encontrado para actualizar: "
-                    + contrato.getFechaInicio() + " / idMoto="
-                    + contrato.getIdMoto());
-            validationException = new ValidationException(
+                    + contrato.getFechaInicio() + " / idMoto=" + contrato.getIdMoto());
+            throw new ValidationException(
                     BusinessErrorCode.CONTRATO_NO_ENCONTRADO,
                     "No se puede actualizar el contrato: no existe"
             );
         }
-
-        if (contratoExiste) {
-            puedeActualizar = true;
-        }
-
-        if (puedeActualizar) {
-            Logger.log("Actualizando contrato: idMoto=" + contrato.getIdMoto());
-            contratoDAO.actualizar(contrato);
-        }
-
-        if (!puedeActualizar) {
-            if (validationException == null) {
-                validationException = new ValidationException(
-                        BusinessErrorCode.CONTRATO_VALIDACION_FALLIDA,
-                        "No se puede actualizar el contrato: validaciones fallidas"
-                );
-            }
-            throw validationException;
-        }
     }
 
-    public Optional<Contrato> buscarPorId(Integer idContrato) {
-        return contratoDAO.buscarPorId(idContrato);
-    }
-
-    public List<Contrato> listarTodos() {
-        return contratoDAO.listarTodos();
-    }
-
-    public List<Contrato> listarContratosCompletos() {
-        return contratoDAO.listarContratosCompletos();
-    }
-
+    /**
+     * Elimina un contrato por su identificador. Lanza excepción si no existe.
+     */
     public void eliminarContrato(Integer idContrato) {
         boolean contratoExiste = contratoDAO.buscarPorId(idContrato).isPresent();
-        boolean puedeEliminar = false;
-        ValidationException validationException = null;
-
-        if (!contratoExiste) {
+        if (contratoExiste) {
+            Logger.log("Eliminando contrato: id=" + idContrato);
+            contratoDAO.eliminar(idContrato);
+        } else {
             Logger.logError("Contrato no encontrado para eliminar: id=" + idContrato);
-            validationException = new ValidationException(
+            throw new ValidationException(
                     BusinessErrorCode.CONTRATO_NO_ENCONTRADO,
                     "No se puede eliminar el contrato: no existe"
             );
         }
-
-        if (contratoExiste) {
-            puedeEliminar = true;
-        }
-
-        if (puedeEliminar) {
-            Logger.log("Eliminando contrato: id=" + idContrato);
-            contratoDAO.eliminar(idContrato);
-        }
-
-        if (!puedeEliminar) {
-            if (validationException == null) {
-                validationException = new ValidationException(
-                        BusinessErrorCode.CONTRATO_VALIDACION_FALLIDA,
-                        "No se puede eliminar el contrato: validaciones fallidas"
-                );
-            }
-            throw validationException;
-        }
     }
 
-    public List<MisContratosDTO> listarMisContratos(int idCliente) {
-        return contratoDAO.listarMisContratos(idCliente);
-    }
+    // -----------------------------------------------------------------
+    // Finalización simplificada (usada por la interfaz de usuario)
+    // -----------------------------------------------------------------
 
-
+    /**
+     * Finaliza un contrato usando su ID, estableciendo como fecha de entrega
+     * el día actual. Útil para la acción rápida desde la lista de contratos.
+     */
     public void finalizarContrato(int idContrato) {
         Optional<Contrato> opt = contratoDAO.buscarPorId(idContrato);
         if (opt.isEmpty()) {
@@ -341,20 +314,48 @@ public class ContratoService {
         finalizarContrato(c);
     }
 
+    // -----------------------------------------------------------------
+    // Consultas
+    // -----------------------------------------------------------------
+
+    /** Busca un contrato por su identificador. */
+    public Optional<Contrato> buscarPorId(Integer idContrato) {
+        return contratoDAO.buscarPorId(idContrato);
+    }
+
+    /** Lista todos los contratos. */
+    public List<Contrato> listarTodos() {
+        return contratoDAO.listarTodos();
+    }
+
+    /** Lista los contratos completos (con joins a cliente y moto). */
+    public List<Contrato> listarContratosCompletos() {
+        return contratoDAO.listarContratosCompletos();
+    }
+
+    /** Lista los contratos asociados a un cliente específico. */
+    public List<MisContratosDTO> listarMisContratos(int idCliente) {
+        return contratoDAO.listarMisContratos(idCliente);
+    }
+
     // ===================== REPORTES =====================
 
+    /** Lista los contratos para el reporte general. */
     public List<ContRepDTO> listarContratosReporte() {
         return contratoDAO.listarContratosReporte();
     }
 
+    /** Obtiene el resumen de contratos por marcas y modelos. */
     public List<ResMarModDTO> resumenMarcasModelos() {
         return contratoDAO.resumenMarcasModelos();
     }
 
+    /** Obtiene el resumen de contratos por municipios. */
     public List<ResMunDTO> resumenMunicipios() {
         return contratoDAO.resumenMunicipios();
     }
 
+    /** Obtiene el reporte de ingresos anuales. */
     public List<IngAnualDTO> ingresosAnuales() {
         return contratoDAO.ingresosAnuales();
     }
