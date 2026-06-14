@@ -36,6 +36,7 @@
             <Button text="Inventario" onAction="#onShowInventario" styleClass="sidebar-button" maxWidth="Infinity" />
             <Button text="Reportes" onAction="#onShowReportes" styleClass="sidebar-button" maxWidth="Infinity" />
             <Button text="Ayuda" onAction="#onShowAyuda" styleClass="sidebar-button" maxWidth="Infinity" />
+            <Button text="Salir" onAction="#onSalir" styleClass="sidebar-button" maxWidth="Infinity" />
         </VBox>
     </left>
 
