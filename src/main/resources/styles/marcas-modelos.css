@@ -13,11 +13,20 @@
     -fx-background-color: #27ae60; -fx-text-fill: white;
     -fx-font-weight: bold; -fx-padding: 10 25; -fx-background-radius: 5;
 }
+.btn-guardar:hover {
+    -fx-background-color: #219a52;
+}
 .btn-accion {
-    -fx-background-color: #2980b9; -fx-text-fill: white;
+    -fx-background-color: #27ae60; -fx-text-fill: white;
     -fx-font-weight: bold; -fx-padding: 10 25; -fx-background-radius: 5;
 }
+.btn-accion:hover {
+    -fx-background-color: #219a52;
+}
 .btn-cancelar {
-    -fx-background-color: #c0392b; -fx-text-fill: white;
+    -fx-background-color: #27ae60; -fx-text-fill: white;
     -fx-font-weight: bold; -fx-padding: 10 25; -fx-background-radius: 5;
+}
+.btn-cancelar:hover {
+    -fx-background-color: #219a52;
 }

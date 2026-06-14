@@ -1,6 +1,6 @@
 .root-vbox {
     -fx-padding: 15;
-    -fx-background-color: linear-gradient(to bottom, #fdf2e9, #fadbd8);
+    -fx-background-color: linear-gradient(to bottom, #e8f0f2, #d4e6f1);
 }
 
 .table-view {
@@ -15,7 +15,7 @@
 }
 
 .btn-accion {
-    -fx-background-color: #e67e22;
+    -fx-background-color: #2980b9;
     -fx-text-fill: white;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
@@ -24,11 +24,11 @@
 }
 
 .btn-accion:hover {
-    -fx-background-color: #b85e0c;
+    -fx-background-color: #1c5980;
 }
 
 .btn-finalizar {
-    -fx-background-color: #27ae60;
+    -fx-background-color: #2980b9;
     -fx-text-fill: white;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
@@ -37,11 +37,11 @@
 }
 
 .btn-finalizar:hover {
-    -fx-background-color: #219a52;
+    -fx-background-color: #1c5980;
 }
 
 .btn-eliminar {
-    -fx-background-color: #c0392b;
+    -fx-background-color: #2980b9;
     -fx-text-fill: white;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
@@ -50,5 +50,5 @@
 }
 
 .btn-eliminar:hover {
-    -fx-background-color: #a93226;
+    -fx-background-color: #1c5980;
 }
