@@ -28,19 +28,24 @@
                             <ColumnConstraints percentWidth="70" halignment="LEFT"/>
                         </columnConstraints>
 
-                        <Label text="Matrícula*" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <Label text="Matrícula*" labelFor="$campoMatricula"
+                               GridPane.rowIndex="0" GridPane.columnIndex="0"/>
                         <TextField fx:id="campoMatricula" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-                        <Label text="Marca*" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <Label text="Marca*" labelFor="$comboMarca"
+                               GridPane.rowIndex="1" GridPane.columnIndex="0"/>
                         <ComboBox fx:id="comboMarca" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-                        <Label text="Modelo*" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                        <Label text="Modelo*" labelFor="$comboModelo"
+                               GridPane.rowIndex="2" GridPane.columnIndex="0"/>
                         <ComboBox fx:id="comboModelo" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
-                        <Label text="Color*" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                        <Label text="Color*" labelFor="$comboColor"
+                               GridPane.rowIndex="3" GridPane.columnIndex="0"/>
                         <ComboBox fx:id="comboColor" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
 
-                        <Label text="Km recorridos*" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                        <Label text="Km recorridos*" labelFor="$campoKilometros"
+                               GridPane.rowIndex="4" GridPane.columnIndex="0"/>
                         <TextField fx:id="campoKilometros" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
                     </GridPane>
 
