@@ -9,11 +9,6 @@
            stylesheets="@/styles/contrato-form.css"
            alignment="CENTER">
 
-    <!-- FOTO DE FONDO (opcional): descomenta y ajusta la ruta -->
-    <!-- <ImageView fitWidth="1920" fitHeight="1080" preserveRatio="false" pickOnBounds="true">
-        <image><Image url="@/images/contrato-bg.jpg" /></image>
-    </ImageView> -->
-
     <GridPane hgap="0" vgap="0" alignment="CENTER">
         <columnConstraints>
             <ColumnConstraints percentWidth="20" />
@@ -41,9 +36,11 @@
                             <ColumnConstraints percentWidth="30" halignment="RIGHT"/>
                             <ColumnConstraints percentWidth="70" halignment="LEFT"/>
                         </columnConstraints>
-                        <Label text="Fecha Inicio*" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <Label text="Fecha Inicio*" labelFor="$dateInicio"
+                               GridPane.rowIndex="0" GridPane.columnIndex="0"/>
                         <DatePicker fx:id="dateInicio" GridPane.rowIndex="0" GridPane.columnIndex="1" styleClass="form-field"/>
-                        <Label text="Fecha Fin*" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <Label text="Fecha Fin*" labelFor="$dateFin"
+                               GridPane.rowIndex="1" GridPane.columnIndex="0"/>
                         <DatePicker fx:id="dateFin" GridPane.rowIndex="1" GridPane.columnIndex="1" styleClass="form-field"/>
                     </GridPane>
 
@@ -54,7 +51,7 @@
                     <Separator/>
 
                     <!-- Forma de pago y precio -->
-                    <Label text="Forma de Pago*" styleClass="section-title"/>
+                    <Label text="Forma de Pago*" labelFor="$comboPago" styleClass="section-title"/>
                     <ComboBox fx:id="comboPago" styleClass="form-field" maxWidth="Infinity"/>
 
                     <Label fx:id="labelPrecio" text="0.00 CUP" styleClass="precio-label"/>
