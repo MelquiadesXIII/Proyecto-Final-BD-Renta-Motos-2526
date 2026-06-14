@@ -3,8 +3,9 @@ package org.proyectobdmotos.controller;
 import java.io.IOException;
 import java.util.Stack;
 
+import javafx.application.Platform;
 import org.proyectobdmotos.ui.navigation.ScreenLoader;
-import org.proyectobdmotos.utils.AlertUtils;
+import org.proyectobdmotos.utils.*;
 import org.proyectobdmotos.utils.Logger;
 
 import javafx.fxml.FXML;
@@ -179,7 +180,6 @@ public class MainController {
      * Limpia el historial antes de cargar la nueva vista.
      */
     private void showInitialView() {
-        historial.clear();
         loadView("/fxml/bienvenido-admin.fxml", "Bienvenida");
     }
 
@@ -250,5 +250,10 @@ public class MainController {
                 });
             }
         });
+    }
+
+    @FXML
+    private void onSalir() {
+        Platform.exit();
     }
 }
