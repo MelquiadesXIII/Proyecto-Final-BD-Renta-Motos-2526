@@ -13,10 +13,10 @@
         </columnConstraints>
         <VBox spacing="15" styleClass="form-box" GridPane.columnIndex="1">
             <Label text="Marcas y Modelos" styleClass="form-title"/>
-            <TableView fx:id="tabla" VBox.vgrow="ALWAYS">
+            <TableView fx:id="tabla" VBox.vgrow="ALWAYS" editable="false">
                 <columns>
-                    <TableColumn text="Modelo" fx:id="colModelo"/>
-                    <TableColumn text="Marca" fx:id="colMarca"/>
+                    <TableColumn text="Modelo" fx:id="colModelo" resizable="false" editable="false"/>
+                    <TableColumn text="Marca" fx:id="colMarca" resizable="false" editable="false"/>
                 </columns>
             </TableView>
             <HBox alignment="CENTER" spacing="15">
