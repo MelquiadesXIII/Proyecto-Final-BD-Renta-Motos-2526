@@ -14,7 +14,7 @@
         <Label text="Desarrollado por:" styleClass="ayuda-text" />
         <Label text="Eriet Dario Armas Gonzalez
         DarelL Perdomo Gonzalez
-        Lian Carnos Gene Galvez" styleClass="ayuda-text" />
+        Lian Carlos Gene Galvez" styleClass="ayuda-text" />
         <Label text="Versión 1.0" styleClass="ayuda-text" />
         <Label text="Esperando por Ti" styleClass="ayuda-message" />
     </VBox>
