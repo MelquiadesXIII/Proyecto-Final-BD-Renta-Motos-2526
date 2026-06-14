@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Stack;
 
 import javafx.application.Platform;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 import org.proyectobdmotos.ui.navigation.ScreenLoader;
 import org.proyectobdmotos.utils.*;
 import org.proyectobdmotos.utils.Logger;
@@ -78,9 +80,13 @@ public class UserMainController {
      * Retrocede a la vista anterior. Si el historial está vacío,
      * simplemente registra un mensaje informativo.
      */
+    /**
+     * Vuelve a la vista anterior. Si el historial está vacío, cierra la sesión
+     * y carga la pantalla de login.
+     */
     public void onGoBack() {
         if (historial.isEmpty()) {
-            Logger.logInfo("Historial vacío, no se puede retroceder");
+            cerrarSesion();
         } else {
             String fxmlAnterior = historial.pop();
             try {
@@ -90,10 +96,41 @@ public class UserMainController {
                 contentContainer.getChildren().setAll(vista);
                 Logger.logInfo("Retrocediendo a: " + fxmlAnterior);
             } catch (IOException e) {
+                e.printStackTrace();
                 Logger.logError("Error al retroceder: " + e.getMessage());
                 showLoadError("Retroceder", e);
             }
         }
+    }
+
+    /**
+     * Cierra la sesión actual y vuelve a la pantalla de login.
+     * Carga el FXML del login en una nueva escena sobre la misma ventana.
+     */
+    private void cerrarSesion() {
+        try {
+            Parent loginRoot = screenLoader.load("/fxml/login.fxml");
+            Scene scene = new Scene(loginRoot, ScreenUtils.getWidth(), ScreenUtils.getHeight());
+            scene.getStylesheets().addAll(
+                    getClass().getResource("/styles/login.css").toExternalForm());
+            Stage stage = (Stage) contentContainer.getScene().getWindow();
+            stage.setScene(scene);
+            stage.setTitle("Iniciar Sesión");
+            stage.setMaximized(true);
+            Logger.logInfo("Sesión cerrada, volviendo al login");
+        } catch (IOException e) {
+            e.printStackTrace();
+            Logger.logError("Error al volver al login: " + e.getMessage());
+            showLoadError("Login", e);
+        }
+    }
+
+    /**
+     * Botón explícito de cerrar sesión (lo enlazarás desde el FXML).
+     */
+    @FXML
+    private void onCerrarSesion() {
+        cerrarSesion();
     }
 
     /**
