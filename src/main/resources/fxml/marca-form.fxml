@@ -9,7 +9,6 @@
            stylesheets="@/styles/marca-form.css"
            alignment="CENTER">
 
-    <!-- GridPane centrador: columna central = 50% del ancho -->
     <GridPane hgap="0" vgap="0" alignment="CENTER">
         <columnConstraints>
             <ColumnConstraints percentWidth="25" />
@@ -17,7 +16,6 @@
             <ColumnConstraints percentWidth="25" />
         </columnConstraints>
 
-        <!-- Panel del formulario (ocupará la columna central) -->
         <VBox alignment="CENTER" spacing="15" styleClass="form-box"
               GridPane.columnIndex="1">
             <Label text="Nueva Marca" styleClass="form-title" />
@@ -28,7 +26,8 @@
                     <ColumnConstraints percentWidth="70" />
                 </columnConstraints>
 
-                <Label text="Nombre*" styleClass="form-label"
+                <Label text="Nombre*" labelFor="$campoNombreMarca"
+                       styleClass="form-label"
                        GridPane.rowIndex="0" GridPane.columnIndex="0" />
                 <TextField fx:id="campoNombreMarca" promptText="Nombre de la marca" styleClass="form-field"
                            GridPane.rowIndex="0" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" />
