@@ -29,14 +29,16 @@
                             <ColumnConstraints percentWidth="30" halignment="RIGHT"/>
                             <ColumnConstraints percentWidth="70" halignment="LEFT"/>
                         </columnConstraints>
-                        <Label text="Fecha Inicio*" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <Label text="Fecha Inicio*" labelFor="$dateInicio"
+                               GridPane.rowIndex="0" GridPane.columnIndex="0"/>
                         <DatePicker fx:id="dateInicio" GridPane.rowIndex="0" GridPane.columnIndex="1" styleClass="form-field"/>
-                        <Label text="Fecha Fin*" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <Label text="Fecha Fin*" labelFor="$dateFin"
+                               GridPane.rowIndex="1" GridPane.columnIndex="0"/>
                         <DatePicker fx:id="dateFin" GridPane.rowIndex="1" GridPane.columnIndex="1" styleClass="form-field"/>
                     </GridPane>
 
                     <!-- Moto -->
-                    <Label text="Moto Disponible*" styleClass="section-title"/>
+                    <Label text="Moto Disponible*" labelFor="$comboMoto" styleClass="section-title"/>
                     <ComboBox fx:id="comboMoto" promptText="Primero seleccione las fechas" styleClass="form-field" maxWidth="Infinity"/>
                     <Label fx:id="labelSinMotos" text="No hay motos disponibles en las fechas seleccionadas"
                            styleClass="error-label" visible="false" managed="false" />
@@ -44,7 +46,7 @@
                     <Separator/>
 
                     <!-- Forma de pago y precio -->
-                    <Label text="Forma de Pago*" styleClass="section-title"/>
+                    <Label text="Forma de Pago*" labelFor="$comboPago" styleClass="section-title"/>
                     <ComboBox fx:id="comboPago" styleClass="form-field" maxWidth="Infinity"/>
 
                     <Label fx:id="labelPrecio" text="0.00 CUP" styleClass="precio-label"/>
