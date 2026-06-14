@@ -13,25 +13,25 @@
 
     <VBox alignment="CENTER" spacing="10" style="-fx-padding: 20;">
         <Label text="Motos disponibles" styleClass="section-title" />
-        <TableView fx:id="tablaMotos" VBox.vgrow="ALWAYS">
+        <TableView fx:id="tablaMotos" VBox.vgrow="ALWAYS" editable="false">
             <columns>
-                <TableColumn text="Matrícula" fx:id="colMatricula" />
-                <TableColumn text="Marca" fx:id="colMarca" />
-                <TableColumn text="Modelo" fx:id="colModelo" />
-                <TableColumn text="Color" fx:id="colColor" />
-                <TableColumn text="Km" fx:id="colKm" />
+                <TableColumn text="Matrícula" fx:id="colMatricula" resizable="false" editable="false" />
+                <TableColumn text="Marca" fx:id="colMarca" resizable="false" editable="false" />
+                <TableColumn text="Modelo" fx:id="colModelo" resizable="false" editable="false" />
+                <TableColumn text="Color" fx:id="colColor" resizable="false" editable="false" />
+                <TableColumn text="Km" fx:id="colKm" resizable="false" editable="false" />
             </columns>
         </TableView>
 
         <Label text="Mis Contratos" styleClass="section-title" />
         <Label fx:id="labelSinContratos" text="Sin Ningún Contrato" styleClass="sin-contratos-label" />
-        <TableView fx:id="tablaContratos" VBox.vgrow="ALWAYS">
+        <TableView fx:id="tablaContratos" VBox.vgrow="ALWAYS" editable="false">
             <columns>
-                <TableColumn text="Moto" fx:id="colContratoMoto" />
-                <TableColumn text="Inicio" fx:id="colFechaInicio" />
-                <TableColumn text="Fin" fx:id="colFechaFin" />
-                <TableColumn text="Costo" fx:id="colCosto" />
-                <TableColumn text="Entrega" fx:id="colFechaEntrega" />
+                <TableColumn text="Moto" fx:id="colContratoMoto" resizable="false" editable="false" />
+                <TableColumn text="Inicio" fx:id="colFechaInicio" resizable="false" editable="false" />
+                <TableColumn text="Fin" fx:id="colFechaFin" resizable="false" editable="false" />
+                <TableColumn text="Costo" fx:id="colCosto" resizable="false" editable="false" />
+                <TableColumn text="Entrega" fx:id="colFechaEntrega" resizable="false" editable="false" />
             </columns>
         </TableView>
 
