@@ -30,6 +30,7 @@
             <Button text="Perfil" onAction="#onShowPerfil" styleClass="sidebar-button" maxWidth="Infinity" />
             <Button text="Mis Contratos" onAction="#onShowMisContratos" styleClass="sidebar-button" maxWidth="Infinity" />
             <Button text="Ayuda" onAction="#onShowAyuda" styleClass="sidebar-button" maxWidth="Infinity" />
+            <Button text="Salir" onAction="#onSalir" styleClass="sidebar-button" maxWidth="Infinity" />
         </VBox>
     </left>
 
