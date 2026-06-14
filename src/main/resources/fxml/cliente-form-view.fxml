@@ -9,11 +9,6 @@
            stylesheets="@/styles/cliente-form.css"
            alignment="CENTER">
 
-    <!-- FOTO DE FONDO (comentada) -->
-    <!-- <ImageView fitWidth="1920" fitHeight="1080" preserveRatio="false" pickOnBounds="true">
-         <Image url="@/images/cliente-bg.jpg" />
-    </ImageView> -->
-
     <GridPane hgap="0" vgap="0" alignment="CENTER">
         <columnConstraints>
             <ColumnConstraints percentWidth="20" />
@@ -21,7 +16,6 @@
             <ColumnConstraints percentWidth="20" />
         </columnConstraints>
 
-        <!-- VBox exterior: alineado a la derecha de su celda -->
         <VBox alignment="CENTER_RIGHT" spacing="15" styleClass="form-box"
               GridPane.columnIndex="1">
             <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="transparent-scroll">
@@ -36,10 +30,12 @@
                             <ColumnConstraints percentWidth="70"/>
                         </columnConstraints>
 
-                        <Label text="Usuario*" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <Label text="Usuario*" labelFor="$campoNombreUsuario"
+                               GridPane.rowIndex="0" GridPane.columnIndex="0"/>
                         <TextField fx:id="campoNombreUsuario" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-                        <Label text="Contraseña*" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <Label text="Contraseña*" labelFor="$campoPassword"
+                               GridPane.rowIndex="1" GridPane.columnIndex="0"/>
                         <PasswordField fx:id="campoPassword" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
                         <CheckBox fx:id="checkVerPassword" text="Ver contraseña"
@@ -47,7 +43,8 @@
                         <TextField fx:id="campoPasswordVisible" visible="false" editable="false"
                                    GridPane.rowIndex="3" GridPane.columnIndex="1"/>
 
-                        <Label text="Gmail*" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                        <Label text="Gmail*" labelFor="$campoGmail"
+                               GridPane.rowIndex="4" GridPane.columnIndex="0"/>
                         <TextField fx:id="campoGmail" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
 
                         <CheckBox fx:id="checkEsAdmin" text="¿Es administrador?"
@@ -64,28 +61,36 @@
                             <ColumnConstraints percentWidth="70"/>
                         </columnConstraints>
 
-                        <Label text="CI*" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <Label text="CI*" labelFor="$campoCI"
+                               GridPane.rowIndex="0" GridPane.columnIndex="0"/>
                         <TextField fx:id="campoCI" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-                        <Label text="Nombre*" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <Label text="Nombre*" labelFor="$campoNombre"
+                               GridPane.rowIndex="1" GridPane.columnIndex="0"/>
                         <TextField fx:id="campoNombre" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-                        <Label text="Primer Apellido*" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                        <Label text="Primer Apellido*" labelFor="$campoPrimerApellido"
+                               GridPane.rowIndex="2" GridPane.columnIndex="0"/>
                         <TextField fx:id="campoPrimerApellido" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
-                        <Label text="Segundo Apellido" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                        <Label text="Segundo Apellido" labelFor="$campoSegundoApellido"
+                               GridPane.rowIndex="3" GridPane.columnIndex="0"/>
                         <TextField fx:id="campoSegundoApellido" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
 
-                        <Label text="Edad*" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                        <Label text="Edad*" labelFor="$campoEdad"
+                               GridPane.rowIndex="4" GridPane.columnIndex="0"/>
                         <TextField fx:id="campoEdad" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
 
-                        <Label text="Sexo*" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                        <Label text="Sexo*" labelFor="$comboSexo"
+                               GridPane.rowIndex="5" GridPane.columnIndex="0"/>
                         <ComboBox fx:id="comboSexo" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
 
-                        <Label text="Teléfono*" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                        <Label text="Teléfono*" labelFor="$campoTelefono"
+                               GridPane.rowIndex="6" GridPane.columnIndex="0"/>
                         <TextField fx:id="campoTelefono" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
 
-                        <Label text="Municipio*" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+                        <Label text="Municipio*" labelFor="$comboMunicipio"
+                               GridPane.rowIndex="7" GridPane.columnIndex="0"/>
                         <ComboBox fx:id="comboMunicipio" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
                     </GridPane>
 
