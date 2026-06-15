@@ -14,3 +14,11 @@
     -fx-font-size: 20px;
     -fx-text-fill: white;
 }
+
+.table-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+    -fx-alignment: CENTER;
+    -fx-padding: 0 0 10 0;
+}

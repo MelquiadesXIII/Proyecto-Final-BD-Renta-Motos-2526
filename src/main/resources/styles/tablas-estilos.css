@@ -22,3 +22,18 @@
 .table-row-cell:selected {
     -fx-background-color: #3498db;
 }
+
+.table-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+    -fx-alignment: CENTER;
+    -fx-padding: 0 0 10 0;
+}
+
+.report-description {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+    -fx-padding: 5 0 5 0;
+}
