@@ -497,6 +497,12 @@ public class ContratoServiceContractTest extends TestCase {
         public List<MisContratosDTO> listarMisContratos(int idCliente) {
             return new ArrayList<>();
         }
+
+        @Override
+        public boolean tieneContratoAnteriorActivo(int idMoto, int idContratoActual) {
+            // Para las pruebas, simplemente devolvemos false (sin contrato anterior activo)
+            return false;
+        }
     }
 
     private static final class FakeClienteDAO implements IClienteDAO {
@@ -592,6 +598,11 @@ public class ContratoServiceContractTest extends TestCase {
 
         @Override
         public void insertar(Moto entity) {
+        }
+
+        @Override
+        public void actualizarKilometros(int idMoto, double km) {
+
         }
 
         @Override

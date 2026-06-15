@@ -94,7 +94,8 @@ public class MotoServiceContractTest extends TestCase {
             indiceMetodo++;
         }
 
-        assertFalse(tieneBuscarPorId);
+        // Ahora 'buscarPorId' SÍ es un método público esperado en MotoService.
+        assertTrue("MotoService debe exponer el método buscarPorId", tieneBuscarPorId);
         assertFalse(tieneListarTodas);
     }
 
@@ -124,6 +125,7 @@ public class MotoServiceContractTest extends TestCase {
             tieneBuscarPorMatriculaCanonico = false;
         }
 
+
         assertTrue(faltaBuscarPorId);
         assertTrue(faltaListarTodas);
         assertTrue(tieneBuscarPorMatriculaCanonico);
@@ -134,6 +136,10 @@ public class MotoServiceContractTest extends TestCase {
         private List<Moto> listaMotos = new ArrayList<Moto>();
         private RuntimeException excepcionEnBuscar;
         private String ultimaMatriculaBuscada;
+
+        @Override
+        public void actualizarKilometros(int idMoto, double km) {
+        }
 
         @Override
         public void insertar(Moto entity) {
