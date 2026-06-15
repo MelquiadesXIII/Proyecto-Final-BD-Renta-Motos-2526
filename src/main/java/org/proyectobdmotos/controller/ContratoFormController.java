@@ -2,6 +2,8 @@ package org.proyectobdmotos.controller;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
@@ -23,6 +25,7 @@ public class ContratoFormController {
     @FXML private DatePicker dateFin;
     @FXML private ComboBox<FormaPago> comboPago;
     @FXML private Label labelPrecio;
+    @FXML private CheckBox checkSeguroAdicional;
 
     private final ContratoService contratoService;
     private final ClienteService clienteService;
@@ -77,7 +80,7 @@ public class ContratoFormController {
             if (newVal != null) {
                 clienteSeleccionado = newVal;
                 campoBuscarCliente.setText(newVal.getNombreCliente() + " (" + newVal.getCiCliente() + ")");
-                listaResultados.getItems().clear(); // limpia la lista tras la selección
+                listaResultados.getItems().clear();
             }
         });
 
@@ -85,10 +88,11 @@ public class ContratoFormController {
         dateInicio.valueProperty().addListener((obs, oldDate, newDate) -> cargarMotosSegunFechas());
         dateFin.valueProperty().addListener((obs, oldDate, newDate) -> cargarMotosSegunFechas());
 
-        // Al cambiar la moto o las fechas se actualiza el precio estimado
+        // Al cambiar la moto, las fechas o el seguro se actualiza el precio estimado
         comboMoto.valueProperty().addListener((obs, oldMoto, newMoto) -> actualizarPrecioEstimado());
         dateInicio.valueProperty().addListener((obs, oldDate, newDate) -> actualizarPrecioEstimado());
         dateFin.valueProperty().addListener((obs, oldDate, newDate) -> actualizarPrecioEstimado());
+        checkSeguroAdicional.selectedProperty().addListener((obs, oldVal, newVal) -> actualizarPrecioEstimado());
     }
 
     // -----------------------------------------------------------------
@@ -178,14 +182,23 @@ public class ContratoFormController {
      */
     private void crearContrato() {
         try {
+            MotoDisponibleDTO motoSeleccionada = comboMoto.getValue();
+            double kmSalida = 0.0;
+            Optional<Moto> motoOpt = motoService.buscarPorId(motoSeleccionada.getIdMoto());
+            if (motoOpt.isPresent()) {
+                kmSalida = motoOpt.get().getCantKmRecorridos();   // o getKilometros()
+            }
+
             Contrato nuevoContrato = new Contrato(
-                    0.0, 0.0,
+                    0.0,                               // cantKmLlegada
+                    kmSalida,                          // cantKmSalida real
                     clienteSeleccionado.getIdCliente(),
                     0, null,
                     dateFin.getValue(), dateInicio.getValue(),
                     comboPago.getValue(),
-                    comboMoto.getValue().getIdMoto(),
-                    false, 20.0, 40.0
+                    motoSeleccionada.getIdMoto(),
+                    checkSeguroAdicional.isSelected(),
+                    20.0, 40.0
             );
 
             contratoService.crearContrato(nuevoContrato);
@@ -297,8 +310,8 @@ public class ContratoFormController {
     // -----------------------------------------------------------------
 
     /**
-     * Calcula el precio estimado del alquiler en función de la moto seleccionada
-     * y el número de días entre las fechas (incluyendo ambos extremos).
+     * Calcula el precio estimado del alquiler en función de la moto seleccionada,
+     * el número de días entre las fechas y si se ha contratado seguro.
      * Si falta algún dato, muestra 0.00 CUP.
      */
     private void actualizarPrecioEstimado() {
@@ -310,7 +323,11 @@ public class ContratoFormController {
         double precio = 0.0;
         if (puedeCalcular) {
             long dias = java.time.temporal.ChronoUnit.DAYS.between(inicio, fin) + 1;
-            precio = dias * 20.0;
+            double tarifa = 20.0;
+            if (checkSeguroAdicional.isSelected()) {
+                tarifa = tarifa * 2;      // seguro duplica la tarifa
+            }
+            precio = dias * tarifa;
         }
         labelPrecio.setText(String.format("%.2f CUP", precio));
     }
@@ -332,4 +349,6 @@ public class ContratoFormController {
     private void mostrarInfo(String mensaje) {
         AlertUtils.mostrarInfo(mensaje);
     }
+
+
 }
