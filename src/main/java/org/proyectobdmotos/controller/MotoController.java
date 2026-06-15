@@ -3,7 +3,15 @@ package org.proyectobdmotos.controller;
 import java.util.List;
 import java.util.Optional;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.concurrent.Task;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import org.proyectobdmotos.models.Moto;
 import org.proyectobdmotos.models.Situacion;
 import org.proyectobdmotos.services.MotoService;
@@ -13,15 +21,6 @@ import org.proyectobdmotos.stores.AgenciaStore;
 import org.proyectobdmotos.stores.ReferenceDataStore;
 import org.proyectobdmotos.utils.*;
 import org.proyectobdmotos.utils.Logger;
-
-import javafx.scene.control.ChoiceDialog;
-import javafx.concurrent.Task;
-import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 
 public class MotoController {
 
@@ -37,24 +36,12 @@ public class MotoController {
     @FXML private TableColumn<Moto, Double> colKilometros;
     @FXML private TableColumn<Moto, String> colSituacion;
 
-    public MotoController(
-            MotoService motoService,
-            AgenciaStore agenciaStore,
-            ReferenceDataStore referenceDataStore
-    ) {
+    public MotoController(MotoService motoService, AgenciaStore agenciaStore, ReferenceDataStore referenceDataStore) {
         this.motoService = motoService;
         this.agenciaStore = agenciaStore;
         this.referenceDataStore = referenceDataStore;
     }
 
-    // -----------------------------------------------------------------
-    // Inicialización
-    // -----------------------------------------------------------------
-
-    /**
-     * Configura la tabla, la enlaza con el store y lanza la carga
-     * asíncrona de motos al abrir la pantalla.
-     */
     @FXML
     private void initialize() {
         Logger.log("Inicializando MotoController...");
@@ -64,14 +51,6 @@ public class MotoController {
         fijarColumnas(tablaMotos);
     }
 
-    // -----------------------------------------------------------------
-    // Configuración de columnas
-    // -----------------------------------------------------------------
-
-    /**
-     * Asocia cada columna de la tabla con el atributo correspondiente
-     * del modelo Moto.
-     */
     private void configureTableColumns() {
         colMatricula.setCellValueFactory(new PropertyValueFactory<>("matriculaMoto"));
         colMarca.setCellValueFactory(new PropertyValueFactory<>("nombreMarca"));
@@ -79,30 +58,13 @@ public class MotoController {
         colColor.setCellValueFactory(new PropertyValueFactory<>("nombreColor"));
         colKilometros.setCellValueFactory(new PropertyValueFactory<>("cantKmRecorridos"));
         colSituacion.setCellValueFactory(cellData ->
-                new SimpleStringProperty(cellData.getValue().getSituacion().getValor())
-        );
+                new SimpleStringProperty(cellData.getValue().getSituacion().getValor()));
     }
 
-    // -----------------------------------------------------------------
-    // Vinculación con el store
-    // -----------------------------------------------------------------
-
-    /**
-     * Enlaza la tabla con la lista observable de motos del store.
-     * Los cambios en el store se reflejarán automáticamente.
-     */
     private void bindStore() {
         tablaMotos.setItems(agenciaStore.getMotos());
     }
 
-    // -----------------------------------------------------------------
-    // Carga asíncrona de motos
-    // -----------------------------------------------------------------
-
-    /**
-     * Inicia la carga en segundo plano de todas las motos.
-     * Muestra los datos cuando la tarea termina exitosamente.
-     */
     private void loadMotos() {
         Task<List<Moto>> loadTask = crearTareaCargaMotos();
         Thread loadThread = new Thread(loadTask);
@@ -110,10 +72,6 @@ public class MotoController {
         loadThread.start();
     }
 
-    /**
-     * Construye la tarea que obtiene las motos del servicio.
-     * Define el manejo de éxito y fallo al finalizar.
-     */
     private Task<List<Moto>> crearTareaCargaMotos() {
         Task<List<Moto>> loadTask = new Task<>() {
             @Override
@@ -121,27 +79,19 @@ public class MotoController {
                 return motoService.listarTodos();
             }
         };
-
         loadTask.setOnSucceeded(event -> manejarCargaExitosa(loadTask.getValue()));
         loadTask.setOnFailed(event -> manejarCargaFallida(loadTask.getException()));
-
         return loadTask;
     }
 
-    /**
-     * Procesa la lista de motos obtenida y la coloca en el store.
-     */
     private void manejarCargaExitosa(List<Moto> motos) {
         if (motos != null) {
             agenciaStore.setMotos(motos);
+            ajustarColumnas(tablaMotos, colMatricula, colMarca, colModelo, colColor, colKilometros, colSituacion);
             Logger.logInfo("Motos cargadas: " + motos.size());
         }
     }
 
-    /**
-     * Muestra un mensaje de error apropiado si la carga falla,
-     * diferenciando entre error de negocio y error técnico.
-     */
     private void manejarCargaFallida(Throwable throwable) {
         String message = throwable != null ? throwable.getMessage() : "Sin detalle";
         boolean isBusinessError = throwable instanceof BusinessException;
@@ -154,23 +104,12 @@ public class MotoController {
         }
     }
 
-    // -----------------------------------------------------------------
-    // Navegación
-    // -----------------------------------------------------------------
-
-    /**
-     * Abre el formulario para crear una nueva moto, sin datos previos.
-     */
     @FXML
     private void onCrearMoto() {
         MotoFormController.setMotoAEditarStatic(null);
         MainController.getInstance().cargarVista("/fxml/moto-form-view.fxml", "Nueva Moto");
     }
 
-    /**
-     * Abre el formulario de moto en modo edición con los datos de la moto
-     * seleccionada en la tabla. Si no hay selección, muestra un mensaje.
-     */
     @FXML
     private void onEditarMoto() {
         Moto motoSeleccionada = tablaMotos.getSelectionModel().getSelectedItem();
@@ -182,14 +121,6 @@ public class MotoController {
         }
     }
 
-    // -----------------------------------------------------------------
-    // Eliminación de moto
-    // -----------------------------------------------------------------
-
-    /**
-     * Maneja la acción de eliminar la moto seleccionada.
-     * Verifica la selección, pide confirmación y ejecuta el borrado.
-     */
     @FXML
     private void onEliminarMoto() {
         Moto motoSeleccionada = tablaMotos.getSelectionModel().getSelectedItem();
@@ -203,9 +134,6 @@ public class MotoController {
         }
     }
 
-    /**
-     * Muestra un diálogo de confirmación y devuelve true si se acepta.
-     */
     private boolean confirmarEliminacion(Moto moto) {
         Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
         confirmacion.setTitle("Confirmar Eliminación");
@@ -215,10 +143,6 @@ public class MotoController {
         return resultado.isPresent() && resultado.get() == ButtonType.OK;
     }
 
-    /**
-     * Intenta eliminar la moto usando el servicio.
-     * Si la operación falla, muestra un mensaje; si tiene éxito, recarga la tabla.
-     */
     private void ejecutarEliminacion(Moto moto) {
         try {
             motoService.eliminarMoto(moto.getMatriculaMoto());
@@ -230,98 +154,84 @@ public class MotoController {
         }
     }
 
-
     @FXML
     private void onCambiarEstado() {
-        // Obtener la moto seleccionada
         Moto motoSeleccionada = tablaMotos.getSelectionModel().getSelectedItem();
-        boolean haySeleccion = (motoSeleccionada != null);
-        boolean puedeEjecutar = false;
-        String errorSeleccion = null;
-
-        if (!haySeleccion) {
-            errorSeleccion = "Seleccione una moto de la tabla.";
-        } else {
-            puedeEjecutar = true;
+        if (motoSeleccionada == null) {
+            mostrarAlerta("Seleccione una moto de la tabla.");
+            return;
         }
-
-        // Si no hay selección, mostrar mensaje y detener el flujo sin return
-        if (!puedeEjecutar) {
-            if (errorSeleccion != null) {
-                mostrarAlerta(errorSeleccion);
-            }
-        } else {
-            // Construir el diálogo de opciones
-            ChoiceDialog<String> dialog = new ChoiceDialog<>("Disponible", "Disponible", "Taller");
-            dialog.setTitle("Cambiar estado");
-            dialog.setHeaderText("Moto: " + motoSeleccionada.getMatriculaMoto());
-            dialog.setContentText("Seleccione el nuevo estado:");
-
-            // Mostrar el diálogo y esperar
-            Optional<String> resultado = dialog.showAndWait();
-            boolean confirmado = resultado.isPresent();
-            boolean operacionExitosa = false;
-            String mensajeExito = null;
-            String mensajeError = null;
-
-            if (confirmado) {
-                String estadoElegido = resultado.get();
-                Situacion situacion = Situacion.fromValor(estadoElegido);
-
-                try {
-                    motoService.cambiarEstado(motoSeleccionada.getMatriculaMoto(), situacion);
-                    loadMotos();
-                    mensajeExito = "Estado cambiado a " + estadoElegido + ".";
-                    operacionExitosa = true;
-                } catch (ValidationException e) {
-                    e.printStackTrace();
-                    Logger.logError("Error al cambiar estado de moto: " + e.getMessage());
-                    mensajeError = "Error al cambiar estado: " + e.getMessage();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Logger.logError("Error inesperado al cambiar estado: " + e.getMessage());
-                    mensajeError = "Error inesperado al cambiar estado.";
-                }
-            }
-
-            // Mostrar resultado final
-            if (operacionExitosa && mensajeExito != null) {
-                mostrarAlerta(mensajeExito);
-            } else if (mensajeError != null) {
-                mostrarAlerta(mensajeError);
+        ChoiceDialog<String> dialog = new ChoiceDialog<>("Disponible", "Disponible", "Taller");
+        dialog.setTitle("Cambiar estado");
+        dialog.setHeaderText("Moto: " + motoSeleccionada.getMatriculaMoto());
+        dialog.setContentText("Seleccione el nuevo estado:");
+        Optional<String> resultado = dialog.showAndWait();
+        if (resultado.isPresent()) {
+            String estadoElegido = resultado.get();
+            Situacion situacion = Situacion.fromValor(estadoElegido);
+            try {
+                motoService.cambiarEstado(motoSeleccionada.getMatriculaMoto(), situacion);
+                loadMotos();
+                mostrarAlerta("Estado cambiado a " + estadoElegido + ".");
+            } catch (ValidationException e) {
+                e.printStackTrace();
+                mostrarAlerta("Error al cambiar estado: " + e.getMessage());
             }
         }
     }
 
-
-    // -----------------------------------------------------------------
-    // Recarga manual
-    // -----------------------------------------------------------------
-
-    /**
-     * Fuerza la recarga de la lista de motos desde el servicio.
-     */
     @FXML
     private void onActualizarLista() {
         loadMotos();
     }
 
-    // -----------------------------------------------------------------
-    // Utilidades de alertas
-    // -----------------------------------------------------------------
-
-    /**
-     * Muestra un diálogo de error con título y contenido.
-     */
     private void showError(String headerText, String contentText) {
-        AlertUtils.mostrarErrorConTitulo(headerText,contentText);
+        AlertUtils.mostrarErrorConTitulo(headerText, contentText);
     }
 
-    /**
-     * Muestra un diálogo informativo con un solo texto.
-     */
     private void mostrarAlerta(String mensaje) {
         AlertUtils.mostrarInfo(mensaje);
+    }
+
+    // ---------------------------
+    // Autoajuste
+    // ---------------------------
+    private double medirAnchoTexto(String texto, boolean bold) {
+        Font font = bold ? Font.font("System", FontWeight.BOLD, 14) : Font.font("System", 14);
+        Text text = new Text(texto);
+        text.setFont(font);
+        return text.getLayoutBounds().getWidth() + 25;
+    }
+
+    @SafeVarargs
+    private void ajustarColumnas(TableView<?> tabla, TableColumn<?, ?>... columnas) {
+        for (TableColumn<?, ?> col : columnas) {
+            double max = medirAnchoTexto(col.getText(), true);
+            for (Object item : tabla.getItems()) {
+                Object valor = null;
+                try {
+                    valor = ((TableColumn) col).getCellData(item);
+                } catch (Exception ignored) {
+                    try {
+                        javafx.beans.value.ObservableValue<?> obs = ((TableColumn) col).getCellObservableValue(item);
+                        if (obs != null) valor = obs.getValue();
+                    } catch (Exception ignored2) {}
+                }
+                if (valor != null) {
+                    double w = medirAnchoTexto(valor.toString(), false);
+                    if (w > max) max = w;
+                }
+            }
+            col.setPrefWidth(max);
+            col.setMinWidth(max);
+            col.setMaxWidth(max);
+        }
+        Platform.runLater(() -> {
+            double total = 0;
+            for (TableColumn<?, ?> c : tabla.getColumns()) total += c.getPrefWidth();
+            tabla.setPrefWidth(total + 10);
+            tabla.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+        });
     }
 
     private void fijarColumnas(TableView<?> tabla) {
