@@ -11,14 +11,14 @@
       styleClass="root-vbox">
 
     <Label text="Tabla de Motos" styleClass="table-title" />
-    <TableView fx:id="tablaMotos" VBox.vgrow="ALWAYS">
+    <TableView fx:id="tablaMotos" VBox.vgrow="ALWAYS" editable="false">
         <columns>
-            <TableColumn text="Matrícula" fx:id="colMatricula" />
-            <TableColumn text="Marca" fx:id="colMarca" />
-            <TableColumn text="Modelo" fx:id="colModelo" />
-            <TableColumn text="Color" fx:id="colColor" />
-            <TableColumn text="Km" fx:id="colKilometros" />
-            <TableColumn text="Situación" fx:id="colSituacion" />
+            <TableColumn text="Matrícula" fx:id="colMatricula" resizable="false" />
+            <TableColumn text="Marca" fx:id="colMarca" resizable="false"/>
+            <TableColumn text="Modelo" fx:id="colModelo" resizable="false"/>
+            <TableColumn text="Color" fx:id="colColor" resizable="false"/>
+            <TableColumn text="Km" fx:id="colKilometros" resizable="false"/>
+            <TableColumn text="Situación" fx:id="colSituacion" resizable="false"/>
         </columns>
     </TableView>
 
