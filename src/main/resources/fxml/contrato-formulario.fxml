@@ -50,11 +50,17 @@
                 <ComboBox fx:id="comboPago" promptText="Seleccionar" styleClass="form-field"
                           GridPane.rowIndex="4" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS"/>
 
-                <!-- Precio Estimado (solo visualización) -->
-                <Label text="Precio Estimado" styleClass="form-label"
+                <!-- Seguro adicional -->
+                <Label text="Seguro adicional" styleClass="form-label"
                        GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                <CheckBox fx:id="checkSeguroAdicional" text="Contratar seguro"
+                          GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+                <!-- Precio Estimado -->
+                <Label text="Precio Estimado" styleClass="form-label"
+                       GridPane.rowIndex="6" GridPane.columnIndex="0"/>
                 <Label fx:id="labelPrecio" text="0.00 CUP" styleClass="precio-label"
-                       GridPane.rowIndex="5" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS"/>
+                       GridPane.rowIndex="6" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS"/>
             </GridPane>
 
             <!-- Botones -->
