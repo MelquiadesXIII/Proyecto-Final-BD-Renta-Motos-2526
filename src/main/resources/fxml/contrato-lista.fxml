@@ -9,12 +9,17 @@
       stylesheets="@/styles/contrato-lista.css,@/styles/tablas-estilos.css"
       spacing="10"
       styleClass="root-vbox">
-
+    <Label text="Tabla de Contratos" styleClass="table-title" />
     <TableView fx:id="tablaContratos" VBox.vgrow="ALWAYS">
         <columns>
             <TableColumn text="ID" fx:id="colId" />
-            <TableColumn text="Cliente" fx:id="colCliente" />
-            <TableColumn text="Moto" fx:id="colMoto" />
+            <TableColumn text="CI" fx:id="colCiCliente" />
+            <TableColumn text="Nombre Cliente" fx:id="colNombreCliente" />
+            <TableColumn text="Matrícula" fx:id="colMatriculaMoto" />
+            <TableColumn text="Marca Moto" fx:id="colMarcaMoto" />
+            <TableColumn text="Modelo Moto" fx:id="colModeloMoto" />
+            <TableColumn text="Km Salida" fx:id="colKmSalida" />
+            <TableColumn text="Km Llegada" fx:id="colKmLlegada" />
             <TableColumn text="Fecha Inicio" fx:id="colFechaInicio" />
             <TableColumn text="Fecha Fin" fx:id="colFechaFin" />
             <TableColumn text="Estado" fx:id="colEstado" />
