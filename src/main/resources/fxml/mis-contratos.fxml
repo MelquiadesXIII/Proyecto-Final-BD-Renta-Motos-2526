@@ -13,7 +13,7 @@
 
     <VBox alignment="CENTER" spacing="10" style="-fx-padding: 20;">
         <Label text="Motos disponibles" styleClass="section-title" />
-        <TableView fx:id="tablaMotos" VBox.vgrow="ALWAYS" editable="false">
+        <TableView fx:id="tablaMotos" VBox.vgrow="ALWAYS" editable="false" >
             <columns>
                 <TableColumn text="Matrícula" fx:id="colMatricula" resizable="false" editable="false" />
                 <TableColumn text="Marca" fx:id="colMarca" resizable="false" editable="false" />
@@ -25,7 +25,7 @@
 
         <Label text="Mis Contratos" styleClass="section-title" />
         <Label fx:id="labelSinContratos" text="Sin Ningún Contrato" styleClass="sin-contratos-label" />
-        <TableView fx:id="tablaContratos" VBox.vgrow="ALWAYS" editable="false">
+        <TableView fx:id="tablaContratos" VBox.vgrow="ALWAYS" editable="false" >
             <columns>
                 <TableColumn text="Moto" fx:id="colContratoMoto" resizable="false" editable="false" />
                 <TableColumn text="Inicio" fx:id="colFechaInicio" resizable="false" editable="false" />
