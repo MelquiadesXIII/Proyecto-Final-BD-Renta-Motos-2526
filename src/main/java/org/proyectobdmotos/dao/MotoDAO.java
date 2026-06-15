@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.proyectobdmotos.database.DatabaseConnection;
 import org.proyectobdmotos.dto.*;
 import org.proyectobdmotos.models.*;
 import org.proyectobdmotos.utils.Logger;
@@ -580,4 +581,48 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
         }
         return solapamiento;
     }
+    @Override
+    public void actualizarKilometros(int idMoto, double km) {
+        String sql = "UPDATE moto SET cant_km_recorridos = ? WHERE id_moto = ?";
+        try (
+             PreparedStatement ps =  getConnection().prepareStatement(sql)) {
+            ps.setDouble(1, km);
+            ps.setInt(2, idMoto);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Logger.logError("Error al actualizar km de moto: " + e.getMessage());
+            throw new RuntimeException("Error al actualizar km de moto", e);
+        }
+    }
+
+    public List<Moto> listarTodos() {
+        String sql = "SELECT * FROM listar_motos_completas()";
+        List<Moto> lista = new ArrayList<>();
+        try (Connection conn = DatabaseConnection.getInstance();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Moto moto = new Moto(
+                        rs.getInt("id_moto"),
+                        rs.getString("matricula_moto"),
+                        rs.getInt("id_modelo"),
+                        Situacion.fromId(rs.getInt("id_situacion")),
+                        rs.getDouble("cant_km_recorridos"),
+                        rs.getInt("id_color")
+                );
+                moto.setNombreMarca(rs.getString("nombre_marca"));
+                moto.setNombreModelo(rs.getString("nombre_modelo"));
+                moto.setNombreColor(rs.getString("nombre_color"));
+                moto.setNombreSituacion(rs.getString("nombre_situacion"));
+                lista.add(moto);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Logger.logError("Error al listar motos completas: " + e.getMessage());
+            throw new RuntimeException("Error al listar motos completas", e);
+        }
+        return lista;
+    }
+
 }
