@@ -42,8 +42,13 @@ public class ContratoController {
 
     @FXML private TableView<Contrato> tablaContratos;
     @FXML private TableColumn<Contrato, Integer> colId;
-    @FXML private TableColumn<Contrato, String> colCliente;
-    @FXML private TableColumn<Contrato, String> colMoto;
+    @FXML private TableColumn<Contrato, String> colCiCliente;
+    @FXML private TableColumn<Contrato, String> colNombreCliente;
+    @FXML private TableColumn<Contrato, String> colMatriculaMoto;
+    @FXML private TableColumn<Contrato, String> colMarcaMoto;
+    @FXML private TableColumn<Contrato, String> colModeloMoto;
+    @FXML private TableColumn<Contrato, Double> colKmSalida;
+    @FXML private TableColumn<Contrato, Double> colKmLlegada;
     @FXML private TableColumn<Contrato, LocalDate> colFechaInicio;
     @FXML private TableColumn<Contrato, LocalDate> colFechaFin;
     @FXML private TableColumn<Contrato, String> colEstado;
@@ -86,26 +91,28 @@ public class ContratoController {
     private void configureTableColumns() {
         colId.setCellValueFactory(new PropertyValueFactory<>("idContrato"));
 
-        colCliente.setCellValueFactory(cellData ->
-                new SimpleStringProperty("Cliente #" + cellData.getValue().getIdCliente()));
-        colMoto.setCellValueFactory(cellData ->
-                new SimpleStringProperty("Moto #" + cellData.getValue().getIdMoto()));
+        colCiCliente.setCellValueFactory(new PropertyValueFactory<>("ciCliente"));
+        colNombreCliente.setCellValueFactory(new PropertyValueFactory<>("nombreCompletoCliente"));
+        colMatriculaMoto.setCellValueFactory(new PropertyValueFactory<>("matriculaMoto"));
+        colMarcaMoto.setCellValueFactory(new PropertyValueFactory<>("marcaMoto"));
+        colModeloMoto.setCellValueFactory(new PropertyValueFactory<>("modeloMoto"));
+
+        colKmSalida.setCellValueFactory(new PropertyValueFactory<>("cantKmSalida"));
+        colKmLlegada.setCellValueFactory(new PropertyValueFactory<>("cantKmLlegada"));
 
         colFechaInicio.setCellValueFactory(new PropertyValueFactory<>("fechaInicio"));
         colFechaFin.setCellValueFactory(new PropertyValueFactory<>("fechaFin"));
 
-        colEstado.setCellValueFactory(cellData -> {
-            String estado = "Activo";
-            if (cellData.getValue().getFechaEntrega() != null) {
-                estado = "Finalizado";
-            }
-            return new SimpleStringProperty(estado);
-        });
+        colEstado.setCellValueFactory(cellData ->
+                new SimpleStringProperty(
+                        cellData.getValue().getFechaEntrega() != null ? "Finalizado" : "Activo"
+                )
+        );
 
-        colImporte.setCellValueFactory(cellData -> {
-            double importe = cellData.getValue().calcularImporteTotalTeorico();
-            return new SimpleStringProperty(String.format("%.2f CUP", importe));
-        });
+        colImporte.setCellValueFactory(cellData ->
+                new SimpleStringProperty(String.format("%.2f CUP",
+                        cellData.getValue().calcularImporteTotalTeorico()))
+        );
     }
 
     // -----------------------------------------------------------------
@@ -212,6 +219,7 @@ public class ContratoController {
         return resultado.isPresent() && resultado.get() == ButtonType.OK;
     }
 
+
     /**
      * Intenta eliminar el contrato usando el servicio.
      * Si la operación falla, muestra un mensaje; si tiene éxito, recarga la tabla.
@@ -222,6 +230,7 @@ public class ContratoController {
             loadContratos();
             mostrarAlerta("Contrato eliminado correctamente.");
         } catch (ValidationException e) {
+            e.printStackTrace();
             mostrarAlerta("Error al eliminar: " + e.getMessage());
         }
     }
@@ -288,10 +297,11 @@ public class ContratoController {
      */
     private VBox construirContenidoDialogo(Contrato contrato) {
         Label labelId = new Label("Contrato #" + contrato.getIdContrato());
-        Label labelMoto = new Label("Moto: " + contrato.getIdMoto());
+        Label labelMoto = new Label("Moto: " + contrato.getMatriculaMoto() + " " + contrato.getMarcaMoto() + " " + contrato.getModeloMoto());
         Label labelFechas = new Label("Inicio: " + contrato.getFechaInicio() + " | Fin: " + contrato.getFechaFin());
 
         DatePicker dpFechaEntrega = new DatePicker();
+        dpFechaEntrega.setEditable(false);
         TextField tfKmLlegada = new TextField();
         tfKmLlegada.setPromptText("Kilómetros de llegada");
 
@@ -378,30 +388,92 @@ public class ContratoController {
      * y cierra la ventana. Si hay errores, muestra mensajes.
      */
     private void procesarAceptacion(Contrato contrato, LocalDate fechaEntrega, String kmTexto) {
-        if (fechaEntrega == null || kmTexto.isEmpty()) {
-            mostrarAlerta("Complete todos los campos.");
+        String mensajeError = validarDatos(contrato, fechaEntrega, kmTexto);
+        boolean puedeFinalizar = (mensajeError == null);
+
+        if (puedeFinalizar) {
+            double kmLlegada = Double.parseDouble(kmTexto);
+            ejecutarFinalizacion(contrato, fechaEntrega, kmLlegada);
         } else {
-            try {
-                double kmLlegada = Double.parseDouble(kmTexto);
-                contrato.setFechaEntrega(fechaEntrega);
-                contrato.setCantKmLlegada(kmLlegada);
+            mostrarAlerta(mensajeError);
+        }
+    }
 
-                contratoService.finalizarContrato(contrato);
+    private String validarDatos(Contrato contrato, LocalDate fechaEntrega, String kmTexto) {
+        String error = null;
 
-                double total = contrato.calcularImporteTotalTeorico();
-                new Alert(Alert.AlertType.INFORMATION,
-                        "Contrato finalizado.\nImporte total: " + String.format("%.2f CUP", total)).showAndWait();
+        // 1. Campos vacíos
+        if (fechaEntrega == null || kmTexto.isEmpty()) {
+            error = "Complete todos los campos.";
+        }
 
-                loadContratos();
-                cerrarDialogoDeFinalizacion();
-            } catch (NumberFormatException ex) {
-                mostrarAlerta("Kilómetros inválidos. Debe ser un número.");
-            } catch (ValidationException ex) {
-                mostrarAlerta("Error de negocio: " + ex.getMessage());
-            } catch (Exception ex) {
-                Logger.logError("Error al finalizar contrato: " + ex.getMessage());
-                mostrarAlerta("Error inesperado al finalizar el contrato.");
+        // 2. Fecha de entrega anterior al inicio
+        if (error == null && contrato.getFechaInicio() != null && fechaEntrega.isBefore(contrato.getFechaInicio())) {
+            error = "La fecha de entrega no puede ser anterior a la fecha de inicio del contrato ("
+                    + contrato.getFechaInicio() + ").";
+        }
+
+        // 3. Verificar que no haya un contrato anterior activo para la misma moto
+        if (error == null) {
+            boolean hayAnteriorActivo = contratoService.tieneContratoAnteriorActivo(
+                    contrato.getIdMoto(), contrato.getIdContrato());
+            if (hayAnteriorActivo) {
+                error = "No se puede finalizar este contrato porque existe un contrato anterior "
+                        + "para la misma moto que aún no ha sido finalizado.";
             }
+        }
+
+
+        // 4. Formato de kilómetros y comparación con salida
+        if (error == null) {
+            boolean formatoValido = true;
+            double kmLlegada = 0.0;
+            try {
+                kmLlegada = Double.parseDouble(kmTexto);
+            } catch (NumberFormatException e) {
+                formatoValido = false;
+                error = "Kilómetros inválidos. Debe ser un número.";
+            }
+            if (formatoValido && kmLlegada < contrato.getCantKmSalida()) {
+                error = "Los kilómetros de llegada no pueden ser menores que los kilómetros de salida ("
+                        + contrato.getCantKmSalida() + " km).";
+            }
+        }
+
+
+
+        return error;
+    }
+
+    private void ejecutarFinalizacion(Contrato contrato, LocalDate fechaEntrega, double kmLlegada) {
+        try {
+            contrato.setFechaEntrega(fechaEntrega);
+            contrato.setCantKmLlegada(kmLlegada);
+
+            contratoService.finalizarContrato(contrato);
+
+            double total = contrato.calcularImporteTotalTeorico();
+            new Alert(Alert.AlertType.INFORMATION,
+                    "Contrato finalizado.\nImporte total: " + String.format("%.2f CUP", total)).showAndWait();
+
+            loadContratos();
+
+            cerrarDialogoSeguro();
+        } catch (ValidationException ex) {
+            ex.printStackTrace();
+            mostrarAlerta("Error de negocio: " + ex.getMessage());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            Logger.logError("Error al finalizar contrato: " + ex.getMessage());
+            mostrarAlerta("Error inesperado al finalizar el contrato.");
+        }
+    }
+
+    private void cerrarDialogoSeguro() {
+        try {
+            cerrarDialogoDeFinalizacion();
+        } catch (Exception ignored) {
+            // Lo dejo asi porque no tiene que pasar nada
         }
     }
 
@@ -451,11 +523,7 @@ public class ContratoController {
      * Muestra un diálogo de error con título y contenido.
      */
     private void showError(String headerText, String contentText) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
-        alert.setHeaderText(headerText);
-        alert.setContentText(contentText);
-        alert.showAndWait();
+        AlertUtils.mostrarErrorTitulo(headerText, contentText);
     }
 
     /**
