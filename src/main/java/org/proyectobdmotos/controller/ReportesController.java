@@ -1,15 +1,19 @@
 package org.proyectobdmotos.controller;
 
 import java.util.List;
+import javafx.application.Platform;
+import javafx.fxml.FXML;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import org.proyectobdmotos.dto.*;
 import org.proyectobdmotos.services.ClienteService;
 import org.proyectobdmotos.services.ContratoService;
 import org.proyectobdmotos.services.MotoService;
 import org.proyectobdmotos.utils.Logger;
-import javafx.fxml.FXML;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 
 public class ReportesController {
 
@@ -56,14 +60,6 @@ public class ReportesController {
         this.contratoService = contratoService;
     }
 
-    // -----------------------------------------------------------------
-    // Inicialización
-    // -----------------------------------------------------------------
-
-    /**
-     * Configura las columnas de todas las tablas de reportes y carga los datos
-     * desde los servicios correspondientes al abrir la pantalla.
-     */
     @FXML
     private void initialize() {
         Logger.log("Inicializando ReportesController...");
@@ -79,14 +75,6 @@ public class ReportesController {
         fijarColumnas(tablaIngresosAnuales);
     }
 
-    // -----------------------------------------------------------------
-    // Configuración de columnas
-    // -----------------------------------------------------------------
-
-    /**
-     * Asigna las fábricas de valores a cada columna de todas las tablas
-     * de reportes. Cada columna extrae la propiedad del DTO correspondiente.
-     */
     private void configurarColumnas() {
         configurarColumnasClientes();
         configurarColumnasMotos();
@@ -98,7 +86,6 @@ public class ReportesController {
         configurarColumnasIngresosAnuales();
     }
 
-    /** Configura las columnas de la tabla de clientes por municipio. */
     private void configurarColumnasClientes() {
         colFechaCli.setCellValueFactory(new PropertyValueFactory<>("fecha"));
         colMunicipioCli.setCellValueFactory(new PropertyValueFactory<>("municipio"));
@@ -108,7 +95,6 @@ public class ReportesController {
         colTotalCli.setCellValueFactory(new PropertyValueFactory<>("totalGastado"));
     }
 
-    /** Configura las columnas de la tabla de reporte de motos. */
     private void configurarColumnasMotos() {
         colFechaMoto.setCellValueFactory(new PropertyValueFactory<>("fecha"));
         colMatriculaMoto.setCellValueFactory(new PropertyValueFactory<>("matricula"));
@@ -118,7 +104,6 @@ public class ReportesController {
         colKmMoto.setCellValueFactory(new PropertyValueFactory<>("kmRecorridos"));
     }
 
-    /** Configura las columnas de la tabla de reporte de contratos. */
     private void configurarColumnasContratos() {
         colClienteCont.setCellValueFactory(new PropertyValueFactory<>("nombreCliente"));
         colMatriculaCont.setCellValueFactory(new PropertyValueFactory<>("matricula"));
@@ -132,7 +117,6 @@ public class ReportesController {
         colImporteCont.setCellValueFactory(new PropertyValueFactory<>("importeTotal"));
     }
 
-    /** Configura las columnas de la tabla de situación de motos. */
     private void configurarColumnasSituacionMotos() {
         colFechaSit.setCellValueFactory(new PropertyValueFactory<>("fecha"));
         colMatriculaMarcaSit.setCellValueFactory(new PropertyValueFactory<>("matriculaMarca"));
@@ -140,7 +124,6 @@ public class ReportesController {
         colFechaFinSit.setCellValueFactory(new PropertyValueFactory<>("fechaFinContrato"));
     }
 
-    /** Configura las columnas de la tabla de clientes incumplidores. */
     private void configurarColumnasIncumplidores() {
         colFechaInc.setCellValueFactory(new PropertyValueFactory<>("fecha"));
         colNombreInc.setCellValueFactory(new PropertyValueFactory<>("nombreCompleto"));
@@ -148,7 +131,6 @@ public class ReportesController {
         colFechaEntregaInc.setCellValueFactory(new PropertyValueFactory<>("fechaEntrega"));
     }
 
-    /** Configura las columnas de la tabla de resumen por marcas y modelos. */
     private void configurarColumnasResumenMarcaModelo() {
         colFechaResMM.setCellValueFactory(new PropertyValueFactory<>("fecha"));
         colMarcaResMM.setCellValueFactory(new PropertyValueFactory<>("marca"));
@@ -162,7 +144,6 @@ public class ReportesController {
         colTotalGeneralResMM.setCellValueFactory(new PropertyValueFactory<>("totalGeneral"));
     }
 
-    /** Configura las columnas de la tabla de resumen por municipios. */
     private void configurarColumnasResumenMunicipio() {
         colFechaResMun.setCellValueFactory(new PropertyValueFactory<>("fecha"));
         colMunicipioResMun.setCellValueFactory(new PropertyValueFactory<>("municipio"));
@@ -174,7 +155,6 @@ public class ReportesController {
         colTotalResMun.setCellValueFactory(new PropertyValueFactory<>("valorTotal"));
     }
 
-    /** Configura las columnas de la tabla de ingresos anuales. */
     private void configurarColumnasIngresosAnuales() {
         colFechaAnual.setCellValueFactory(new PropertyValueFactory<>("fecha"));
         colTotalAnual.setCellValueFactory(new PropertyValueFactory<>("ingresoTotalAnual"));
@@ -182,15 +162,6 @@ public class ReportesController {
         colIngresoMensual.setCellValueFactory(new PropertyValueFactory<>("ingresoMensual"));
     }
 
-    // -----------------------------------------------------------------
-    // Carga de datos
-    // -----------------------------------------------------------------
-
-    /**
-     * Carga los datos de todos los reportes desde los servicios.
-     * Cada carga se envuelve en un try-catch para que un fallo en un reporte
-     * no impida cargar el resto.
-     */
     private void cargarDatos() {
         cargarClientesReporte();
         cargarMotosReporte();
@@ -202,92 +173,137 @@ public class ReportesController {
         cargarIngresosAnuales();
     }
 
-    /** Carga los datos de la tabla de clientes por municipio. */
     private void cargarClientesReporte() {
         try {
             List<CliRepDTO> lista = clienteService.listarClientesReporte();
             tablaClientesMunicipio.getItems().setAll(lista);
+            ajustarColumnas(tablaClientesMunicipio, colFechaCli, colMunicipioCli, colNombreCli, colCiCli, colContratosCli, colTotalCli);
         } catch (Exception e) {
             e.printStackTrace();
             Logger.logError("Error clientes reporte: " + e.getMessage());
         }
     }
 
-    /** Carga los datos de la tabla de reporte de motos. */
     private void cargarMotosReporte() {
         try {
             List<MotoRepDTO> lista = motoService.listarMotosReporte();
             tablaMotos.getItems().setAll(lista);
+            ajustarColumnas(tablaMotos, colFechaMoto, colMatriculaMoto, colMarcaMoto, colModeloMoto, colColorMoto, colKmMoto);
         } catch (Exception e) {
             e.printStackTrace();
             Logger.logError("Error motos reporte: " + e.getMessage());
         }
     }
 
-    /** Carga los datos de la tabla de reporte de contratos. */
     private void cargarContratosReporte() {
         try {
             List<ContRepDTO> lista = contratoService.listarContratosReporte();
             tablaContratos.getItems().setAll(lista);
+            ajustarColumnas(tablaContratos, colClienteCont, colMatriculaCont, colMarcaCont, colModeloCont,
+                    colPagoCont, colInicioCont, colFinCont, colSeguroCont, colProrrogaCont, colImporteCont);
         } catch (Exception e) {
             e.printStackTrace();
             Logger.logError("Error contratos reporte: " + e.getMessage());
         }
     }
 
-    /** Carga los datos de la tabla de situación de motos. */
     private void cargarSituacionMotosReporte() {
         try {
             List<SitMotoRepDTO> lista = motoService.listarSituacionMotosReporte();
             tablaSituacionMotos.getItems().setAll(lista);
+            ajustarColumnas(tablaSituacionMotos, colFechaSit, colMatriculaMarcaSit, colSituacionSit, colFechaFinSit);
         } catch (Exception e) {
             e.printStackTrace();
             Logger.logError("Error situación motos: " + e.getMessage());
         }
     }
 
-    /** Carga los datos de la tabla de clientes incumplidores. */
     private void cargarIncumplidores() {
         try {
             List<IncumpDTO> lista = clienteService.listarIncumplidores();
             tablaIncumplidores.getItems().setAll(lista);
+            ajustarColumnas(tablaIncumplidores, colFechaInc, colNombreInc, colFechaFinInc, colFechaEntregaInc);
         } catch (Exception e) {
             e.printStackTrace();
             Logger.logError("Error incumplidores: " + e.getMessage());
         }
     }
 
-    /** Carga los datos de la tabla de resumen por marcas y modelos. */
     private void cargarResumenMarcaModelo() {
         try {
             List<ResMarModDTO> lista = contratoService.resumenMarcasModelos();
             tablaResumenMarcaModelo.getItems().setAll(lista);
+            ajustarColumnas(tablaResumenMarcaModelo, colFechaResMM, colMarcaResMM, colModeloResMM,
+                    colCantMotosResMM, colDiasResMM, colIngTarjetaResMM, colIngChequeResMM, colIngEfectivoResMM,
+                    colTotalMarcaResMM, colTotalGeneralResMM);
         } catch (Exception e) {
             e.printStackTrace();
             Logger.logError("Error resumen MM: " + e.getMessage());
         }
     }
 
-    /** Carga los datos de la tabla de resumen por municipios. */
     private void cargarResumenMunicipio() {
         try {
             List<ResMunDTO> lista = contratoService.resumenMunicipios();
             tablaResumenMunicipio.getItems().setAll(lista);
+            ajustarColumnas(tablaResumenMunicipio, colFechaResMun, colMunicipioResMun, colMarcaResMun, colModeloResMun,
+                    colDiasAlqResMun, colDiasProrrogaResMun, colEfectivoResMun, colTotalResMun);
         } catch (Exception e) {
             e.printStackTrace();
             Logger.logError("Error resumen Mun: " + e.getMessage());
         }
     }
 
-    /** Carga los datos de la tabla de ingresos anuales. */
     private void cargarIngresosAnuales() {
         try {
             List<IngAnualDTO> lista = contratoService.ingresosAnuales();
             tablaIngresosAnuales.getItems().setAll(lista);
+            ajustarColumnas(tablaIngresosAnuales, colFechaAnual, colMesAnual, colTotalAnual, colIngresoMensual);
         } catch (Exception e) {
             e.printStackTrace();
             Logger.logError("Error ingresos anuales: " + e.getMessage());
         }
+    }
+
+    // ---------------------------
+    // Autoajuste genérico
+    // ---------------------------
+    private double medirAnchoTexto(String texto, boolean bold) {
+        Font font = bold ? Font.font("System", FontWeight.BOLD, 14) : Font.font("System", 14);
+        Text text = new Text(texto);
+        text.setFont(font);
+        return text.getLayoutBounds().getWidth() + 25;
+    }
+
+    @SafeVarargs
+    private void ajustarColumnas(TableView<?> tabla, TableColumn<?, ?>... columnas) {
+        for (TableColumn<?, ?> col : columnas) {
+            double max = medirAnchoTexto(col.getText(), true);
+            for (Object item : tabla.getItems()) {
+                Object valor = null;
+                try {
+                    valor = ((TableColumn) col).getCellData(item);
+                } catch (Exception ignored) {
+                    try {
+                        javafx.beans.value.ObservableValue<?> obs = ((TableColumn) col).getCellObservableValue(item);
+                        if (obs != null) valor = obs.getValue();
+                    } catch (Exception ignored2) {}
+                }
+                if (valor != null) {
+                    double w = medirAnchoTexto(valor.toString(), false);
+                    if (w > max) max = w;
+                }
+            }
+            col.setPrefWidth(max);
+            col.setMinWidth(max);
+            col.setMaxWidth(max);
+        }
+        Platform.runLater(() -> {
+            double total = 0;
+            for (TableColumn<?, ?> c : tabla.getColumns()) total += c.getPrefWidth();
+            tabla.setPrefWidth(total + 10);
+            tabla.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+        });
     }
 
     private void fijarColumnas(TableView<?> tabla) {
