@@ -54,6 +54,9 @@
                     <Label text="Forma de Pago*" labelFor="$comboPago" styleClass="section-title"/>
                     <ComboBox fx:id="comboPago" styleClass="form-field" maxWidth="Infinity"/>
 
+                    <Label text="Seguro adicional" styleClass="form-label"/>
+                    <CheckBox fx:id="checkSeguroAdicional" text="Contratar seguro"/>
+
                     <Label fx:id="labelPrecio" text="0.00 CUP" styleClass="precio-label"/>
 
                     <HBox alignment="CENTER" spacing="25">
