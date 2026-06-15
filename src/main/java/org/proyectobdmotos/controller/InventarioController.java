@@ -33,6 +33,7 @@ public class InventarioController {
         Logger.log("Inicializando InventarioController...");
         configurarColumnas();
         cargarDatos();
+        fijarColumnas(tablaInventario);
     }
 
     /**
@@ -100,6 +101,16 @@ public class InventarioController {
             e.printStackTrace();
             Logger.logError("Error al cargar inventario: " + e.getMessage());
 
+        }
+    }
+
+    private void fijarColumnas(TableView<?> tabla) {
+        int i = 0;
+        while (i < tabla.getColumns().size()) {
+            TableColumn<?, ?> columna = tabla.getColumns().get(i);
+            columna.setResizable(false);
+            columna.setReorderable(false);
+            i++;
         }
     }
 }
