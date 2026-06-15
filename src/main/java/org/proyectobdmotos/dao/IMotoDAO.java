@@ -34,4 +34,8 @@ public interface IMotoDAO extends GenericDAO<Moto, Integer> {
     List<MotoDisponibleDTO> listarMotosDisponiblesDetalle(LocalDate inicio, LocalDate fin);
 
     boolean existeSolapamiento(int idMoto, LocalDate inicio, LocalDate fin);
+
+    void actualizarKilometros(int idMoto, double km);
+
+    List<Moto> listarTodos();
 }
