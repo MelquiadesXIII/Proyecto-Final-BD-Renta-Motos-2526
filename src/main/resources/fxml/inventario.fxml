@@ -10,6 +10,7 @@
       spacing="10"
       styleClass="root-vbox">
 
+    <Label text="Inventario" styleClass="table-title" />
     <TableView fx:id="tablaInventario" VBox.vgrow="ALWAYS">
         <columns>
             <TableColumn text="Matrícula" fx:id="colMatriculaInv" prefWidth="100" />
