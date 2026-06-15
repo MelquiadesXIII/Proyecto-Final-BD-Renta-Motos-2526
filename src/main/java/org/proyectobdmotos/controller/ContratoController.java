@@ -78,7 +78,10 @@ public class ContratoController {
         configureTableColumns();
         bindStore();
         loadContratos();
+        fijarColumnas(tablaContratos);
     }
+
+
 
     // -----------------------------------------------------------------
     // Configuración de columnas
@@ -531,5 +534,15 @@ public class ContratoController {
      */
     private void mostrarAlerta(String mensaje) {
         AlertUtils.mostrarInfo(mensaje);
+    }
+
+    private void fijarColumnas(TableView<?> tabla) {
+        int i = 0;
+        while (i < tabla.getColumns().size()) {
+            TableColumn<?, ?> columna = tabla.getColumns().get(i);
+            columna.setResizable(false);
+            columna.setReorderable(false);
+            i++;
+        }
     }
 }
