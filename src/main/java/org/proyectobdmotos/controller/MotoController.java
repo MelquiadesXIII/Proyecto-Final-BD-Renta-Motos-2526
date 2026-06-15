@@ -3,7 +3,9 @@ package org.proyectobdmotos.controller;
 import java.util.List;
 import java.util.Optional;
 
+import javafx.beans.property.SimpleStringProperty;
 import org.proyectobdmotos.models.Moto;
+import org.proyectobdmotos.models.Situacion;
 import org.proyectobdmotos.services.MotoService;
 import org.proyectobdmotos.services.exceptions.BusinessException;
 import org.proyectobdmotos.services.exceptions.ValidationException;
@@ -12,6 +14,7 @@ import org.proyectobdmotos.stores.ReferenceDataStore;
 import org.proyectobdmotos.utils.*;
 import org.proyectobdmotos.utils.Logger;
 
+import javafx.scene.control.ChoiceDialog;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -28,9 +31,11 @@ public class MotoController {
 
     @FXML private TableView<Moto> tablaMotos;
     @FXML private TableColumn<Moto, String> colMatricula;
-    @FXML private TableColumn<Moto, Integer> colModelo;
-    @FXML private TableColumn<Moto, Integer> colColor;
+    @FXML private TableColumn<Moto, String> colMarca;
+    @FXML private TableColumn<Moto, String> colModelo;
+    @FXML private TableColumn<Moto, String> colColor;
     @FXML private TableColumn<Moto, Double> colKilometros;
+    @FXML private TableColumn<Moto, String> colSituacion;
 
     public MotoController(
             MotoService motoService,
@@ -68,9 +73,13 @@ public class MotoController {
      */
     private void configureTableColumns() {
         colMatricula.setCellValueFactory(new PropertyValueFactory<>("matriculaMoto"));
-        colModelo.setCellValueFactory(new PropertyValueFactory<>("idModelo"));
-        colColor.setCellValueFactory(new PropertyValueFactory<>("idColor"));
+        colMarca.setCellValueFactory(new PropertyValueFactory<>("nombreMarca"));
+        colModelo.setCellValueFactory(new PropertyValueFactory<>("nombreModelo"));
+        colColor.setCellValueFactory(new PropertyValueFactory<>("nombreColor"));
         colKilometros.setCellValueFactory(new PropertyValueFactory<>("cantKmRecorridos"));
+        colSituacion.setCellValueFactory(cellData ->
+                new SimpleStringProperty(cellData.getValue().getSituacion().getValor())
+        );
     }
 
     // -----------------------------------------------------------------
@@ -220,6 +229,70 @@ public class MotoController {
         }
     }
 
+
+    @FXML
+    private void onCambiarEstado() {
+        // Obtener la moto seleccionada
+        Moto motoSeleccionada = tablaMotos.getSelectionModel().getSelectedItem();
+        boolean haySeleccion = (motoSeleccionada != null);
+        boolean puedeEjecutar = false;
+        String errorSeleccion = null;
+
+        if (!haySeleccion) {
+            errorSeleccion = "Seleccione una moto de la tabla.";
+        } else {
+            puedeEjecutar = true;
+        }
+
+        // Si no hay selección, mostrar mensaje y detener el flujo sin return
+        if (!puedeEjecutar) {
+            if (errorSeleccion != null) {
+                mostrarAlerta(errorSeleccion);
+            }
+        } else {
+            // Construir el diálogo de opciones
+            ChoiceDialog<String> dialog = new ChoiceDialog<>("Disponible", "Disponible", "Taller");
+            dialog.setTitle("Cambiar estado");
+            dialog.setHeaderText("Moto: " + motoSeleccionada.getMatriculaMoto());
+            dialog.setContentText("Seleccione el nuevo estado:");
+
+            // Mostrar el diálogo y esperar
+            Optional<String> resultado = dialog.showAndWait();
+            boolean confirmado = resultado.isPresent();
+            boolean operacionExitosa = false;
+            String mensajeExito = null;
+            String mensajeError = null;
+
+            if (confirmado) {
+                String estadoElegido = resultado.get();
+                Situacion situacion = Situacion.fromValor(estadoElegido);
+
+                try {
+                    motoService.cambiarEstado(motoSeleccionada.getMatriculaMoto(), situacion);
+                    loadMotos();
+                    mensajeExito = "Estado cambiado a " + estadoElegido + ".";
+                    operacionExitosa = true;
+                } catch (ValidationException e) {
+                    e.printStackTrace();
+                    Logger.logError("Error al cambiar estado de moto: " + e.getMessage());
+                    mensajeError = "Error al cambiar estado: " + e.getMessage();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Logger.logError("Error inesperado al cambiar estado: " + e.getMessage());
+                    mensajeError = "Error inesperado al cambiar estado.";
+                }
+            }
+
+            // Mostrar resultado final
+            if (operacionExitosa && mensajeExito != null) {
+                mostrarAlerta(mensajeExito);
+            } else if (mensajeError != null) {
+                mostrarAlerta(mensajeError);
+            }
+        }
+    }
+
+
     // -----------------------------------------------------------------
     // Recarga manual
     // -----------------------------------------------------------------
@@ -249,4 +322,6 @@ public class MotoController {
     private void mostrarAlerta(String mensaje) {
         AlertUtils.mostrarInfo(mensaje);
     }
+
+
 }
