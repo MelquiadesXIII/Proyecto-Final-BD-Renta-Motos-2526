@@ -243,6 +243,8 @@ public class ContratoService {
                     + " | total_teorico=" + importeTotalTeorico);
             contratoDAO.actualizar(contratoParaFinalizar);
             motoDAO.cambiarEstado(idMoto, Situacion.DISPONIBLE);
+            // Después de cambiar el estado de la moto...
+            motoDAO.actualizarKilometros(idMoto, contratoParaFinalizar.getCantKmLlegada());
         }
 
         if (!puedeFinalizar) {
@@ -358,5 +360,9 @@ public class ContratoService {
     /** Obtiene el reporte de ingresos anuales. */
     public List<IngAnualDTO> ingresosAnuales() {
         return contratoDAO.ingresosAnuales();
+    }
+
+    public boolean tieneContratoAnteriorActivo(int idMoto, int idContratoActual) {
+        return contratoDAO.tieneContratoAnteriorActivo(idMoto, idContratoActual);
     }
 }
