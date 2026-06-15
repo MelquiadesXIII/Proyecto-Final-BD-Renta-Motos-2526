@@ -64,11 +64,11 @@ public class MisContratosController {
         cargarMotos();
         cargarContratos();
         btnFinalizarContrato.setDisable(true);
-
-        // Habilita el botón Finalizar solo cuando haya un contrato seleccionado
         tablaContratos.getSelectionModel().selectedItemProperty().addListener((obs, old, newVal) -> {
             btnFinalizarContrato.setDisable(newVal == null);
         });
+        fijarColumnas(tablaMotos);
+        fijarColumnas(tablaContratos);
     }
 
     // -----------------------------------------------------------------
@@ -394,5 +394,15 @@ public class MisContratosController {
     private void mostrarAlerta(String mensaje)
     {
         AlertUtils.mostrarError(mensaje);
+    }
+
+    private void fijarColumnas(TableView<?> tabla) {
+        int i = 0;
+        while (i < tabla.getColumns().size()) {
+            TableColumn<?, ?> columna = tabla.getColumns().get(i);
+            columna.setResizable(false);
+            columna.setReorderable(false);
+            i++;
+        }
     }
 }
