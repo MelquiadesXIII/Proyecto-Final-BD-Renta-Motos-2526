@@ -24,20 +24,14 @@ public class MarcasModelosController {
     // Inicialización
     // -----------------------------------------------------------------
 
-    /**
-     * Configura las columnas de la tabla y carga los datos desde el servicio
-     * al abrir la pantalla.
-     */
     @FXML
     private void initialize() {
         colModelo.setCellValueFactory(new PropertyValueFactory<>("nombreModelo"));
         colMarca.setCellValueFactory(new PropertyValueFactory<>("nombreMarca"));
         cargarTabla();
+        fijarColumnas(tabla);
     }
 
-    /**
-     * Obtiene la lista de modelos con sus marcas asociadas y la muestra en la tabla.
-     */
     private void cargarTabla() {
         List<ModeloConMarcaDTO> lista = modeloService.listarModelosConMarca();
         tabla.getItems().setAll(lista);
@@ -47,18 +41,11 @@ public class MarcasModelosController {
     // Navegación
     // -----------------------------------------------------------------
 
-    /**
-     * Abre el formulario para crear un nuevo modelo.
-     */
     @FXML
     private void onNuevo() {
         MainController.getInstance().cargarVista("/fxml/modelo-form.fxml", "Nuevo Modelo");
     }
 
-    /**
-     * Prepara el controlador de edición con el modelo seleccionado
-     * (si hay alguno) y abre la vista correspondiente.
-     */
     @FXML
     private void onEditar() {
         ModeloConMarcaDTO seleccionado = tabla.getSelectionModel().getSelectedItem();
@@ -70,11 +57,22 @@ public class MarcasModelosController {
         MainController.getInstance().cargarVista("/fxml/editar-marca-modelo.fxml", "Editar Marca/Modelo");
     }
 
-    /**
-     * Abre la vista para eliminar una marca o modelo.
-     */
     @FXML
     private void onEliminar() {
         MainController.getInstance().cargarVista("/fxml/eliminar-marca-modelo.fxml", "Eliminar Marca/Modelo");
+    }
+
+    // -----------------------------------------------------------------
+    // Método para fijar las columnas
+    // -----------------------------------------------------------------
+
+    private void fijarColumnas(TableView<?> tabla) {
+        int i = 0;
+        while (i < tabla.getColumns().size()) {
+            TableColumn<?, ?> columna = tabla.getColumns().get(i);
+            columna.setResizable(false);
+            columna.setReorderable(false);
+            i++;
+        }
     }
 }
