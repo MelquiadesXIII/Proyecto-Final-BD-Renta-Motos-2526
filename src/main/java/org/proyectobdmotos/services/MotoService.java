@@ -282,4 +282,8 @@ public class MotoService {
     public boolean existeSolapamiento(int idMoto, LocalDate inicio, LocalDate fin) {
         return motoDAO.existeSolapamiento(idMoto, inicio, fin);
     }
+
+    public Optional<Moto> buscarPorId(int idMoto) {
+        return motoDAO.buscarPorId(idMoto);
+    }
 }
