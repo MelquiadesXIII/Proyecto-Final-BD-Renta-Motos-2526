@@ -45,9 +45,11 @@
 
                     <Separator/>
 
-                    <!-- Forma de pago y precio -->
+                    <!-- Forma de pago y seguro -->
                     <Label text="Forma de Pago*" labelFor="$comboPago" styleClass="section-title"/>
                     <ComboBox fx:id="comboPago" styleClass="form-field" maxWidth="Infinity"/>
+
+                    <CheckBox fx:id="checkSeguroAdicional" text="Contratar seguro" />
 
                     <Label fx:id="labelPrecio" text="0.00 CUP" styleClass="precio-label"/>
 
