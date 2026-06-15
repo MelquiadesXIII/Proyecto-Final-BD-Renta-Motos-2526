@@ -18,4 +18,7 @@ public interface IContratoDAO extends GenericDAO<Contrato, Integer> {
     List<IngAnualDTO> ingresosAnuales();
 
     List<MisContratosDTO> listarMisContratos(int idCliente);
+
+    boolean tieneContratoAnteriorActivo(int idMoto, int idContratoActual);
+    List<Contrato> listarTodos();
 }
