@@ -21,6 +21,7 @@ public class ContratoUsuarioFormController {
     @FXML private ComboBox<FormaPago> comboPago;
     @FXML private Label labelPrecio;
     @FXML private Label labelSinMotos;
+    @FXML private CheckBox checkSeguroAdicional;
 
     private final ContratoService contratoService;
     private final MotoService motoService;
@@ -38,10 +39,6 @@ public class ContratoUsuarioFormController {
     // Inicialización
     // -----------------------------------------------------------------
 
-    /**
-     * Configura los componentes visuales y enlaza los eventos de cambio
-     * en las fechas y la moto para mantener actualizado el formulario.
-     */
     @FXML
     private void initialize() {
         configurarComboMoto();
@@ -53,32 +50,50 @@ public class ContratoUsuarioFormController {
         comboMoto.valueProperty().addListener((obs, oldMoto, newMoto) -> actualizarPrecioEstimado());
         dateInicio.valueProperty().addListener((obs, oldDate, newDate) -> actualizarPrecioEstimado());
         dateFin.valueProperty().addListener((obs, oldDate, newDate) -> actualizarPrecioEstimado());
+        checkSeguroAdicional.selectedProperty().addListener((obs, oldVal, newVal) -> actualizarPrecioEstimado());
+
+        // Estado inicial
+        comboMoto.setPromptText("Primero seleccione las fechas");
+        labelSinMotos.setVisible(false);
+        labelSinMotos.setManaged(false);
     }
 
     // -----------------------------------------------------------------
     // Carga de motos según fechas
     // -----------------------------------------------------------------
 
-    /**
-     * Consulta las motos disponibles en el rango de fechas seleccionado
-     * y llena el combo. Si no hay motos, muestra un mensaje informativo.
-     */
     private void cargarMotosSegunFechas() {
         LocalDate inicio = dateInicio.getValue();
         LocalDate fin = dateFin.getValue();
         labelSinMotos.setVisible(false);
         labelSinMotos.setManaged(false);
 
-        if (inicio != null && fin != null && !fin.isBefore(inicio)) {
-            List<MotoDisponibleDTO> disponibles = motoService.listarMotosDisponiblesDetalle(inicio, fin);
-            comboMoto.getItems().setAll(disponibles);
-            comboMoto.getSelectionModel().clearSelection();
-            if (disponibles.isEmpty()) {
-                comboMoto.setPromptText("No hay motos disponibles");
-                labelSinMotos.setVisible(true);
-                labelSinMotos.setManaged(true);
+        boolean fechasValidas = inicio != null && fin != null && !fin.isBefore(inicio);
+        if (fechasValidas) {
+            List<MotoDisponibleDTO> disponibles = null;
+            boolean cargado = false;
+            String errorMsg = null;
+            try {
+                disponibles = motoService.listarMotosDisponiblesDetalle(inicio, fin);
+                cargado = true;
+            } catch (Exception e) {
+                errorMsg = e.getMessage();
+                Logger.logError("Error al cargar motos disponibles: " + errorMsg);
+                e.printStackTrace();
+            }
+            if (cargado) {
+                comboMoto.getItems().setAll(disponibles);
+                comboMoto.getSelectionModel().clearSelection();
+                boolean hayMotos = disponibles != null && !disponibles.isEmpty();
+                if (hayMotos) {
+                    comboMoto.setPromptText("Seleccione una moto");
+                } else {
+                    comboMoto.setPromptText("No hay motos disponibles");
+                    labelSinMotos.setVisible(true);
+                    labelSinMotos.setManaged(true);
+                }
             } else {
-                comboMoto.setPromptText("Seleccione una moto");
+                mostrarError("Error al cargar las motos disponibles. Revise el registro.");
             }
         } else {
             comboMoto.getItems().clear();
@@ -90,22 +105,14 @@ public class ContratoUsuarioFormController {
     // Acción Guardar
     // -----------------------------------------------------------------
 
-    /**
-     * Orquesta el guardado del contrato: valida los campos y, si todo es correcto,
-     * crea el contrato asociado al cliente actual.
-     */
     @FXML
     private void onGuardar() {
-        if (validarFormulario()) {
+        boolean puedeGuardar = validarFormulario();
+        if (puedeGuardar) {
             crearContrato();
         }
     }
 
-    /**
-     * Comprueba que los campos obligatorios estén rellenados y que la fecha
-     * de inicio no sea posterior a la de fin ni anterior a hoy.
-     * @return true si los datos son válidos, false en caso contrario.
-     */
     private boolean validarFormulario() {
         MotoDisponibleDTO motoSeleccionada = comboMoto.getValue();
         LocalDate inicio = dateInicio.getValue();
@@ -113,30 +120,30 @@ public class ContratoUsuarioFormController {
         FormaPago formaPago = comboPago.getValue();
 
         boolean camposCompletos = motoSeleccionada != null && inicio != null && fin != null && formaPago != null;
+        boolean fechaPasada = inicio != null && inicio.isBefore(LocalDate.now());
+        boolean fechasInvertidas = inicio != null && fin != null && inicio.isAfter(fin);
+        boolean todoOk = false;
+
         if (!camposCompletos) {
             mostrarError("Todos los campos obligatorios deben estar completos.");
         }
-
-        boolean fechaPasada = inicio != null && inicio.isBefore(LocalDate.now());
         if (fechaPasada) {
             mostrarError("La fecha de inicio no puede ser anterior a hoy.");
         }
-
-        boolean fechasInvertidas = inicio != null && fin != null && inicio.isAfter(fin);
         if (fechasInvertidas) {
             mostrarError("La fecha de inicio debe ser anterior o igual a la fecha fin.");
         }
 
-        return camposCompletos && !fechaPasada && !fechasInvertidas;
+        if (camposCompletos && !fechaPasada && !fechasInvertidas) {
+            todoOk = true;
+        }
+        return todoOk;
     }
 
-    /**
-     * Construye el objeto Contrato con los datos del formulario y lo envía al servicio.
-     * Si ocurre un error, muestra el mensaje correspondiente.
-     */
     private void crearContrato() {
         Cliente cliente = agenciaStore.getClienteActual();
-        if (cliente != null) {
+        boolean clienteExiste = cliente != null;
+        if (clienteExiste) {
             try {
                 Contrato nuevoContrato = new Contrato(
                         0.0, 0.0,
@@ -145,7 +152,8 @@ public class ContratoUsuarioFormController {
                         dateFin.getValue(), dateInicio.getValue(),
                         comboPago.getValue(),
                         comboMoto.getValue().getIdMoto(),
-                        false, 20.0, 40.0
+                        checkSeguroAdicional.isSelected(),
+                        20.0, 40.0
                 );
                 contratoService.crearContrato(nuevoContrato);
                 mostrarInfo("Contrato creado correctamente.");
@@ -167,9 +175,6 @@ public class ContratoUsuarioFormController {
     // Cancelar
     // -----------------------------------------------------------------
 
-    /**
-     * Vuelve a la pantalla anterior sin guardar cambios.
-     */
     @FXML
     private void onCancelar() {
         UserMainController.getInstance().onGoBack();
@@ -179,9 +184,6 @@ public class ContratoUsuarioFormController {
     // Configuración de componentes visuales
     // -----------------------------------------------------------------
 
-    /**
-     * Configura el combo de motos para mostrar marca, modelo y color.
-     */
     private void configurarComboMoto() {
         comboMoto.setCellFactory(param -> new ListCell<MotoDisponibleDTO>() {
             @Override
@@ -207,10 +209,6 @@ public class ContratoUsuarioFormController {
         });
     }
 
-    /**
-     * Llena el combo de forma de pago con los valores del enumerado FormaPago
-     * y selecciona la primera opción por defecto.
-     */
     private void configurarComboPago() {
         comboPago.getItems().setAll(FormaPago.values());
         comboPago.setCellFactory(param -> new ListCell<FormaPago>() {
@@ -233,37 +231,32 @@ public class ContratoUsuarioFormController {
     // Cálculo del precio estimado
     // -----------------------------------------------------------------
 
-    /**
-     * Calcula el precio estimado en función de la moto y el número de días.
-     * Muestra 0.00 CUP si falta algún dato.
-     */
     private void actualizarPrecioEstimado() {
         MotoDisponibleDTO motoSeleccionada = comboMoto.getValue();
         LocalDate inicio = dateInicio.getValue();
         LocalDate fin = dateFin.getValue();
 
-        if (motoSeleccionada != null && inicio != null && fin != null) {
+        boolean puedeCalcular = motoSeleccionada != null && inicio != null && fin != null;
+        double precio = 0.0;
+        if (puedeCalcular) {
             long dias = java.time.temporal.ChronoUnit.DAYS.between(inicio, fin) + 1;
-            labelPrecio.setText(String.format("%.2f CUP", dias * 20.0));
-        } else {
-            labelPrecio.setText("0.00 CUP");
+            double tarifa = 20.0;
+            if (checkSeguroAdicional.isSelected()) {
+                tarifa = tarifa * 2;
+            }
+            precio = dias * tarifa;
         }
+        labelPrecio.setText(String.format("%.2f CUP", precio));
     }
 
     // -----------------------------------------------------------------
     // Alertas
     // -----------------------------------------------------------------
 
-    /**
-     * Muestra un mensaje de error en un cuadro de diálogo.
-     */
     private void mostrarError(String mensaje) {
         AlertUtils.mostrarError(mensaje);
     }
 
-    /**
-     * Muestra un mensaje informativo en un cuadro de diálogo.
-     */
     private void mostrarInfo(String mensaje) {
         AlertUtils.mostrarInfo(mensaje);
     }
