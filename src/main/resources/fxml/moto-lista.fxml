@@ -10,18 +10,22 @@
       spacing="10"
       styleClass="root-vbox">
 
+    <Label text="Tabla de Motos" styleClass="table-title" />
     <TableView fx:id="tablaMotos" VBox.vgrow="ALWAYS">
         <columns>
             <TableColumn text="Matrícula" fx:id="colMatricula" />
+            <TableColumn text="Marca" fx:id="colMarca" />
             <TableColumn text="Modelo" fx:id="colModelo" />
             <TableColumn text="Color" fx:id="colColor" />
             <TableColumn text="Km" fx:id="colKilometros" />
+            <TableColumn text="Situación" fx:id="colSituacion" />
         </columns>
     </TableView>
 
     <HBox alignment="CENTER" spacing="15" styleClass="botonera">
         <Button text="Nueva Moto" onAction="#onCrearMoto" styleClass="btn-accion" />
         <Button text="Editar" onAction="#onEditarMoto" styleClass="btn-accion" />
+        <Button text="Cambiar estado" onAction="#onCambiarEstado" styleClass="btn-accion" />
         <Button text="Eliminar" onAction="#onEliminarMoto" styleClass="btn-accion" />
         <Button text="Actualizar" onAction="#onActualizarLista" styleClass="btn-accion" />
     </HBox>
