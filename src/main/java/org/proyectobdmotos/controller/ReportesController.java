@@ -69,6 +69,14 @@ public class ReportesController {
         Logger.log("Inicializando ReportesController...");
         configurarColumnas();
         cargarDatos();
+        fijarColumnas(tablaClientesMunicipio);
+        fijarColumnas(tablaMotos);
+        fijarColumnas(tablaContratos);
+        fijarColumnas(tablaSituacionMotos);
+        fijarColumnas(tablaIncumplidores);
+        fijarColumnas(tablaResumenMarcaModelo);
+        fijarColumnas(tablaResumenMunicipio);
+        fijarColumnas(tablaIngresosAnuales);
     }
 
     // -----------------------------------------------------------------
@@ -279,6 +287,16 @@ public class ReportesController {
         } catch (Exception e) {
             e.printStackTrace();
             Logger.logError("Error ingresos anuales: " + e.getMessage());
+        }
+    }
+
+    private void fijarColumnas(TableView<?> tabla) {
+        int i = 0;
+        while (i < tabla.getColumns().size()) {
+            TableColumn<?, ?> columna = tabla.getColumns().get(i);
+            columna.setResizable(false);
+            columna.setReorderable(false);
+            i++;
         }
     }
 }
