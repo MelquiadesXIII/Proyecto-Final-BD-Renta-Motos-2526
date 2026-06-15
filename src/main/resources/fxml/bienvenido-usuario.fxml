@@ -4,20 +4,21 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx/19"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="org.proyectobdmotos.controller.BienvenidoUsuarioController"
-            stylesheets="@/styles/bienvenido-usuario.css">
+<StackPane xmlns="http://javafx.com/javafx/19"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="org.proyectobdmotos.controller.BienvenidoUsuarioController"
+           fx:id="rootPane">
 
-    <top>
-        <HBox styleClass="welcome-bar" alignment="CENTER">
-            <Label fx:id="labelBienvenida" text="Bienvenido Usuario"
-                   styleClass="welcome-text" />
-        </HBox>
-    </top>
-
-    <center>
-        <Label text="Seleccione una opción del menú"
-               styleClass="info-text" />
-    </center>
-</BorderPane>
+    <BorderPane stylesheets="@/styles/bienvenido-usuario.css">
+        <top>
+            <HBox styleClass="welcome-bar" alignment="CENTER">
+                <Label fx:id="labelBienvenida" text="Bienvenido Usuario"
+                       styleClass="welcome-text" />
+            </HBox>
+        </top>
+        <center>
+            <Label text="Seleccione una opción del menú"
+                   styleClass="info-text" />
+        </center>
+    </BorderPane>
+</StackPane>
