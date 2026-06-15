@@ -9,21 +9,21 @@
       stylesheets="@/styles/contrato-lista.css,@/styles/tablas-estilos.css"
       spacing="10"
       styleClass="root-vbox">
-    <Label text="Tabla de Contratos" styleClass="table-title" />
-    <TableView fx:id="tablaContratos" VBox.vgrow="ALWAYS">
+    <Label text="Tabla de Contratos" styleClass="table-title"   />
+    <TableView fx:id="tablaContratos" VBox.vgrow="ALWAYS" editable="false">
         <columns>
-            <TableColumn text="ID" fx:id="colId" />
-            <TableColumn text="CI" fx:id="colCiCliente" />
-            <TableColumn text="Nombre Cliente" fx:id="colNombreCliente" />
-            <TableColumn text="Matrícula" fx:id="colMatriculaMoto" />
-            <TableColumn text="Marca Moto" fx:id="colMarcaMoto" />
-            <TableColumn text="Modelo Moto" fx:id="colModeloMoto" />
-            <TableColumn text="Km Salida" fx:id="colKmSalida" />
-            <TableColumn text="Km Llegada" fx:id="colKmLlegada" />
-            <TableColumn text="Fecha Inicio" fx:id="colFechaInicio" />
-            <TableColumn text="Fecha Fin" fx:id="colFechaFin" />
-            <TableColumn text="Estado" fx:id="colEstado" />
-            <TableColumn text="Importe" fx:id="colImporte" />
+            <TableColumn text="ID" fx:id="colId" resizable="false" />
+            <TableColumn text="CI" fx:id="colCiCliente" resizable="false"/>
+            <TableColumn text="Nombre Cliente" fx:id="colNombreCliente" resizable="false"/>
+            <TableColumn text="Matrícula" fx:id="colMatriculaMoto" resizable="false"/>
+            <TableColumn text="Marca Moto" fx:id="colMarcaMoto" resizable="false"/>
+            <TableColumn text="Modelo Moto" fx:id="colModeloMoto" resizable="false"/>
+            <TableColumn text="Km Salida" fx:id="colKmSalida" resizable="false"/>
+            <TableColumn text="Km Llegada" fx:id="colKmLlegada" resizable="false"/>
+            <TableColumn text="Fecha Inicio" fx:id="colFechaInicio" resizable="false"/>
+            <TableColumn text="Fecha Fin" fx:id="colFechaFin" resizable="false"/>
+            <TableColumn text="Estado" fx:id="colEstado" resizable="false"/>
+            <TableColumn text="Importe" fx:id="colImporte" resizable="false"/>
         </columns>
     </TableView>
 
