@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.proyectobdmotos.database.DatabaseConnection;
 import org.proyectobdmotos.dto.*;
 import org.proyectobdmotos.models.Contrato;
 import org.proyectobdmotos.models.FormaPago;
@@ -331,6 +332,66 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
         } catch (SQLException e) {
             Logger.logError("Error al listar mis contratos: " + e.getMessage());
             throw new RuntimeException("Error al listar mis contratos", e);
+        }
+        return lista;
+    }
+
+    @Override
+    public boolean tieneContratoAnteriorActivo(int idMoto, int idContratoActual) {
+        String sql = "SELECT COUNT(*) FROM contrato " +
+                "WHERE id_moto = ? AND id_contrato <> ? " +
+                "AND fecha_inicio < (SELECT fecha_inicio FROM contrato WHERE id_contrato = ?) " +
+                "AND fecha_entrega IS NULL";
+        try (
+             PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setInt(1, idMoto);
+            ps.setInt(2, idContratoActual);
+            ps.setInt(3, idContratoActual);
+            try (ResultSet rs = ps.executeQuery()) {
+                boolean hayFila = rs.next();
+                if (hayFila) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            Logger.logError("Error al verificar contrato anterior activo: " + e.getMessage());
+            throw new RuntimeException("Error al verificar contrato anterior activo", e);
+        }
+        return false;
+    }
+
+    public List<Contrato> listarTodos() {
+        String sql = "SELECT * FROM listar_contratos_completos()";
+        List<Contrato> lista = new ArrayList<>();
+        try (Connection conn = DatabaseConnection.getInstance();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Contrato contrato = new Contrato(
+                        rs.getDouble("cant_km_llegada"),
+                        rs.getDouble("cant_km_salida"),
+                        rs.getInt("id_cliente"),
+                        rs.getInt("dias_prorroga"),
+                        rs.getDate("fecha_entrega") != null ? rs.getDate("fecha_entrega").toLocalDate() : null,
+                        rs.getDate("fecha_fin").toLocalDate(),
+                        rs.getDate("fecha_inicio").toLocalDate(),
+                        FormaPago.fromId(rs.getInt("id_forma_pago")),
+                        rs.getInt("id_moto"),
+                        rs.getBoolean("seguro_adicional"),
+                        rs.getDouble("tarifa_normal"),
+                        rs.getDouble("tarifa_prorroga")
+                );
+                contrato.setIdContrato(rs.getInt("id_contrato"));
+                contrato.setCiCliente(rs.getString("ci_cliente"));
+                contrato.setNombreCompletoCliente(rs.getString("nombre_completo_cliente"));
+                contrato.setMatriculaMoto(rs.getString("matricula_moto"));
+                contrato.setMarcaMoto(rs.getString("marca_moto"));
+                contrato.setModeloMoto(rs.getString("modelo_moto"));
+                lista.add(contrato);
+            }
+        } catch (SQLException e) {
+            Logger.logError("Error al listar contratos completos: " + e.getMessage());
+            throw new RuntimeException("Error al listar contratos completos", e);
         }
         return lista;
     }
