@@ -12,7 +12,8 @@
 
     <Label fx:id="labelBienvenida"
            text="Bienvenido a la Administración de las Motos"
-           styleClass="welcome-label">
+           styleClass="welcome-label"
+           StackPane.alignment="TOP_CENTER">
         <font>
             <Font size="28.0" />
         </font>
