@@ -9,7 +9,7 @@
       stylesheets="@/styles/cliente-lista.css,@/styles/tablas-estilos.css"
       spacing="10"
       styleClass="root-vbox">
-
+    <Label text="Tabla de Clientes" styleClass="table-title" />
     <Label fx:id="labelCargando" text="Cargando…" visible="false" style="-fx-font-size: 14px; -fx-text-fill: #555;" />
     <TableView fx:id="clientesTable" VBox.vgrow="ALWAYS">
         <columns>
