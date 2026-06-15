@@ -30,3 +30,11 @@
 .btn-cancelar:hover {
     -fx-background-color: #219a52;
 }
+
+.table-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+    -fx-alignment: CENTER;
+    -fx-padding: 0 0 10 0;
+}
