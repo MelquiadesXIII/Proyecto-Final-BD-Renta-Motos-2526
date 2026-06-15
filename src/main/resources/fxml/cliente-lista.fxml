@@ -11,17 +11,18 @@
       styleClass="root-vbox">
     <Label text="Tabla de Clientes" styleClass="table-title" />
     <Label fx:id="labelCargando" text="Cargando…" visible="false" style="-fx-font-size: 14px; -fx-text-fill: #555;" />
-    <TableView fx:id="clientesTable" VBox.vgrow="ALWAYS">
+    <TableView fx:id="clientesTable" VBox.vgrow="ALWAYS"
+               editable="false">
         <columns>
-            <TableColumn text="ID Cliente" fx:id="colIdCliente" prefWidth="80" />
-            <TableColumn text="ID Usuario" fx:id="colIdUsuario" prefWidth="80" />
-            <TableColumn text="CI" fx:id="colCi" prefWidth="100" />
-            <TableColumn text="Nombre" fx:id="colNombre" prefWidth="180" />
-            <TableColumn text="Teléfono" fx:id="colTelefono" prefWidth="100" />
-            <TableColumn text="Municipio" fx:id="colMunicipio" prefWidth="120" />
-            <TableColumn text="Usuario" fx:id="colUsuario" prefWidth="120" />
-            <TableColumn text="Gmail" fx:id="colGmail" prefWidth="180" />
-            <TableColumn text="Contratos" fx:id="colContratos" prefWidth="80" />
+            <TableColumn text="ID Cliente" fx:id="colIdCliente" prefWidth="80" resizable="false"/>
+            <TableColumn text="ID Usuario" fx:id="colIdUsuario" prefWidth="80" resizable="false" />
+            <TableColumn text="CI" fx:id="colCi" prefWidth="100" resizable="false"/>
+            <TableColumn text="Nombre" fx:id="colNombre" prefWidth="180" resizable="false"/>
+            <TableColumn text="Teléfono" fx:id="colTelefono" prefWidth="100" resizable="false" />
+            <TableColumn text="Municipio" fx:id="colMunicipio" prefWidth="120" resizable="false"/>
+            <TableColumn text="Usuario" fx:id="colUsuario" prefWidth="120" resizable="false"/>
+            <TableColumn text="Gmail" fx:id="colGmail" prefWidth="180" resizable="false"/>
+            <TableColumn text="Contratos" fx:id="colContratos" prefWidth="80" resizable="false" />
         </columns>
     </TableView>
 
