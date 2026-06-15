@@ -3,6 +3,14 @@ package org.proyectobdmotos.controller;
 import java.util.List;
 import java.util.Optional;
 
+import javafx.application.Platform;
+import javafx.concurrent.Task;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import org.proyectobdmotos.dto.ClienteUsuarioDTO;
 import org.proyectobdmotos.models.Cliente;
 import org.proyectobdmotos.models.Usuario;
@@ -15,15 +23,6 @@ import org.proyectobdmotos.stores.ReferenceDataStore;
 import org.proyectobdmotos.ui.navigation.ScreenLoader;
 import org.proyectobdmotos.utils.*;
 import org.proyectobdmotos.utils.Logger;
-
-import javafx.concurrent.Task;
-import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 
 public class ClienteController {
 
@@ -46,21 +45,14 @@ public class ClienteController {
 
     @FXML private Label labelCargando;
 
-    public ClienteController(ScreenLoader screenLoader,
-                             ClienteService clienteService,
-                             UsuarioService usuarioService,
-                             AgenciaStore agenciaStore,
-                             ReferenceDataStore referenceDataStore) {
+    public ClienteController(ScreenLoader screenLoader, ClienteService clienteService, UsuarioService usuarioService,
+                             AgenciaStore agenciaStore, ReferenceDataStore referenceDataStore) {
         this.screenLoader = screenLoader;
         this.clienteService = clienteService;
         this.usuarioService = usuarioService;
         this.agenciaStore = agenciaStore;
         this.referenceDataStore = referenceDataStore;
     }
-
-    // -------------------------------------------------------------
-    // Inicialización
-    // -------------------------------------------------------------
 
     @FXML
     private void initialize() {
@@ -69,10 +61,6 @@ public class ClienteController {
         loadClientes();
         fijarColumnas(clientesTable);
     }
-
-    // -------------------------------------------------------------
-    // Configuración de columnas
-    // -------------------------------------------------------------
 
     private void configureTableColumns() {
         colIdCliente.setCellValueFactory(new PropertyValueFactory<>("idCliente"));
@@ -85,10 +73,6 @@ public class ClienteController {
         colGmail.setCellValueFactory(new PropertyValueFactory<>("gmail"));
         colContratos.setCellValueFactory(new PropertyValueFactory<>("cantidadContratos"));
     }
-
-    // -------------------------------------------------------------
-    // Carga de el clientes
-    // -------------------------------------------------------------
 
     private void loadClientes() {
         labelCargando.setVisible(true);
@@ -103,10 +87,8 @@ public class ClienteController {
                 return clienteService.listarClientesConUsuario();
             }
         };
-
         loadTask.setOnSucceeded(event -> manejarCargaExitosa(loadTask.getValue()));
         loadTask.setOnFailed(event -> manejarCargaFallida(loadTask.getException()));
-
         return loadTask;
     }
 
@@ -114,6 +96,8 @@ public class ClienteController {
         labelCargando.setVisible(false);
         if (lista != null) {
             clientesTable.getItems().setAll(lista);
+            ajustarColumnas(clientesTable, colIdCliente, colIdUsuario, colCi, colNombre,
+                    colTelefono, colMunicipio, colUsuario, colGmail, colContratos);
             Logger.logInfo("Clientes cargados: " + lista.size());
         }
     }
@@ -131,10 +115,6 @@ public class ClienteController {
         }
     }
 
-    // -------------------------------------------------------------
-    // Navegación hacia el formulario
-    // -------------------------------------------------------------
-
     @FXML
     private void onCrearCliente() {
         ClienteFormController.setClienteAEditarStatic(null);
@@ -145,13 +125,13 @@ public class ClienteController {
     @FXML
     private void onEditarCliente() {
         ClienteUsuarioDTO dto = clientesTable.getSelectionModel().getSelectedItem();
-        boolean seleccionValida = dto != null;
-        if (seleccionValida) {
+        if (dto != null) {
             Cliente cliente = buscarClientePorId(dto.getIdCliente());
-            boolean clienteExiste = cliente != null;
-            if (clienteExiste) {
+            if (cliente != null) {
                 Usuario usuario = buscarUsuarioDeCliente(cliente.getIdUsuario());
-                prepararFormularioEdicion(cliente, usuario);
+                ClienteFormController.setClienteAEditarStatic(cliente);
+                ClienteFormController.setUsuarioAEditarStatic(usuario);
+                MainController.getInstance().cargarVista("/fxml/cliente-form-view.fxml", "Editar Cliente");
             } else {
                 mostrarAlerta("Cliente no encontrado.");
             }
@@ -166,29 +146,16 @@ public class ClienteController {
     }
 
     private Usuario buscarUsuarioDeCliente(Integer idUsuario) {
-        Usuario usuario = null;
-        boolean idValido = idUsuario != null && idUsuario > 0;
-        if (idValido) {
-            usuario = usuarioService.buscarPorId(idUsuario);
+        if (idUsuario != null && idUsuario > 0) {
+            return usuarioService.buscarPorId(idUsuario);
         }
-        return usuario;
+        return null;
     }
-
-    private void prepararFormularioEdicion(Cliente cliente, Usuario usuario) {
-        ClienteFormController.setClienteAEditarStatic(cliente);
-        ClienteFormController.setUsuarioAEditarStatic(usuario);
-        MainController.getInstance().cargarVista("/fxml/cliente-form-view.fxml", "Editar Cliente");
-    }
-
-    // -------------------------------------------------------------
-    // Eliminación de cliente
-    // -------------------------------------------------------------
 
     @FXML
     private void onEliminarCliente() {
         ClienteUsuarioDTO dto = clientesTable.getSelectionModel().getSelectedItem();
-        boolean seleccionValida = dto != null;
-        if (seleccionValida) {
+        if (dto != null) {
             boolean confirmado = confirmarEliminacion(dto);
             if (confirmado) {
                 ejecutarEliminacion(dto);
@@ -204,8 +171,7 @@ public class ClienteController {
         confirmacion.setHeaderText("¿Eliminar al cliente " + dto.getNombreCompleto() + "?");
         confirmacion.setContentText("CI: " + dto.getCi());
         Optional<ButtonType> resultado = confirmacion.showAndWait();
-        boolean esOk = resultado.isPresent() && resultado.get() == ButtonType.OK;
-        return esOk;
+        return resultado.isPresent() && resultado.get() == ButtonType.OK;
     }
 
     private void ejecutarEliminacion(ClienteUsuarioDTO dto) {
@@ -217,18 +183,59 @@ public class ClienteController {
         }
     }
 
-    // -------------------------------------------------------------
-    // Recarga manual
-    // -------------------------------------------------------------
-
     @FXML
     private void onActualizarLista() {
         loadClientes();
     }
 
-    // -------------------------------------------------------------
-    // Método para fijar las columnas
-    // -------------------------------------------------------------
+    private void showError(String headerText, String contentText) {
+        AlertUtils.mostrarErrorTitulo(headerText, contentText);
+    }
+
+    private void mostrarAlerta(String mensaje) {
+        AlertUtils.mostrarError(mensaje);
+    }
+
+    // ---------------------------
+    // Autoajuste
+    // ---------------------------
+    private double medirAnchoTexto(String texto, boolean bold) {
+        Font font = bold ? Font.font("System", FontWeight.BOLD, 14) : Font.font("System", 14);
+        Text text = new Text(texto);
+        text.setFont(font);
+        return text.getLayoutBounds().getWidth() + 25;
+    }
+
+    @SafeVarargs
+    private void ajustarColumnas(TableView<?> tabla, TableColumn<?, ?>... columnas) {
+        for (TableColumn<?, ?> col : columnas) {
+            double max = medirAnchoTexto(col.getText(), true);
+            for (Object item : tabla.getItems()) {
+                Object valor = null;
+                try {
+                    valor = ((TableColumn) col).getCellData(item);
+                } catch (Exception ignored) {
+                    try {
+                        javafx.beans.value.ObservableValue<?> obs = ((TableColumn) col).getCellObservableValue(item);
+                        if (obs != null) valor = obs.getValue();
+                    } catch (Exception ignored2) {}
+                }
+                if (valor != null) {
+                    double w = medirAnchoTexto(valor.toString(), false);
+                    if (w > max) max = w;
+                }
+            }
+            col.setPrefWidth(max);
+            col.setMinWidth(max);
+            col.setMaxWidth(max);
+        }
+        Platform.runLater(() -> {
+            double total = 0;
+            for (TableColumn<?, ?> c : tabla.getColumns()) total += c.getPrefWidth();
+            tabla.setPrefWidth(total + 10);
+            tabla.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+        });
+    }
 
     private void fijarColumnas(TableView<?> tabla) {
         int i = 0;
@@ -238,17 +245,5 @@ public class ClienteController {
             columna.setReorderable(false);
             i++;
         }
-    }
-
-    // -------------------------------------------------------------
-    // Alertas reutilizables
-    // -------------------------------------------------------------
-
-    private void showError(String headerText, String contentText) {
-        AlertUtils.mostrarErrorTitulo(headerText, contentText);
-    }
-
-    private void mostrarAlerta(String mensaje) {
-        AlertUtils.mostrarError(mensaje);
     }
 }
