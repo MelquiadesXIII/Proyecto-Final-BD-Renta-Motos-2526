@@ -7,7 +7,8 @@
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="org.proyectobdmotos.controller.ModeloFormController"
            stylesheets="@/styles/modelo-form.css"
-           alignment="CENTER">
+           alignment="CENTER"
+           fx:id="rootPane">
 
     <GridPane hgap="0" vgap="0" alignment="CENTER">
         <columnConstraints>
