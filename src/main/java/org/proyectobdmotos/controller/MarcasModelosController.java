@@ -41,6 +41,7 @@ public class MarcasModelosController {
         colMarca.setCellValueFactory(new PropertyValueFactory<>("nombreMarca"));
         cargarTabla();
         fijarColumnas(tabla);
+        ajustarColumnas(tabla, colModelo, colMarca);
     }
 
     private void cargarTabla() {
