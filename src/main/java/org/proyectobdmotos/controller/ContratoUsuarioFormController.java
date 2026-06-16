@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.StackPane;
 import javafx.util.StringConverter;
 import org.proyectobdmotos.dto.MotoDisponibleDTO;
 import org.proyectobdmotos.models.*;
@@ -22,7 +23,7 @@ public class ContratoUsuarioFormController {
     @FXML private Label labelPrecio;
     @FXML private Label labelSinMotos;
     @FXML private CheckBox checkSeguroAdicional;
-
+    @FXML private StackPane rootPane;
     private final ContratoService contratoService;
     private final MotoService motoService;
     private final AgenciaStore agenciaStore;
@@ -41,6 +42,17 @@ public class ContratoUsuarioFormController {
 
     @FXML
     private void initialize() {
+
+        if (rootPane != null) {
+            rootPane.setStyle(
+                    "-fx-background-image: url('"
+                            + getClass().getResource("/Utiles/Contrato.jpg").toExternalForm()
+                            + "');"
+                            + "-fx-background-size: cover;"
+                            + "-fx-background-position: center center;"
+                            + "-fx-background-repeat: no-repeat;"
+            );
+        }
         configurarComboMoto();
         configurarComboPago();
 
