@@ -23,9 +23,11 @@ public class Reproductor {
         this.canciones = new ArrayList<Cancion>();
         this.indiceActual = 0;
         this.enReproduccion = true;
-
-        File f = new File("Gracias Por Jugar.mp3");
+        File fDos = new File("src/main/java/org/proyectobdmotos/utils/Cancion/Creditos.mp3");
+        Cancion cDos = new Cancion("Creditos", fDos);
+        File f = new File("src/main/java/org/proyectobdmotos/utils/Cancion/GraciasPorJugar.mp3");
         Cancion c = new Cancion("final",f);
+        canciones.add(cDos);
         canciones.add(c);
     }
 
