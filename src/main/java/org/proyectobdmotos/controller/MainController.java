@@ -7,6 +7,7 @@ import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.proyectobdmotos.ui.navigation.ScreenLoader;
+import org.proyectobdmotos.ui.vistas.CreditosFinales;
 import org.proyectobdmotos.utils.*;
 import org.proyectobdmotos.utils.Logger;
 
@@ -123,12 +124,6 @@ public class MainController {
         loadView("/fxml/reportes.fxml", "Reportes");
     }
 
-    /** Abre la vista de ayuda. */
-    @FXML
-    private void onShowAyuda() {
-        loadView("/fxml/ayuda.fxml", "Ayuda");
-    }
-
     /** Abre el formulario de nuevo contrato. */
     @FXML
     private void onShowNuevoContrato() {
@@ -203,8 +198,30 @@ public class MainController {
      * @param fxmlPath   ruta del archivo FXML.
      * @param nombreVista nombre descriptivo para el log.
      */
+
     public void cargarVista(String fxmlPath, String nombreVista) {
+        Reproductor r = Reproductor.getInstancia();
+        boolean esCreditos = fxmlPath.equals("/fxml/creditos-finales.fxml");
+        boolean estabaEnCreditos = fxmlActual != null && fxmlActual.equals("/fxml/creditos-finales.fxml");
+
+
+        if (esCreditos && !estabaEnCreditos) {
+            r.cambiarMusicaIndice(0);
+        }
+
+        else if (!esCreditos && estabaEnCreditos) {
+            r.cambiarMusicaIndice(1);
+        }
+
         loadView(fxmlPath, nombreVista);
+    }
+
+    @FXML
+    private void onShowAyuda() {
+        CreditosFinalesController.setOnFinCallback(() -> {
+            cargarVista("/fxml/bienvenido-admin.fxml", "Bienvenida Admin");
+        });
+        cargarVista("/fxml/creditos-finales.fxml", "Créditos");
     }
 
     // -----------------------------------------------------------------
@@ -292,4 +309,6 @@ public class MainController {
     private void onSalir() {
         Platform.exit();
     }
+
+
 }
