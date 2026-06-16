@@ -7,16 +7,13 @@
 <StackPane xmlns="http://javafx.com/javafx/19"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="org.proyectobdmotos.controller.PerfilController"
+           fx:id="rootPane"
            stylesheets="@/styles/perfil.css">
 
-    <ImageView fitWidth="1920" fitHeight="1080" preserveRatio="false" pickOnBounds="true">
-        <image>
-            <Image url="@../Utiles/usuario-bg.jpg" />
-        </image>
-    </ImageView>
-
+    <!-- Capa semitransparente para mejorar la legibilidad  -->
     <Region styleClass="perfil-overlay" />
 
+    <!-- Tarjeta de perfil -->
     <VBox alignment="CENTER" maxWidth="460" maxHeight="-1.0" styleClass="perfil-card">
 
         <!-- Header con avatar y nombre -->
