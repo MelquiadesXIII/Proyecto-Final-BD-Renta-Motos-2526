@@ -119,6 +119,13 @@ public final class ScreenLoader {
                         compositionRoot.getMarcaService());
             }
 
+            if (controllerClass == ModeloFormController.class) {
+                return new ModeloFormController(
+                        compositionRoot.getMotoService(),
+                        compositionRoot.getMarcaService(),
+                        compositionRoot.getModeloService());
+            }
+
             // ========== NAVEGACIÓN PRINCIPAL ==========
             if (controllerClass == LoginController.class) {
                 return new LoginController(this,
@@ -192,6 +199,7 @@ public final class ScreenLoader {
             if (controllerClass == InventarioController.class) {
                 return new InventarioController(compositionRoot.getMotoService());
             }
+
 
             throw new IllegalStateException(
                     "Controller desconocido: " + controllerClass.getName() +
