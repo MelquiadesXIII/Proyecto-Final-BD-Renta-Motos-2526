@@ -7,6 +7,7 @@ import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.proyectobdmotos.ui.navigation.ScreenLoader;
+import org.proyectobdmotos.ui.vistas.CreditosFinales;
 import org.proyectobdmotos.utils.*;
 import org.proyectobdmotos.utils.Logger;
 import javafx.fxml.FXML;
@@ -70,11 +71,6 @@ public class UserMainController {
         loadView("/fxml/mis-contratos.fxml", "Mis Contratos");
     }
 
-    /** Abre la vista de ayuda. */
-    @FXML
-    private void onShowAyuda() {
-        loadView("/fxml/ayuda.fxml", "Ayuda");
-    }
 
     /**
      * Retrocede a la vista anterior. Si el historial está vacío,
@@ -139,7 +135,28 @@ public class UserMainController {
      * @param nombreVista nombre descriptivo para el log.
      */
     public void cargarVista(String fxmlPath, String nombreVista) {
+        Reproductor r = Reproductor.getInstancia();
+        boolean esCreditos = fxmlPath.equals("/fxml/creditos-finales.fxml");
+        boolean estabaEnCreditos = fxmlActual != null && fxmlActual.equals("/fxml/creditos-finales.fxml");
+
+
+        if (esCreditos && !estabaEnCreditos) {
+            r.cambiarMusicaIndice(0);
+        }
+
+        else if (!esCreditos && estabaEnCreditos) {
+            r.cambiarMusicaIndice(1);
+        }
+
         loadView(fxmlPath, nombreVista);
+    }
+
+    @FXML
+    private void onShowAyuda() {
+        CreditosFinalesController.setOnFinCallback(() -> {
+            cargarVista("/fxml/bienvenido-admin.fxml", "Bienvenida Admin");
+        });
+        cargarVista("/fxml/creditos-finales.fxml", "Créditos");
     }
 
     // -----------------------------------------------------------------
@@ -225,4 +242,13 @@ public class UserMainController {
     private void onSalir() {
         Platform.exit();
     }
+
+
+    /**
+     * Muestra la animación de créditos finales y, al terminar,
+     * regresa a la pantalla principal del usuario.
+     */
+
+
+
 }
