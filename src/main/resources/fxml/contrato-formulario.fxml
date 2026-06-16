@@ -6,7 +6,8 @@
 <StackPane xmlns="http://javafx.com/javafx/19"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="org.proyectobdmotos.controller.ContratoFormController"
-           stylesheets="@/styles/contrato-form.css">
+           stylesheets="@/styles/contrato-form.css"
+           fx:id="rootPane">
 
     <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
         <VBox alignment="CENTER" maxWidth="500" spacing="15"
