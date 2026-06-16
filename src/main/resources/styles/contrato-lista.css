@@ -1,6 +1,5 @@
 .root-vbox {
     -fx-padding: 15;
-    -fx-background-color: linear-gradient(to bottom, #e8f0f2, #d4e6f1);
 }
 
 .table-view {
@@ -56,7 +55,11 @@
 .table-title {
     -fx-font-size: 20px;
     -fx-font-weight: bold;
-    -fx-text-fill: #2c3e50;
+    -fx-text-fill: white;
     -fx-alignment: CENTER;
     -fx-padding: 0 0 10 0;
+}
+
+.root-vbox {
+    -fx-background-color: transparent;
 }
