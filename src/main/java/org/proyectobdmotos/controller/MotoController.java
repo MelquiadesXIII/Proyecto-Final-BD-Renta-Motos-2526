@@ -9,6 +9,7 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -35,6 +36,7 @@ public class MotoController {
     @FXML private TableColumn<Moto, String> colColor;
     @FXML private TableColumn<Moto, Double> colKilometros;
     @FXML private TableColumn<Moto, String> colSituacion;
+    @FXML private StackPane rootPane;
 
     public MotoController(MotoService motoService, AgenciaStore agenciaStore, ReferenceDataStore referenceDataStore) {
         this.motoService = motoService;
@@ -44,6 +46,16 @@ public class MotoController {
 
     @FXML
     private void initialize() {
+        if (rootPane != null) {
+            rootPane.setStyle(
+                    "-fx-background-image: url('"
+                            + getClass().getResource("/Utiles/fondoTablas.png").toExternalForm()
+                            + "');"
+                            + "-fx-background-size: cover;"
+                            + "-fx-background-position: center center;"
+                            + "-fx-background-repeat: no-repeat;"
+            );
+        }
         Logger.log("Inicializando MotoController...");
         configureTableColumns();
         bindStore();
