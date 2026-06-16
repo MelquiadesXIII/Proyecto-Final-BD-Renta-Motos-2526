@@ -80,7 +80,6 @@ public class ClienteFormController {
      */
     @FXML
     private void initialize() {
-
         if (rootPane != null) {
             rootPane.setStyle(
                     "-fx-background-image: url('"
