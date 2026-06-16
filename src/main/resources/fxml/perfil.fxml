@@ -2,16 +2,74 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.scene.image.*?>
 
 <StackPane xmlns="http://javafx.com/javafx/19"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="org.proyectobdmotos.controller.PerfilController"
            stylesheets="@/styles/perfil.css">
 
-    <VBox alignment="CENTER" spacing="20" maxWidth="600" maxHeight="400"
-          styleClass="perfil-box">
-        <Label text="Perfil de Usuario" styleClass="perfil-title" />
-        <Label fx:id="labelNombreUsuario" text="Bienvenido" styleClass="perfil-label" />
+    <ImageView fitWidth="1920" fitHeight="1080" preserveRatio="false" pickOnBounds="true">
+        <image>
+            <Image url="@../Utiles/usuario-bg.jpg" />
+        </image>
+    </ImageView>
+
+    <Region styleClass="perfil-overlay" />
+
+    <VBox alignment="CENTER" maxWidth="460" maxHeight="-1.0" styleClass="perfil-card">
+
+        <!-- Header con avatar y nombre -->
+        <VBox alignment="CENTER" spacing="10" styleClass="perfil-header">
+            <StackPane styleClass="avatar-container">
+                <Region styleClass="avatar-circle" />
+                <Label fx:id="labelIniciales" text="?" styleClass="avatar-iniciales" />
+            </StackPane>
+            <Label fx:id="labelNombreCompleto" text="Nombre Apellido" styleClass="perfil-nombre" />
+            <Label text="Cliente Registrado" styleClass="perfil-badge" />
+        </VBox>
+
+        <!-- Filas de información -->
+        <VBox styleClass="perfil-info">
+
+            <HBox styleClass="perfil-fila">
+                <Label text="Carnet de Identidad" styleClass="perfil-clave" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Label fx:id="labelCI" text="—" styleClass="perfil-valor" />
+            </HBox>
+
+            <HBox styleClass="perfil-fila">
+                <Label text="Primer Apellido" styleClass="perfil-clave" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Label fx:id="labelPrimerApellido" text="—" styleClass="perfil-valor" />
+            </HBox>
+
+            <HBox styleClass="perfil-fila">
+                <Label text="Segundo Apellido" styleClass="perfil-clave" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Label fx:id="labelSegundoApellido" text="—" styleClass="perfil-valor" />
+            </HBox>
+
+            <HBox styleClass="perfil-fila">
+                <Label text="Edad" styleClass="perfil-clave" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Label fx:id="labelEdad" text="—" styleClass="perfil-valor" />
+            </HBox>
+
+            <HBox styleClass="perfil-fila">
+                <Label text="Sexo" styleClass="perfil-clave" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Label fx:id="labelSexo" text="—" styleClass="perfil-valor" />
+            </HBox>
+
+            <HBox styleClass="perfil-fila-ultima">
+                <Label text="Teléfono:" styleClass="perfil-clave" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Label fx:id="labelTelefono" text="—" styleClass="perfil-valor" />
+            </HBox>
+
+        </VBox>
+
     </VBox>
+
 </StackPane>

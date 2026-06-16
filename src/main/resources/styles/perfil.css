@@ -1,24 +1,100 @@
-.perfil-box {
-    -fx-background-color: rgba(0,0,0,0.7);
-    -fx-background-radius: 15;
-    -fx-padding: 40;
+.perfil-overlay {
+    -fx-background-color: rgba(0, 0, 0, 0.52);
 }
 
-.perfil-title {
-    -fx-font-size: 28px;
+perfil-card {
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.55), 32, 0.1, 0, 10);
+    -fx-padding: 30;
+    -fx-spacing: 20;
+    
+    /* Responsive width */
+    -fx-min-width: 300px;
+    -fx-pref-width: 460px;
+    -fx-max-width: 500px;
+    
+    /* Responsive height */
+    -fx-min-height: 400px;
+    -fx-pref-height: 580px;
+    -fx-max-height: 650px;
+}
+
+/* ── Header ── */
+.perfil-header {
+    -fx-background-color: linear-gradient(to bottom, #2c3e50, #3d5166);
+    -fx-background-radius: 16 16 0 0;
+    -fx-padding: 36 30 28 30;
+    -fx-alignment: CENTER;
+    -fx-spacing: 10;
+}
+
+.avatar-container {
+    -fx-min-width: 88;
+    -fx-min-height: 88;
+    -fx-max-width: 88;
+    -fx-max-height: 88;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.45), 14, 0.2, 0, 3);
+}
+
+.avatar-circle {
+    -fx-background-color: #3498db;
+    -fx-background-radius: 50;
+    -fx-min-width: 88;
+    -fx-min-height: 88;
+    -fx-max-width: 88;
+    -fx-max-height: 88;
+}
+
+.avatar-iniciales {
+    -fx-font-size: 30px;
     -fx-font-weight: bold;
     -fx-text-fill: white;
 }
 
-.perfil-label {
-    -fx-font-size: 20px;
+.perfil-nombre {
+    -fx-font-size: 21px;
+    -fx-font-weight: bold;
     -fx-text-fill: white;
+    -fx-padding: 4 0 0 0;
 }
 
-.table-title {
-    -fx-font-size: 20px;
+.perfil-badge {
+    -fx-font-size: 11px;
+    -fx-text-fill: rgba(255, 255, 255, 0.70);
+    -fx-background-color: rgba(255, 255, 255, 0.12);
+    -fx-background-radius: 20;
+    -fx-padding: 4 14;
+}
+
+/* ── Info rows ── */
+.perfil-info {
+    -fx-padding: 6 0 6 0;
+    -fx-background-color: white;
+    -fx-background-radius: 0 0 16 16;
+}
+
+.perfil-fila {
+    -fx-padding: 15 26;
+    -fx-alignment: CENTER_LEFT;
+    -fx-border-color: transparent transparent #f0f0f0 transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.perfil-fila-ultima {
+    -fx-padding: 15 26;
+    -fx-alignment: CENTER_LEFT;
+    -fx-border-color: transparent transparent transparent transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.perfil-clave {
+    -fx-font-size: 13px;
+    -fx-text-fill: #7f8c8d;
+}
+
+.perfil-valor {
+    -fx-font-size: 13px;
     -fx-font-weight: bold;
     -fx-text-fill: #2c3e50;
-    -fx-alignment: CENTER;
-    -fx-padding: 0 0 10 0;
 }
