@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -16,6 +17,7 @@ public class MarcasModelosController {
 
     @FXML private TableView<ModeloConMarcaDTO> tabla;
     @FXML private TableColumn<ModeloConMarcaDTO, String> colModelo, colMarca;
+    @FXML private StackPane rootPane;
 
     private final ModeloService modeloService;
 
@@ -25,6 +27,16 @@ public class MarcasModelosController {
 
     @FXML
     private void initialize() {
+        if (rootPane != null) {
+            rootPane.setStyle(
+                    "-fx-background-image: url('"
+                            + getClass().getResource("/Utiles/algo.jpg").toExternalForm()
+                            + "');"
+                            + "-fx-background-size: cover;"
+                            + "-fx-background-position: center center;"
+                            + "-fx-background-repeat: no-repeat;"
+            );
+        }
         colModelo.setCellValueFactory(new PropertyValueFactory<>("nombreModelo"));
         colMarca.setCellValueFactory(new PropertyValueFactory<>("nombreMarca"));
         cargarTabla();
