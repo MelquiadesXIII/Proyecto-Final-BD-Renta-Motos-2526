@@ -4,7 +4,8 @@
 <StackPane xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="org.proyectobdmotos.controller.MarcasModelosController"
            stylesheets="@/styles/marcas-modelos.css"
-           alignment="CENTER">
+           alignment="CENTER"
+           fx:id="rootPane">
     <GridPane hgap="0" vgap="0" alignment="CENTER">
         <columnConstraints>
             <ColumnConstraints percentWidth="20"/>
