@@ -3,11 +3,13 @@ package org.proyectobdmotos.controller;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.StackPane;
 import org.proyectobdmotos.services.MarcaService;
 
 public class MarcaFormController {
 
     @FXML private TextField campoNombreMarca;
+    @FXML private StackPane rootPane;
 
     private final MarcaService marcaService;
 
@@ -16,10 +18,23 @@ public class MarcaFormController {
     }
 
     /**
-     * Valida el nombre de la marca y, si es correcto, la crea a través del servicio.
-     * Si el nombre está vacío o la creación falla, muestra un mensaje de error.
-     * Si la creación tiene éxito, regresa a la pantalla anterior.
+     * Inicializa la pantalla aplicando el fondo.
      */
+
+    @FXML
+    private void initialize() {
+        if (rootPane != null) {
+            rootPane.setStyle(
+                    "-fx-background-image: url('"
+                            + getClass().getResource("/Utiles/algoDos.jpeg").toExternalForm()
+                            + "');"
+                            + "-fx-background-size: cover;"
+                            + "-fx-background-position: center center;"
+                            + "-fx-background-repeat: no-repeat;"
+            );
+        }
+    }
+
     @FXML
     private void onGuardar() {
         String nombre = campoNombreMarca.getText().trim();
@@ -36,9 +51,6 @@ public class MarcaFormController {
         }
     }
 
-    /**
-     * Cancela la operación y vuelve a la pantalla anterior.
-     */
     @FXML
     private void onCancelar() {
         MainController.getInstance().onGoBack();
