@@ -3,6 +3,7 @@ package org.proyectobdmotos.controller;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
 import javafx.util.StringConverter;
 import org.proyectobdmotos.models.*;
 import org.proyectobdmotos.services.*;
@@ -35,6 +36,7 @@ public class ClienteFormController {
     @FXML private TextField campoTelefono;
     @FXML private ComboBox<Municipio> comboMunicipio;
     @FXML private GridPane gridCliente;
+    @FXML private StackPane rootPane;
 
     // -------------------------------------------------------------
     // Dependencias
@@ -78,6 +80,17 @@ public class ClienteFormController {
      */
     @FXML
     private void initialize() {
+
+        if (rootPane != null) {
+            rootPane.setStyle(
+                    "-fx-background-image: url('"
+                            + getClass().getResource("/Utiles/cliente.jpg").toExternalForm()
+                            + "');"
+                            + "-fx-background-size: cover;"
+                            + "-fx-background-position: center center;"
+                            + "-fx-background-repeat: no-repeat;"
+            );
+        }
         configurarComboSexo();
         configurarComboMunicipio();
         configurarListenerAdmin();
