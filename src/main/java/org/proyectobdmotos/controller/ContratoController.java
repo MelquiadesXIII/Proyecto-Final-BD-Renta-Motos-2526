@@ -13,6 +13,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -49,6 +50,8 @@ public class ContratoController {
     @FXML private TableColumn<Contrato, LocalDate> colFechaFin;
     @FXML private TableColumn<Contrato, String> colEstado;
     @FXML private TableColumn<Contrato, String> colImporte;
+    @FXML private StackPane rootPane;
+
 
     public ContratoController(ContratoService contratoService, AgenciaStore agenciaStore, ReferenceDataStore referenceDataStore) {
         this.contratoService = contratoService;
@@ -58,6 +61,16 @@ public class ContratoController {
 
     @FXML
     private void initialize() {
+        if (rootPane != null) {
+            rootPane.setStyle(
+                    "-fx-background-image: url('"
+                            + getClass().getResource("/Utiles/fondoTablas.png").toExternalForm()
+                            + "');"
+                            + "-fx-background-size: cover;"
+                            + "-fx-background-position: center center;"
+                            + "-fx-background-repeat: no-repeat;"
+            );
+        }
         Logger.log("Inicializando ContratoController...");
         configureTableColumns();
         bindStore();
