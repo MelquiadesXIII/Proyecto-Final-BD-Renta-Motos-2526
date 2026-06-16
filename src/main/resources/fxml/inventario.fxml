@@ -8,7 +8,8 @@
       fx:controller="org.proyectobdmotos.controller.InventarioController"
       stylesheets="@/styles/inventario.css,@/styles/tablas-estilos.css"
       spacing="10"
-      styleClass="root-vbox">
+      styleClass="root-vbox"
+      fx:id="rootPane">
 
     <Label text="Inventario" styleClass="table-title" />
     <TableView fx:id="tablaInventario" VBox.vgrow="ALWAYS" editable="false">
