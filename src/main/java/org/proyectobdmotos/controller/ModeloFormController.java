@@ -57,7 +57,7 @@ public class ModeloFormController {
         if (rootPane != null) {
             rootPane.setStyle(
                     "-fx-background-image: url('"
-                            + getClass().getResource("/Utiles/Modelos.jpeg").toExternalForm()
+                            + getClass().getResource("/Utiles/Modelos.jpg").toExternalForm()
                             + "');"
                             + "-fx-background-size: cover;"
                             + "-fx-background-position: center center;"
