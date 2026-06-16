@@ -35,6 +35,7 @@ public class LoginController {
     private final UsuarioService usuarioService;
     private final AgenciaStore agenciaStore;
     private final ClienteService clienteService;
+    private static boolean sonando = false;
 
     public LoginController(ScreenLoader screenLoader, UsuarioService usuarioService,
                            AgenciaStore agenciaStore, ClienteService clienteService) {
@@ -54,6 +55,14 @@ public class LoginController {
      */
     @FXML
     public void initialize() {
+        if (!sonando)
+        {
+            Reproductor r = Reproductor.getInstancia();
+            r.setIndiceActual(1);
+            r.activarMusica();
+            sonando = true;
+        }
+
         Logger.log("LoginController inicializado");
         if (fondoLogin != null) {
             StackPane parent = (StackPane) fondoLogin.getParent();
