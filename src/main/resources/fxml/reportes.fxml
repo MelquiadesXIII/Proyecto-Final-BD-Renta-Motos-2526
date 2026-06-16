@@ -2,166 +2,149 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
 
-<VBox xmlns="http://javafx.com/javafx/19"
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="org.proyectobdmotos.controller.ReportesController"
-      stylesheets="@/styles/reportes.css,@/styles/tablas-estilos.css"
-      spacing="10"
-      styleClass="root-vbox">
+<StackPane xmlns="http://javafx.com/javafx/19"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="org.proyectobdmotos.controller.ReportesController"
+           fx:id="rootPane"
+           stylesheets="@/styles/reportes.css,@/styles/tablas-estilos.css">
 
-    <Label text="Reportes" styleClass="table-title" />
+    <VBox spacing="10" styleClass="root-vbox">
+        <Label text="Reportes" styleClass="table-title" />
 
-    <TabPane VBox.vgrow="ALWAYS">
+        <TabPane VBox.vgrow="ALWAYS">
+            <!-- Pestañas originales exactamente igual, sin cambios internos -->
+            <Tab text="Clientes por Municipio" closable="false">
+                <VBox spacing="10">
+                    <Label text="Muestra la cantidad de alquileres y el total gastado por cada cliente, agrupado por municipio." styleClass="report-description" />
+                    <TableView fx:id="tablaClientesMunicipio" editable="false" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn text="Fecha" fx:id="colFechaCli" prefWidth="100" resizable="false" />
+                            <TableColumn text="Municipio" fx:id="colMunicipioCli" prefWidth="120" resizable="false" />
+                            <TableColumn text="Nombre" fx:id="colNombreCli" prefWidth="150" resizable="false" />
+                            <TableColumn text="CI" fx:id="colCiCli" prefWidth="100" resizable="false" />
+                            <TableColumn text="Contratos" fx:id="colContratosCli" prefWidth="80" resizable="false" />
+                            <TableColumn text="Total gastado" fx:id="colTotalCli" prefWidth="120" resizable="false" />
+                        </columns>
+                    </TableView>
+                </VBox>
+            </Tab>
 
-        <!-- 1. Clientes por municipio -->
-        <Tab text="Clientes por Municipio" closable="false">
-            <VBox spacing="10">
-                <Label text="Muestra la cantidad de alquileres y el total gastado por cada cliente, agrupado por municipio."
-                       styleClass="report-description" />
-                <TableView fx:id="tablaClientesMunicipio" editable="false" VBox.vgrow="ALWAYS">
-                    <columns>
-                        <TableColumn text="Fecha" fx:id="colFechaCli" prefWidth="100" resizable="false" />
-                        <TableColumn text="Municipio" fx:id="colMunicipioCli" prefWidth="120" resizable="false" />
-                        <TableColumn text="Nombre" fx:id="colNombreCli" prefWidth="150" resizable="false" />
-                        <TableColumn text="CI" fx:id="colCiCli" prefWidth="100" resizable="false" />
-                        <TableColumn text="Contratos" fx:id="colContratosCli" prefWidth="80" resizable="false" />
-                        <TableColumn text="Total gastado" fx:id="colTotalCli" prefWidth="120" resizable="false" />
-                    </columns>
-                </TableView>
-            </VBox>
-        </Tab>
+            <Tab text="Motos" closable="false">
+                <VBox spacing="10">
+                    <Label text="Listado de todas las motos con su kilometraje actual." styleClass="report-description" />
+                    <TableView fx:id="tablaMotos" editable="false" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn text="Fecha" fx:id="colFechaMoto" prefWidth="100" resizable="false" />
+                            <TableColumn text="Matrícula" fx:id="colMatriculaMoto" prefWidth="100" resizable="false" />
+                            <TableColumn text="Marca" fx:id="colMarcaMoto" prefWidth="100" resizable="false" />
+                            <TableColumn text="Modelo" fx:id="colModeloMoto" prefWidth="120" resizable="false" />
+                            <TableColumn text="Color" fx:id="colColorMoto" prefWidth="100" resizable="false" />
+                            <TableColumn text="Km recorridos" fx:id="colKmMoto" prefWidth="100" resizable="false" />
+                        </columns>
+                    </TableView>
+                </VBox>
+            </Tab>
 
-        <!-- 2. Motos -->
-        <Tab text="Motos" closable="false">
-            <VBox spacing="10">
-                <Label text="Listado de todas las motos con su kilometraje actual."
-                       styleClass="report-description" />
-                <TableView fx:id="tablaMotos" editable="false" VBox.vgrow="ALWAYS">
-                    <columns>
-                        <TableColumn text="Fecha" fx:id="colFechaMoto" prefWidth="100" resizable="false" />
-                        <TableColumn text="Matrícula" fx:id="colMatriculaMoto" prefWidth="100" resizable="false" />
-                        <TableColumn text="Marca" fx:id="colMarcaMoto" prefWidth="100" resizable="false" />
-                        <TableColumn text="Modelo" fx:id="colModeloMoto" prefWidth="120" resizable="false" />
-                        <TableColumn text="Color" fx:id="colColorMoto" prefWidth="100" resizable="false" />
-                        <TableColumn text="Km recorridos" fx:id="colKmMoto" prefWidth="100" resizable="false" />
-                    </columns>
-                </TableView>
-            </VBox>
-        </Tab>
+            <Tab text="Contratos" closable="false">
+                <VBox spacing="10">
+                    <Label text="Relación completa de contratos: cliente, moto, fechas, forma de pago, prórroga, seguro e importe." styleClass="report-description" />
+                    <TableView fx:id="tablaContratos" editable="false" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn text="Cliente" fx:id="colClienteCont" prefWidth="150" resizable="false" />
+                            <TableColumn text="Matrícula" fx:id="colMatriculaCont" prefWidth="100" resizable="false" />
+                            <TableColumn text="Marca" fx:id="colMarcaCont" prefWidth="100" resizable="false" />
+                            <TableColumn text="Modelo" fx:id="colModeloCont" prefWidth="120" resizable="false" />
+                            <TableColumn text="Forma de pago" fx:id="colPagoCont" prefWidth="100" resizable="false" />
+                            <TableColumn text="Inicio" fx:id="colInicioCont" prefWidth="100" resizable="false" />
+                            <TableColumn text="Fin" fx:id="colFinCont" prefWidth="100" resizable="false" />
+                            <TableColumn text="Prórroga" fx:id="colProrrogaCont" prefWidth="80" resizable="false" />
+                            <TableColumn text="Seguro" fx:id="colSeguroCont" prefWidth="80" resizable="false" />
+                            <TableColumn text="Importe" fx:id="colImporteCont" prefWidth="100" resizable="false" />
+                        </columns>
+                    </TableView>
+                </VBox>
+            </Tab>
 
-        <!-- 3. Contratos -->
-        <Tab text="Contratos" closable="false">
-            <VBox spacing="10">
-                <Label text="Relación completa de contratos: cliente, moto, fechas, forma de pago, prórroga, seguro e importe."
-                       styleClass="report-description" />
-                <TableView fx:id="tablaContratos" editable="false" VBox.vgrow="ALWAYS">
-                    <columns>
-                        <TableColumn text="Cliente" fx:id="colClienteCont" prefWidth="150" resizable="false" />
-                        <TableColumn text="Matrícula" fx:id="colMatriculaCont" prefWidth="100" resizable="false" />
-                        <TableColumn text="Marca" fx:id="colMarcaCont" prefWidth="100" resizable="false" />
-                        <TableColumn text="Modelo" fx:id="colModeloCont" prefWidth="120" resizable="false" />
-                        <TableColumn text="Forma de pago" fx:id="colPagoCont" prefWidth="100" resizable="false" />
-                        <TableColumn text="Inicio" fx:id="colInicioCont" prefWidth="100" resizable="false" />
-                        <TableColumn text="Fin" fx:id="colFinCont" prefWidth="100" resizable="false" />
-                        <TableColumn text="Prórroga" fx:id="colProrrogaCont" prefWidth="80" resizable="false" />
-                        <TableColumn text="Seguro" fx:id="colSeguroCont" prefWidth="80" resizable="false" />
-                        <TableColumn text="Importe" fx:id="colImporteCont" prefWidth="100" resizable="false" />
-                    </columns>
-                </TableView>
-            </VBox>
-        </Tab>
+            <Tab text="Situación Motos" closable="false">
+                <VBox spacing="10">
+                    <Label text="Estado actual de cada moto (disponible, taller, alquilada). Si está alquilada, muestra la fecha fin del contrato." styleClass="report-description" />
+                    <TableView fx:id="tablaSituacionMotos" editable="false" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn text="Fecha" fx:id="colFechaSit" prefWidth="100" resizable="false" />
+                            <TableColumn text="Matrícula - Marca" fx:id="colMatriculaMarcaSit" prefWidth="180" resizable="false" />
+                            <TableColumn text="Situación" fx:id="colSituacionSit" prefWidth="100" resizable="false" />
+                            <TableColumn text="Fecha fin contrato" fx:id="colFechaFinSit" prefWidth="120" resizable="false" />
+                        </columns>
+                    </TableView>
+                </VBox>
+            </Tab>
 
-        <!-- 4. Situación de motos -->
-        <Tab text="Situación Motos" closable="false">
-            <VBox spacing="10">
-                <Label text="Estado actual de cada moto (disponible, taller, alquilada). Si está alquilada, muestra la fecha fin del contrato."
-                       styleClass="report-description" />
-                <TableView fx:id="tablaSituacionMotos" editable="false" VBox.vgrow="ALWAYS">
-                    <columns>
-                        <TableColumn text="Fecha" fx:id="colFechaSit" prefWidth="100" resizable="false" />
-                        <TableColumn text="Matrícula - Marca" fx:id="colMatriculaMarcaSit" prefWidth="180" resizable="false" />
-                        <TableColumn text="Situación" fx:id="colSituacionSit" prefWidth="100" resizable="false" />
-                        <TableColumn text="Fecha fin contrato" fx:id="colFechaFinSit" prefWidth="120" resizable="false" />
-                    </columns>
-                </TableView>
-            </VBox>
-        </Tab>
+            <Tab text="Incumplidores" closable="false">
+                <VBox spacing="10">
+                    <Label text="Clientes que entregaron la moto después de la fecha pactada, con la fecha límite y la fecha real de entrega." styleClass="report-description" />
+                    <TableView fx:id="tablaIncumplidores" editable="false" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn text="Fecha" fx:id="colFechaInc" prefWidth="100" resizable="false" />
+                            <TableColumn text="Nombre completo" fx:id="colNombreInc" prefWidth="200" resizable="false" />
+                            <TableColumn text="Fecha fin" fx:id="colFechaFinInc" prefWidth="100" resizable="false" />
+                            <TableColumn text="Fecha entrega" fx:id="colFechaEntregaInc" prefWidth="100" resizable="false" />
+                        </columns>
+                    </TableView>
+                </VBox>
+            </Tab>
 
-        <!-- 5. Clientes incumplidores -->
-        <Tab text="Incumplidores" closable="false">
-            <VBox spacing="10">
-                <Label text="Clientes que entregaron la moto después de la fecha pactada, con la fecha límite y la fecha real de entrega."
-                       styleClass="report-description" />
-                <TableView fx:id="tablaIncumplidores" editable="false" VBox.vgrow="ALWAYS">
-                    <columns>
-                        <TableColumn text="Fecha" fx:id="colFechaInc" prefWidth="100" resizable="false" />
-                        <TableColumn text="Nombre completo" fx:id="colNombreInc" prefWidth="200" resizable="false" />
-                        <TableColumn text="Fecha fin" fx:id="colFechaFinInc" prefWidth="100" resizable="false" />
-                        <TableColumn text="Fecha entrega" fx:id="colFechaEntregaInc" prefWidth="100" resizable="false" />
-                    </columns>
-                </TableView>
-            </VBox>
-        </Tab>
+            <Tab text="Resumen Marcas/Modelos" closable="false">
+                <VBox spacing="10">
+                    <Label text="Resumen de ingresos y días alquilados por cada marca y modelo, desglosado por forma de pago." styleClass="report-description" />
+                    <TableView fx:id="tablaResumenMarcaModelo" editable="false" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn text="Fecha" fx:id="colFechaResMM" prefWidth="100" resizable="false" />
+                            <TableColumn text="Marca" fx:id="colMarcaResMM" prefWidth="100" resizable="false" />
+                            <TableColumn text="Modelo" fx:id="colModeloResMM" prefWidth="120" resizable="false" />
+                            <TableColumn text="Cant. Motos" fx:id="colCantMotosResMM" prefWidth="80" resizable="false" />
+                            <TableColumn text="Días totales" fx:id="colDiasResMM" prefWidth="100" resizable="false" />
+                            <TableColumn text="Ing. Tarjeta" fx:id="colIngTarjetaResMM" prefWidth="100" resizable="false" />
+                            <TableColumn text="Ing. Cheque" fx:id="colIngChequeResMM" prefWidth="100" resizable="false" />
+                            <TableColumn text="Ing. Efectivo" fx:id="colIngEfectivoResMM" prefWidth="100" resizable="false" />
+                            <TableColumn text="Total Marca" fx:id="colTotalMarcaResMM" prefWidth="100" resizable="false" />
+                            <TableColumn text="Total General" fx:id="colTotalGeneralResMM" prefWidth="100" resizable="false" />
+                        </columns>
+                    </TableView>
+                </VBox>
+            </Tab>
 
-        <!-- 6. Resumen por marcas/modelos -->
-        <Tab text="Resumen Marcas/Modelos" closable="false">
-            <VBox spacing="10">
-                <Label text="Resumen de ingresos y días alquilados por cada marca y modelo, desglosado por forma de pago."
-                       styleClass="report-description" />
-                <TableView fx:id="tablaResumenMarcaModelo" editable="false" VBox.vgrow="ALWAYS">
-                    <columns>
-                        <TableColumn text="Fecha" fx:id="colFechaResMM" prefWidth="100" resizable="false" />
-                        <TableColumn text="Marca" fx:id="colMarcaResMM" prefWidth="100" resizable="false" />
-                        <TableColumn text="Modelo" fx:id="colModeloResMM" prefWidth="120" resizable="false" />
-                        <TableColumn text="Cant. Motos" fx:id="colCantMotosResMM" prefWidth="80" resizable="false" />
-                        <TableColumn text="Días totales" fx:id="colDiasResMM" prefWidth="100" resizable="false" />
-                        <TableColumn text="Ing. Tarjeta" fx:id="colIngTarjetaResMM" prefWidth="100" resizable="false" />
-                        <TableColumn text="Ing. Cheque" fx:id="colIngChequeResMM" prefWidth="100" resizable="false" />
-                        <TableColumn text="Ing. Efectivo" fx:id="colIngEfectivoResMM" prefWidth="100" resizable="false" />
-                        <TableColumn text="Total Marca" fx:id="colTotalMarcaResMM" prefWidth="100" resizable="false" />
-                        <TableColumn text="Total General" fx:id="colTotalGeneralResMM" prefWidth="100" resizable="false" />
-                    </columns>
-                </TableView>
-            </VBox>
-        </Tab>
+            <Tab text="Resumen Municipios" closable="false">
+                <VBox spacing="10">
+                    <Label text="Resumen de alquileres y días de prórroga por municipio, marca y modelo, con totales." styleClass="report-description" />
+                    <TableView fx:id="tablaResumenMunicipio" editable="false" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn text="Fecha" fx:id="colFechaResMun" prefWidth="100" resizable="false" />
+                            <TableColumn text="Municipio" fx:id="colMunicipioResMun" prefWidth="120" resizable="false" />
+                            <TableColumn text="Marca" fx:id="colMarcaResMun" prefWidth="100" resizable="false" />
+                            <TableColumn text="Modelo" fx:id="colModeloResMun" prefWidth="120" resizable="false" />
+                            <TableColumn text="Días alquiler" fx:id="colDiasAlqResMun" prefWidth="100" resizable="false" />
+                            <TableColumn text="Días prórroga" fx:id="colDiasProrrogaResMun" prefWidth="100" resizable="false" />
+                            <TableColumn text="Valor efectivo" fx:id="colEfectivoResMun" prefWidth="100" resizable="false" />
+                            <TableColumn text="Valor total" fx:id="colTotalResMun" prefWidth="100" resizable="false" />
+                        </columns>
+                    </TableView>
+                </VBox>
+            </Tab>
 
-        <!-- 7. Resumen por municipios -->
-        <Tab text="Resumen Municipios" closable="false">
-            <VBox spacing="10">
-                <Label text="Resumen de alquileres y días de prórroga por municipio, marca y modelo, con totales."
-                       styleClass="report-description" />
-                <TableView fx:id="tablaResumenMunicipio" editable="false" VBox.vgrow="ALWAYS">
-                    <columns>
-                        <TableColumn text="Fecha" fx:id="colFechaResMun" prefWidth="100" resizable="false" />
-                        <TableColumn text="Municipio" fx:id="colMunicipioResMun" prefWidth="120" resizable="false" />
-                        <TableColumn text="Marca" fx:id="colMarcaResMun" prefWidth="100" resizable="false" />
-                        <TableColumn text="Modelo" fx:id="colModeloResMun" prefWidth="120" resizable="false" />
-                        <TableColumn text="Días alquiler" fx:id="colDiasAlqResMun" prefWidth="100" resizable="false" />
-                        <TableColumn text="Días prórroga" fx:id="colDiasProrrogaResMun" prefWidth="100" resizable="false" />
-                        <TableColumn text="Valor efectivo" fx:id="colEfectivoResMun" prefWidth="100" resizable="false" />
-                        <TableColumn text="Valor total" fx:id="colTotalResMun" prefWidth="100" resizable="false" />
-                    </columns>
-                </TableView>
-            </VBox>
-        </Tab>
-
-        <!-- 8. Ingresos del año -->
-        <Tab text="Ingresos Anuales" closable="false">
-            <VBox spacing="10">
-                <Label text="Ingreso total del año y desglose mensual."
-                       styleClass="report-description" />
-                <TableView fx:id="tablaIngresosAnuales" editable="false" VBox.vgrow="ALWAYS">
-                    <columns>
-                        <TableColumn text="Fecha" fx:id="colFechaAnual" prefWidth="100" resizable="false" />
-                        <TableColumn text="Total anual" fx:id="colTotalAnual" prefWidth="120" resizable="false" />
-                        <TableColumn text="Mes" fx:id="colMesAnual" prefWidth="120" resizable="false" />
-                        <TableColumn text="Ingreso mensual" fx:id="colIngresoMensual" prefWidth="120" resizable="false" />
-                    </columns>
-                </TableView>
-            </VBox>
-        </Tab>
-
-    </TabPane>
-</VBox>
+            <Tab text="Ingresos Anuales" closable="false">
+                <VBox spacing="10">
+                    <Label text="Ingreso total del año y desglose mensual." styleClass="report-description" />
+                    <TableView fx:id="tablaIngresosAnuales" editable="false" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn text="Fecha" fx:id="colFechaAnual" prefWidth="100" resizable="false" />
+                            <TableColumn text="Total anual" fx:id="colTotalAnual" prefWidth="120" resizable="false" />
+                            <TableColumn text="Mes" fx:id="colMesAnual" prefWidth="120" resizable="false" />
+                            <TableColumn text="Ingreso mensual" fx:id="colIngresoMensual" prefWidth="120" resizable="false" />
+                        </columns>
+                    </TableView>
+                </VBox>
+            </Tab>
+        </TabPane>
+    </VBox>
+</StackPane>
