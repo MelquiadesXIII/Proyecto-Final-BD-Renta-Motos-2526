@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<StackPane xmlns="http://javafx.com/javafx/19"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="org.proyectobdmotos.controller.CreditosFinalesController"
+           fx:id="rootPane"
+           stylesheets="@/styles/creditos.css">
+
+    <!-- Panel con los textos -->
+    <Pane fx:id="paneTextos">
+        <Label fx:id="labelCabecera" text="" styleClass="credito-cabecera" />
+        <Label fx:id="labelCuerpo" text="" styleClass="credito-cuerpo" />
+    </Pane>
+</StackPane>
