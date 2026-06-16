@@ -1,7 +1,12 @@
 package org.proyectobdmotos.controller;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.StackPane;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import org.proyectobdmotos.models.Marca;
 import org.proyectobdmotos.models.Modelo;
 import org.proyectobdmotos.services.MarcaService;
@@ -15,6 +20,7 @@ public class EliminarMarcaModeloController {
 
     @FXML private ComboBox<Modelo> comboModelo;
     @FXML private ComboBox<Marca> comboMarca;
+    @FXML private StackPane rootPane;
 
     private final ModeloService modeloService;
     private final MarcaService marcaService;
@@ -34,6 +40,16 @@ public class EliminarMarcaModeloController {
      */
     @FXML
     private void initialize() {
+        if (rootPane != null) {
+            rootPane.setStyle(
+                    "-fx-background-image: url('"
+                            + getClass().getResource("/Utiles/Modelos.jpg").toExternalForm()
+                            + "');"
+                            + "-fx-background-size: cover;"
+                            + "-fx-background-position: center center;"
+                            + "-fx-background-repeat: no-repeat;"
+            );
+        }
         cargarModelos();
         cargarMarcas();
         enlazarExclusividadDeSeleccion();
@@ -177,4 +193,55 @@ public class EliminarMarcaModeloController {
     private void onCancelar() {
         MainController.getInstance().onGoBack();
     }
+
+
+    private double medirAnchoTexto(String texto, boolean bold) {
+        Font font = bold ? Font.font("System", FontWeight.BOLD, 14) : Font.font("System", 14);
+        Text text = new Text(texto);
+        text.setFont(font);
+        return text.getLayoutBounds().getWidth() + 25;
+    }
+
+    @SafeVarargs
+    private void ajustarColumnas(TableView<?> tabla, TableColumn<?, ?>... columnas) {
+        for (TableColumn<?, ?> col : columnas) {
+            double max = medirAnchoTexto(col.getText(), true);
+            for (Object item : tabla.getItems()) {
+                Object valor = null;
+                try {
+                    valor = ((TableColumn) col).getCellData(item);
+                } catch (Exception ignored) {
+                    try {
+                        javafx.beans.value.ObservableValue<?> obs = ((TableColumn) col).getCellObservableValue(item);
+                        if (obs != null) valor = obs.getValue();
+                    } catch (Exception ignored2) {}
+                }
+                if (valor != null) {
+                    double w = medirAnchoTexto(valor.toString(), false);
+                    if (w > max) max = w;
+                }
+            }
+            col.setPrefWidth(max);
+            col.setMinWidth(max);
+            col.setMaxWidth(max);
+        }
+        Platform.runLater(() -> {
+            double total = 0;
+            for (TableColumn<?, ?> c : tabla.getColumns()) total += c.getPrefWidth();
+            tabla.setPrefWidth(total + 10);
+            tabla.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+        });
+    }
+
+    private void fijarColumnas(TableView<?> tabla) {
+        int i = 0;
+        while (i < tabla.getColumns().size()) {
+            TableColumn<?, ?> columna = tabla.getColumns().get(i);
+            columna.setResizable(false);
+            columna.setReorderable(false);
+            i++;
+        }
+    }
+
+
 }
