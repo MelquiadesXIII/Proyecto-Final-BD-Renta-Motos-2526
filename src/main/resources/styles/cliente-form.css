@@ -77,3 +77,4 @@ TextField:focused, PasswordField:focused, ComboBox:focused {
 .btn-cancelar:hover {
     -fx-background-color: #a93226;
 }
+
