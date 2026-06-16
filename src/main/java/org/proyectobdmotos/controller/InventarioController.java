@@ -1,11 +1,13 @@
 package org.proyectobdmotos.controller;
 
 import java.util.List;
+
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -17,11 +19,18 @@ public class InventarioController {
 
     private final MotoService motoService;
 
-    @FXML private TableView<SituacionMotoDTO> tablaInventario;
-    @FXML private TableColumn<SituacionMotoDTO, String> colMatriculaInv;
-    @FXML private TableColumn<SituacionMotoDTO, String> colMarcaInv;
-    @FXML private TableColumn<SituacionMotoDTO, String> colSituacionInv;
-    @FXML private TableColumn<SituacionMotoDTO, String> colFechaFinInv;
+    @FXML
+    private TableView<SituacionMotoDTO> tablaInventario;
+    @FXML
+    private TableColumn<SituacionMotoDTO, String> colMatriculaInv;
+    @FXML
+    private TableColumn<SituacionMotoDTO, String> colMarcaInv;
+    @FXML
+    private TableColumn<SituacionMotoDTO, String> colSituacionInv;
+    @FXML
+    private TableColumn<SituacionMotoDTO, String> colFechaFinInv;
+    @FXML
+    private StackPane rootPane;
 
     public InventarioController(MotoService motoService) {
         this.motoService = motoService;
@@ -29,6 +38,16 @@ public class InventarioController {
 
     @FXML
     private void initialize() {
+        if (rootPane != null) {
+            rootPane.setStyle(
+                    "-fx-background-image: url('"
+                            + getClass().getResource("/Utiles/fondoTablas.png").toExternalForm()
+                            + "');"
+                            + "-fx-background-size: cover;"
+                            + "-fx-background-position: center center;"
+                            + "-fx-background-repeat: no-repeat;"
+            );
+        }
         Logger.log("Inicializando InventarioController...");
         configurarColumnas();
         cargarDatos();
@@ -80,7 +99,8 @@ public class InventarioController {
                     try {
                         javafx.beans.value.ObservableValue<?> obs = ((TableColumn) col).getCellObservableValue(item);
                         if (obs != null) valor = obs.getValue();
-                    } catch (Exception ignored2) {}
+                    } catch (Exception ignored2) {
+                    }
                 }
                 if (valor != null) {
                     double w = medirAnchoTexto(valor.toString(), false);
