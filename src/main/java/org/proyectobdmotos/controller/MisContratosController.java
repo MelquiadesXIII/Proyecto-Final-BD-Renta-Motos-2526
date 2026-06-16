@@ -63,7 +63,7 @@ public class MisContratosController {
 
     @FXML
     private void initialize() {
-        // Fondo siempre visible (programático)
+
         if (rootPane != null) {
             rootPane.setStyle(
                     "-fx-background-image: url('"
@@ -108,21 +108,24 @@ public class MisContratosController {
     private void configurarColumnaMarca() {
         colMarca.setCellValueFactory(cellData -> {
             int idMarca = obtenerIdMarcaDeMoto(cellData.getValue());
-            return new javafx.beans.property.SimpleStringProperty(obtenerNombreMarca(idMarca));
+            String nombreMarca = obtenerNombreMarca(idMarca);
+            return new javafx.beans.property.SimpleStringProperty(nombreMarca);
         });
     }
 
     private void configurarColumnaModelo() {
         colModelo.setCellValueFactory(cellData -> {
             int idModelo = cellData.getValue().getIdModelo();
-            return new javafx.beans.property.SimpleStringProperty(obtenerNombreModelo(idModelo));
+            String nombreModelo = obtenerNombreModelo(idModelo);
+            return new javafx.beans.property.SimpleStringProperty(nombreModelo);
         });
     }
 
     private void configurarColumnaColor() {
         colColor.setCellValueFactory(cellData -> {
             int idColor = cellData.getValue().getIdColor();
-            return new javafx.beans.property.SimpleStringProperty(obtenerNombreColor(idColor));
+            String nombreColor = obtenerNombreColor(idColor);
+            return new javafx.beans.property.SimpleStringProperty(nombreColor);
         });
     }
 
@@ -141,7 +144,7 @@ public class MisContratosController {
     }
 
     // -----------------------------------------------------------------
-    // Cachés para marcas, modelos y colores
+    // Cachés para nombres
     // -----------------------------------------------------------------
 
     private int obtenerIdMarcaDeMoto(Moto moto) {
@@ -153,43 +156,57 @@ public class MisContratosController {
             e.printStackTrace();
             modelo = null;
         }
-        return modelo != null ? modelo.getIdMarca() : -1;
+        int idMarca = -1;
+        if (modelo != null) {
+            idMarca = modelo.getIdMarca();
+        }
+        return idMarca;
     }
 
     private String obtenerNombreMarca(int idMarca) {
-        return cacheMarcas.computeIfAbsent(idMarca, id -> {
+        String nombre = cacheMarcas.get(idMarca);
+        if (nombre == null) {
+            Marca marca = null;
             try {
-                Marca marca = motoService.obtenerMarcaPorId(id);
-                return marca != null ? marca.getNombreMarca() : "Desconocida";
+                marca = motoService.obtenerMarcaPorId(idMarca);
             } catch (Exception e) {
                 e.printStackTrace();
-                return "Desconocida";
+                marca = null;
             }
-        });
+            nombre = (marca != null) ? marca.getNombreMarca() : "Desconocida";
+            cacheMarcas.put(idMarca, nombre);
+        }
+        return nombre;
     }
 
     private String obtenerNombreModelo(int idModelo) {
-        return cacheModelos.computeIfAbsent(idModelo, id -> {
+        String nombre = cacheModelos.get(idModelo);
+        if (nombre == null) {
+            Modelo modelo = null;
             try {
-                Modelo modelo = motoService.obtenerModeloPorId(id);
-                return modelo != null ? modelo.getNombreModelo() : "Desconocido";
+                modelo = motoService.obtenerModeloPorId(idModelo);
             } catch (Exception e) {
                 e.printStackTrace();
-                return "Desconocido";
+                modelo = null;
             }
-        });
+            nombre = (modelo != null) ? modelo.getNombreModelo() : "Desconocido";
+            cacheModelos.put(idModelo, nombre);
+        }
+        return nombre;
     }
 
     private String obtenerNombreColor(int idColor) {
-        return cacheColores.computeIfAbsent(idColor, id -> {
+        String nombre = cacheColores.get(idColor);
+        if (nombre == null) {
             try {
-                String nombre = motoService.obtenerNombreColorPorId(id);
-                return nombre != null ? nombre : "Color #" + id;
+                nombre = motoService.obtenerNombreColorPorId(idColor);
             } catch (Exception e) {
                 e.printStackTrace();
-                return "Color #" + id;
+                nombre = "Color #" + idColor;
             }
-        });
+            cacheColores.put(idColor, nombre);
+        }
+        return nombre;
     }
 
     // -----------------------------------------------------------------
@@ -213,13 +230,15 @@ public class MisContratosController {
     }
 
     /**
-     * Calcula el ancho real del texto con fuente de 14px, bold para cabeceras.
+     * Calcula el ancho real del texto en píxeles, usando fuente 14,
+     * bold para cabeceras y normal para datos.
      */
     private double medirAnchoTexto(String texto, boolean bold) {
-        Font font = bold ? Font.font("System", FontWeight.BOLD, 14) : Font.font("System", 14);
+        Font font = bold ? Font.font("System", FontWeight.BOLD, 14)
+                : Font.font("System", 14);
         Text text = new Text(texto);
         text.setFont(font);
-        return text.getLayoutBounds().getWidth() + 25; // 25 px de margen
+        return text.getLayoutBounds().getWidth() + 25;
     }
 
     private void ajustarAnchoColumnasMotos() {
@@ -409,7 +428,7 @@ public class MisContratosController {
     }
 
     // -----------------------------------------------------------------
-    // Clase interna
+    // Clase interna para datos de finalización
     // -----------------------------------------------------------------
 
     private static class DatosFinalizacion {
