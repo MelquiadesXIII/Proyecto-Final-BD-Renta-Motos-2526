@@ -1,11 +1,13 @@
 package org.proyectobdmotos.controller;
 
 import java.util.List;
+
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -21,38 +23,65 @@ public class ReportesController {
     private final MotoService motoService;
     private final ContratoService contratoService;
 
-    @FXML private TableView<CliRepDTO> tablaClientesMunicipio;
-    @FXML private TableColumn<CliRepDTO, String> colFechaCli, colMunicipioCli, colNombreCli, colCiCli;
-    @FXML private TableColumn<CliRepDTO, Integer> colContratosCli;
-    @FXML private TableColumn<CliRepDTO, Double> colTotalCli;
+    @FXML
+    private TableView<CliRepDTO> tablaClientesMunicipio;
+    @FXML
+    private TableColumn<CliRepDTO, String> colFechaCli, colMunicipioCli, colNombreCli, colCiCli;
+    @FXML
+    private TableColumn<CliRepDTO, Integer> colContratosCli;
+    @FXML
+    private TableColumn<CliRepDTO, Double> colTotalCli;
 
-    @FXML private TableView<MotoRepDTO> tablaMotos;
-    @FXML private TableColumn<MotoRepDTO, String> colFechaMoto, colMatriculaMoto, colMarcaMoto, colModeloMoto, colColorMoto;
-    @FXML private TableColumn<MotoRepDTO, Double> colKmMoto;
+    @FXML
+    private TableView<MotoRepDTO> tablaMotos;
+    @FXML
+    private TableColumn<MotoRepDTO, String> colFechaMoto, colMatriculaMoto, colMarcaMoto, colModeloMoto, colColorMoto;
+    @FXML
+    private TableColumn<MotoRepDTO, Double> colKmMoto;
 
-    @FXML private TableView<ContRepDTO> tablaContratos;
-    @FXML private TableColumn<ContRepDTO, String> colClienteCont, colMatriculaCont, colMarcaCont, colModeloCont, colPagoCont, colInicioCont, colFinCont, colSeguroCont;
-    @FXML private TableColumn<ContRepDTO, Integer> colProrrogaCont;
-    @FXML private TableColumn<ContRepDTO, Double> colImporteCont;
+    @FXML
+    private TableView<ContRepDTO> tablaContratos;
+    @FXML
+    private TableColumn<ContRepDTO, String> colClienteCont, colMatriculaCont, colMarcaCont, colModeloCont, colPagoCont, colInicioCont, colFinCont, colSeguroCont;
+    @FXML
+    private TableColumn<ContRepDTO, Integer> colProrrogaCont;
+    @FXML
+    private TableColumn<ContRepDTO, Double> colImporteCont;
 
-    @FXML private TableView<SitMotoRepDTO> tablaSituacionMotos;
-    @FXML private TableColumn<SitMotoRepDTO, String> colFechaSit, colMatriculaMarcaSit, colSituacionSit, colFechaFinSit;
+    @FXML
+    private TableView<SitMotoRepDTO> tablaSituacionMotos;
+    @FXML
+    private TableColumn<SitMotoRepDTO, String> colFechaSit, colMatriculaMarcaSit, colSituacionSit, colFechaFinSit;
 
-    @FXML private TableView<IncumpDTO> tablaIncumplidores;
-    @FXML private TableColumn<IncumpDTO, String> colFechaInc, colNombreInc, colFechaFinInc, colFechaEntregaInc;
+    @FXML
+    private TableView<IncumpDTO> tablaIncumplidores;
+    @FXML
+    private TableColumn<IncumpDTO, String> colFechaInc, colNombreInc, colFechaFinInc, colFechaEntregaInc;
 
-    @FXML private TableView<ResMarModDTO> tablaResumenMarcaModelo;
-    @FXML private TableColumn<ResMarModDTO, String> colFechaResMM, colMarcaResMM, colModeloResMM;
-    @FXML private TableColumn<ResMarModDTO, Long> colCantMotosResMM;
-    @FXML private TableColumn<ResMarModDTO, Double> colDiasResMM, colIngTarjetaResMM, colIngChequeResMM, colIngEfectivoResMM, colTotalMarcaResMM, colTotalGeneralResMM;
+    @FXML
+    private TableView<ResMarModDTO> tablaResumenMarcaModelo;
+    @FXML
+    private TableColumn<ResMarModDTO, String> colFechaResMM, colMarcaResMM, colModeloResMM;
+    @FXML
+    private TableColumn<ResMarModDTO, Long> colCantMotosResMM;
+    @FXML
+    private TableColumn<ResMarModDTO, Double> colDiasResMM, colIngTarjetaResMM, colIngChequeResMM, colIngEfectivoResMM, colTotalMarcaResMM, colTotalGeneralResMM;
 
-    @FXML private TableView<ResMunDTO> tablaResumenMunicipio;
-    @FXML private TableColumn<ResMunDTO, String> colFechaResMun, colMunicipioResMun, colMarcaResMun, colModeloResMun;
-    @FXML private TableColumn<ResMunDTO, Double> colDiasAlqResMun, colDiasProrrogaResMun, colEfectivoResMun, colTotalResMun;
+    @FXML
+    private TableView<ResMunDTO> tablaResumenMunicipio;
+    @FXML
+    private TableColumn<ResMunDTO, String> colFechaResMun, colMunicipioResMun, colMarcaResMun, colModeloResMun;
+    @FXML
+    private TableColumn<ResMunDTO, Double> colDiasAlqResMun, colDiasProrrogaResMun, colEfectivoResMun, colTotalResMun;
 
-    @FXML private TableView<IngAnualDTO> tablaIngresosAnuales;
-    @FXML private TableColumn<IngAnualDTO, String> colFechaAnual, colMesAnual;
-    @FXML private TableColumn<IngAnualDTO, Double> colTotalAnual, colIngresoMensual;
+    @FXML
+    private TableView<IngAnualDTO> tablaIngresosAnuales;
+    @FXML
+    private TableColumn<IngAnualDTO, String> colFechaAnual, colMesAnual;
+    @FXML
+    private TableColumn<IngAnualDTO, Double> colTotalAnual, colIngresoMensual;
+    @FXML
+    private StackPane rootPane;
 
     public ReportesController(ClienteService clienteService, MotoService motoService, ContratoService contratoService) {
         this.clienteService = clienteService;
@@ -62,6 +91,16 @@ public class ReportesController {
 
     @FXML
     private void initialize() {
+        if (rootPane != null) {
+            rootPane.setStyle(
+                    "-fx-background-image: url('"
+                            + getClass().getResource("/Utiles/fondoTablas.png").toExternalForm()
+                            + "');"
+                            + "-fx-background-size: cover;"
+                            + "-fx-background-position: center center;"
+                            + "-fx-background-repeat: no-repeat;"
+            );
+        }
         Logger.log("Inicializando ReportesController...");
         configurarColumnas();
         cargarDatos();
@@ -287,7 +326,8 @@ public class ReportesController {
                     try {
                         javafx.beans.value.ObservableValue<?> obs = ((TableColumn) col).getCellObservableValue(item);
                         if (obs != null) valor = obs.getValue();
-                    } catch (Exception ignored2) {}
+                    } catch (Exception ignored2) {
+                    }
                 }
                 if (valor != null) {
                     double w = medirAnchoTexto(valor.toString(), false);
