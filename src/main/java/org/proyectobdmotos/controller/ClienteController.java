@@ -8,6 +8,7 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -42,6 +43,7 @@ public class ClienteController {
     @FXML private TableColumn<ClienteUsuarioDTO, String> colUsuario;
     @FXML private TableColumn<ClienteUsuarioDTO, String> colGmail;
     @FXML private TableColumn<ClienteUsuarioDTO, Integer> colContratos;
+    @FXML private StackPane rootPane;
 
     @FXML private Label labelCargando;
 
@@ -56,6 +58,16 @@ public class ClienteController {
 
     @FXML
     private void initialize() {
+        if (rootPane != null) {
+            rootPane.setStyle(
+                    "-fx-background-image: url('"
+                            + getClass().getResource("/Utiles/fondoTablas.png").toExternalForm()
+                            + "');"
+                            + "-fx-background-size: cover;"
+                            + "-fx-background-position: center center;"
+                            + "-fx-background-repeat: no-repeat;"
+            );
+        }
         Logger.log("Inicializando ClienteController...");
         configureTableColumns();
         loadClientes();
