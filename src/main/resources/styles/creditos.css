@@ -1,0 +1,25 @@
+/* Para que el Pane no tape nada */
+.pane {
+    -fx-background-color: transparent;
+}
+
+/* Estilo del título (cabecera) */
+.credito-cabecera {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-background-color: rgba(0, 0, 0, 0.55);
+    -fx-padding: 10 30;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.7), 4, 0.2, 1, 1);
+}
+
+/* Estilo del nombre (cuerpo) */
+.credito-cuerpo {
+    -fx-font-size: 20px;
+    -fx-text-fill: white;
+    -fx-background-color: rgba(0, 0, 0, 0.45);
+    -fx-padding: 10 25;
+    -fx-background-radius: 6;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 3, 0.2, 1, 1);
+}
