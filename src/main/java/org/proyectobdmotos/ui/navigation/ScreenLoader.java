@@ -180,6 +180,11 @@ public final class ScreenLoader {
                         compositionRoot.getContratoService());
             }
 
+            // ========== CRÉDITOS ==========
+            if (controllerClass == CreditosFinalesController.class) {
+                return new CreditosFinalesController();
+            }
+
             if (controllerClass == MarcasModelosController.class) {
                 return new MarcasModelosController(compositionRoot.getModeloService());
             }
