@@ -2,6 +2,7 @@ package org.proyectobdmotos.controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.StackPane;
 import javafx.util.StringConverter;
 import org.proyectobdmotos.models.*;
 import org.proyectobdmotos.services.MarcaService;
@@ -21,6 +22,7 @@ public class MotoFormController {
     @FXML private ComboBox<Modelo> comboModelo;
     @FXML private ComboBox<Color> comboColor;
     @FXML private TextField campoKilometros;
+    @FXML private StackPane rootPane;
 
     private final MotoService motoService;
     private final AgenciaStore agenciaStore;
@@ -60,6 +62,16 @@ public class MotoFormController {
      */
     @FXML
     private void initialize() {
+        if (rootPane != null) {
+            rootPane.setStyle(
+                    "-fx-background-image: url('"
+                            + getClass().getResource("/Utiles/motos.jpeg").toExternalForm()
+                            + "');"
+                            + "-fx-background-size: cover;"
+                            + "-fx-background-position: center center;"
+                            + "-fx-background-repeat: no-repeat;"
+            );
+        }
         configurarComboMarca();
         configurarComboModelo();
         configurarComboColor();
