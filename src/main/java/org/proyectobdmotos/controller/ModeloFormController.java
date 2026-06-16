@@ -2,6 +2,7 @@ package org.proyectobdmotos.controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.StackPane;
 import javafx.util.StringConverter;
 import org.proyectobdmotos.models.Marca;
 import org.proyectobdmotos.models.Modelo;
@@ -23,6 +24,11 @@ public class ModeloFormController {
     private Modelo modeloEditando;
 
     private static Modelo modeloEditarStatic;
+    @FXML private StackPane rootPane;
+
+
+
+
 
     /**
      * Establece el modelo que se editará al abrir el formulario.
@@ -48,6 +54,16 @@ public class ModeloFormController {
      */
     @FXML
     private void initialize() {
+        if (rootPane != null) {
+            rootPane.setStyle(
+                    "-fx-background-image: url('"
+                            + getClass().getResource("/Utiles/Modelos.jpeg").toExternalForm()
+                            + "');"
+                            + "-fx-background-size: cover;"
+                            + "-fx-background-position: center center;"
+                            + "-fx-background-repeat: no-repeat;"
+            );
+        }
         configurarComboMarca();
         cargarMarcas();
         preseleccionarModoEdicion();
