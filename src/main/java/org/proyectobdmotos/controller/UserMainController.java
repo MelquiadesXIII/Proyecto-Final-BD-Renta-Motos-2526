@@ -7,7 +7,6 @@ import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.proyectobdmotos.ui.navigation.ScreenLoader;
-import org.proyectobdmotos.ui.vistas.CreditosFinales;
 import org.proyectobdmotos.utils.*;
 import org.proyectobdmotos.utils.Logger;
 import javafx.fxml.FXML;
@@ -31,9 +30,6 @@ public class UserMainController {
         instance = this;
     }
 
-    /**
-     * @return la instancia única de UserMainController.
-     */
     public static UserMainController getInstance() {
         return instance;
     }
@@ -42,10 +38,6 @@ public class UserMainController {
     // Inicialización
     // -----------------------------------------------------------------
 
-    /**
-     * Prepara el contenedor central, muestra la vista inicial
-     * y configura el atajo de teclado para retroceder.
-     */
     @FXML
     private void initialize() {
         Logger.log("Inicializando UserMainController...");
@@ -59,50 +51,29 @@ public class UserMainController {
     // Acciones de navegación (botones de la barra lateral)
     // -----------------------------------------------------------------
 
-    /** Abre la vista de perfil del usuario. */
     @FXML
     private void onShowPerfil() {
         loadView("/fxml/perfil.fxml", "Perfil");
     }
 
-    /** Abre la vista de mis contratos. */
     @FXML
     private void onShowMisContratos() {
         loadView("/fxml/mis-contratos.fxml", "Mis Contratos");
     }
 
+    // -----------------------------------------------------------------
+    // Navegación hacia atrás y cierre de sesión
+    // -----------------------------------------------------------------
 
-    /**
-     * Retrocede a la vista anterior. Si el historial está vacío,
-     * simplemente registra un mensaje informativo.
-     */
-    /**
-     * Vuelve a la vista anterior. Si el historial está vacío, cierra la sesión
-     * y carga la pantalla de login.
-     */
     public void onGoBack() {
         if (historial.isEmpty()) {
             cerrarSesion();
         } else {
             String fxmlAnterior = historial.pop();
-            try {
-                Parent vista = screenLoader.load(fxmlAnterior);
-                configurarEscalado(vista);
-                fxmlActual = fxmlAnterior;
-                contentContainer.getChildren().setAll(vista);
-                Logger.logInfo("Retrocediendo a: " + fxmlAnterior);
-            } catch (IOException e) {
-                e.printStackTrace();
-                Logger.logError("Error al retroceder: " + e.getMessage());
-                showLoadError("Retroceder", e);
-            }
+            loadViewSinHistorial(fxmlAnterior, "Atrás");
         }
     }
 
-    /**
-     * Cierra la sesión actual y vuelve a la pantalla de login.
-     * Carga el FXML del login en una nueva escena sobre la misma ventana.
-     */
     private void cerrarSesion() {
         try {
             Parent loginRoot = screenLoader.load("/fxml/login.fxml");
@@ -121,40 +92,113 @@ public class UserMainController {
         }
     }
 
-    /**
-     * Botón explícito de cerrar sesión (lo enlazarás desde el FXML).
-     */
     @FXML
     private void onCerrarSesion() {
         cerrarSesion();
     }
 
+    // -----------------------------------------------------------------
+    // Carga de vistas
+    // -----------------------------------------------------------------
+
     /**
-     * Carga una vista en el panel central desde otro controlador.
-     * @param fxmlPath   ruta del archivo FXML.
-     * @param nombreVista nombre descriptivo para el log.
+     * Método público que simplemente llama al método privado loadView.
      */
     public void cargarVista(String fxmlPath, String nombreVista) {
-        Reproductor r = Reproductor.getInstancia();
-        boolean esCreditos = fxmlPath.equals("/fxml/creditos-finales.fxml");
-        boolean estabaEnCreditos = fxmlActual != null && fxmlActual.equals("/fxml/creditos-finales.fxml");
-
-
-        if (esCreditos && !estabaEnCreditos) {
-            r.cambiarMusicaIndice(0);
-        }
-
-        else if (!esCreditos && estabaEnCreditos) {
-            r.cambiarMusicaIndice(1);
-        }
-
         loadView(fxmlPath, nombreVista);
     }
+
+    /**
+     * Carga una vista en el contenedor central.
+     * Si la vista ya es la actual, no hace nada.
+     * Cambia la música automáticamente al entrar o salir de créditos.
+     */
+    private void loadView(String fxmlPath, String viewName) {
+        boolean mismaVista = fxmlPath.equals(fxmlActual);
+        boolean debeCargar = true;
+
+        if (!mismaVista) {
+            // Cambiar música según la nueva vista
+            actualizarMusica(fxmlActual, fxmlPath);
+
+            // Guardar en historial la vista actual
+            if (fxmlActual != null) {
+                historial.push(fxmlActual);
+            }
+        } else {
+            debeCargar = false;
+        }
+
+        if (debeCargar) {
+            boolean cargaExitosa = false;
+            Parent viewRoot = null;
+            try {
+                viewRoot = screenLoader.load(fxmlPath);
+                cargaExitosa = true;
+            } catch (IOException e) {
+                Logger.logError("Error cargando vista " + viewName + ": " + e.getMessage());
+                showLoadError(viewName, e);
+            }
+
+            if (cargaExitosa) {
+                fxmlActual = fxmlPath;
+                configurarEscalado(viewRoot);
+                contentContainer.getChildren().setAll(viewRoot);
+                Logger.logInfo("Vista activa: " + viewName);
+            }
+        }
+    }
+
+    /**
+     * Igual que loadView, pero sin guardar la vista actual en el historial.
+     * Solo se usa al navegar hacia atrás.
+     */
+    private void loadViewSinHistorial(String fxmlPath, String viewName) {
+        boolean mismaVista = fxmlPath.equals(fxmlActual);
+        if (!mismaVista) {
+            actualizarMusica(fxmlActual, fxmlPath);
+            boolean cargaExitosa = false;
+            Parent viewRoot = null;
+            try {
+                viewRoot = screenLoader.load(fxmlPath);
+                cargaExitosa = true;
+            } catch (IOException e) {
+                Logger.logError("Error cargando vista " + viewName + ": " + e.getMessage());
+                showLoadError(viewName, e);
+            }
+
+            if (cargaExitosa) {
+                fxmlActual = fxmlPath;
+                configurarEscalado(viewRoot);
+                contentContainer.getChildren().setAll(viewRoot);
+                Logger.logInfo("Vista activa: " + viewName);
+            }
+        }
+    }
+
+    /**
+     * Cambia la canción del reproductor si se entra o sale de los créditos.
+     */
+    private void actualizarMusica(String origen, String destino) {
+        Reproductor r = Reproductor.getInstancia();
+        boolean entrandoACreditos = destino.equals("/fxml/creditos-finales.fxml");
+        boolean saliendoDeCreditos = origen != null && origen.equals("/fxml/creditos-finales.fxml");
+
+        if (entrandoACreditos && !saliendoDeCreditos) {
+            r.cambiarMusicaIndice(0);
+        } else if (!entrandoACreditos && saliendoDeCreditos) {
+            r.cambiarMusicaIndice(1);
+        }
+    }
+
+    // -----------------------------------------------------------------
+    // Ayuda (Créditos)
+    // -----------------------------------------------------------------
 
     @FXML
     private void onShowAyuda() {
         CreditosFinalesController.setOnFinCallback(() -> {
-            cargarVista("/fxml/bienvenido-admin.fxml", "Bienvenida Admin");
+            cargarVista("/fxml/bienvenido-usuario.fxml", "Bienvenida");
         });
         cargarVista("/fxml/creditos-finales.fxml", "Créditos");
     }
@@ -163,46 +207,10 @@ public class UserMainController {
     // Métodos privados de navegación
     // -----------------------------------------------------------------
 
-    /**
-     * Establece la vista inicial de la aplicación (bienvenida del usuario).
-     * Limpia el historial antes de cargar la nueva vista.
-     */
     private void showInitialView() {
         loadView("/fxml/bienvenido-usuario.fxml", "Bienvenida");
     }
 
-    /**
-     * Carga una vista en el contenedor central, gestionando el historial
-     * y los errores de carga.
-     */
-    private void loadView(String fxmlPath, String viewName) {
-        if (fxmlActual != null) {
-            historial.push(fxmlActual);
-        }
-
-        boolean cargaExitosa = false;
-        Parent viewRoot = null;
-
-        try {
-            viewRoot = screenLoader.load(fxmlPath);
-            cargaExitosa = true;
-        } catch (IOException e) {
-            Logger.logError("Error cargando vista " + viewName + ": " + e.getMessage());
-            showLoadError(viewName, e);
-        }
-
-        if (cargaExitosa) {
-            fxmlActual = fxmlPath;
-            configurarEscalado(viewRoot);
-            contentContainer.getChildren().setAll(viewRoot);
-            Logger.logInfo("Vista activa: " + viewName);
-        }
-    }
-
-    /**
-     * Configura el nodo raíz de una vista para que se expanda
-     * al máximo del contenedor.
-     */
     private void configurarEscalado(Parent root) {
         if (root instanceof Region) {
             Region region = (Region) root;
@@ -211,9 +219,6 @@ public class UserMainController {
         }
     }
 
-    /**
-     * Muestra un diálogo de error cuando una vista no puede cargarse.
-     */
     private void showLoadError(String viewName, Exception exception) {
         AlertUtils.mostrarErrorCabecera(viewName, exception);
     }
@@ -222,10 +227,6 @@ public class UserMainController {
     // Atajo de teclado
     // -----------------------------------------------------------------
 
-    /**
-     * Configura el atajo de teclado Ctrl+Backspace para retroceder
-     * a la vista anterior.
-     */
     private void setupKeyboardShortcut() {
         contentContainer.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
@@ -238,17 +239,9 @@ public class UserMainController {
             }
         });
     }
+
     @FXML
     private void onSalir() {
         Platform.exit();
     }
-
-
-    /**
-     * Muestra la animación de créditos finales y, al terminar,
-     * regresa a la pantalla principal del usuario.
-     */
-
-
-
 }
