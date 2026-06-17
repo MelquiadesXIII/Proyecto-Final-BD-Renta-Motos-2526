@@ -15,9 +15,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -51,7 +48,6 @@ public class ContratoController {
     @FXML private TableColumn<Contrato, String> colEstado;
     @FXML private TableColumn<Contrato, String> colImporte;
     @FXML private StackPane rootPane;
-
 
     public ContratoController(ContratoService contratoService, AgenciaStore agenciaStore, ReferenceDataStore referenceDataStore) {
         this.contratoService = contratoService;
@@ -121,7 +117,7 @@ public class ContratoController {
     private void manejarCargaExitosa(List<Contrato> contratos) {
         if (contratos != null) {
             agenciaStore.setContratos(contratos);
-            ajustarColumnas(tablaContratos, colId, colCiCliente, colNombreCliente, colMatriculaMoto,
+            ajustarColumnasPorCaracteres(tablaContratos, colId, colCiCliente, colNombreCliente, colMatriculaMoto,
                     colMarcaMoto, colModeloMoto, colKmSalida, colKmLlegada,
                     colFechaInicio, colFechaFin, colEstado, colImporte);
             Logger.logInfo("Contratos cargados: " + contratos.size());
@@ -352,44 +348,38 @@ public class ContratoController {
     }
 
     // ---------------------------
-    // Autoajuste
+    // Autoajuste (nuevo método)
     // ---------------------------
-    private double medirAnchoTexto(String texto, boolean bold) {
-        Font font = bold ? Font.font("System", FontWeight.BOLD, 14) : Font.font("System", 14);
-        Text text = new Text(texto);
-        text.setFont(font);
-        return text.getLayoutBounds().getWidth() + 25;
-    }
+    private void ajustarColumnasPorCaracteres(TableView<?> tabla, TableColumn<?, ?>... columnas) {
+        final double pixelsPorCaracter = 12.0;
+        final double margen = 30.0;
 
-    @SafeVarargs
-    private void ajustarColumnas(TableView<?> tabla, TableColumn<?, ?>... columnas) {
         for (TableColumn<?, ?> col : columnas) {
-            double max = medirAnchoTexto(col.getText(), true);
+            double maxChars = col.getText().length();
             for (Object item : tabla.getItems()) {
                 Object valor = null;
                 try {
                     valor = ((TableColumn) col).getCellData(item);
-                } catch (Exception ignored) {
+                } catch (Exception e) {
                     try {
                         javafx.beans.value.ObservableValue<?> obs = ((TableColumn) col).getCellObservableValue(item);
                         if (obs != null) valor = obs.getValue();
-                    } catch (Exception ignored2) {}
+                    } catch (Exception ignored) {}
                 }
                 if (valor != null) {
-                    double w = medirAnchoTexto(valor.toString(), false);
-                    if (w > max) max = w;
+                    int len = valor.toString().length();
+                    if (len > maxChars) maxChars = len;
                 }
             }
-            col.setPrefWidth(max);
-            col.setMinWidth(max);
-            col.setMaxWidth(max);
+            double ancho = maxChars * pixelsPorCaracter + margen;
+            col.setPrefWidth(ancho);
+            col.setMinWidth(ancho);
+            col.setMaxWidth(ancho);
         }
-        Platform.runLater(() -> {
-            double total = 0;
-            for (TableColumn<?, ?> c : tabla.getColumns()) total += c.getPrefWidth();
-            tabla.setPrefWidth(total + 10);
-            tabla.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
-        });
+        tabla.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+        double total = 0;
+        for (TableColumn<?, ?> c : tabla.getColumns()) total += c.getPrefWidth();
+        tabla.setPrefWidth(total + 10);
     }
 
     private void fijarColumnas(TableView<?> tabla) {
