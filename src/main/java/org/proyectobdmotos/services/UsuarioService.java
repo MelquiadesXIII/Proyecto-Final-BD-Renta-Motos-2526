@@ -40,6 +40,15 @@ public class UsuarioService {
     }
 
     /**
+     * Verifica de forma anticipada que nombre de usuario y correo estén disponibles,
+     * sin crear ningún registro. Útil para pre-validar antes de cualquier inserción.
+     * @throws ValidationException si alguno ya existe o hay error de conexión.
+     */
+    public void verificarUnicidadRegistro(String nombreUsuario, String gmail) throws ValidationException {
+        validarUnicidad(nombreUsuario, gmail);
+    }
+
+    /**
      * Verifica que el nombre de usuario y el correo electrónico no existan ya en la base de datos.
      * Lanza una excepción de validación si alguno de ellos ya está registrado.
      * @throws ValidationException si hay duplicidad o error de conexión.

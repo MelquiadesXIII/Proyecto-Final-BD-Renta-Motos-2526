@@ -78,21 +78,17 @@
                                GridPane.rowIndex="3" GridPane.columnIndex="0"/>
                         <TextField fx:id="campoSegundoApellido" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
 
-                        <Label text="Edad*" labelFor="$campoEdad"
-                               GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-                        <TextField fx:id="campoEdad" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
-
                         <Label text="Sexo*" labelFor="$comboSexo"
-                               GridPane.rowIndex="5" GridPane.columnIndex="0"/>
-                        <ComboBox fx:id="comboSexo" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+                               GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                        <ComboBox fx:id="comboSexo" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
 
                         <Label text="Teléfono*" labelFor="$campoTelefono"
-                               GridPane.rowIndex="6" GridPane.columnIndex="0"/>
-                        <TextField fx:id="campoTelefono" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+                               GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                        <TextField fx:id="campoTelefono" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
 
                         <Label text="Municipio*" labelFor="$comboMunicipio"
-                               GridPane.rowIndex="7" GridPane.columnIndex="0"/>
-                        <ComboBox fx:id="comboMunicipio" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+                               GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                        <ComboBox fx:id="comboMunicipio" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
                     </GridPane>
 
                     <HBox alignment="CENTER" spacing="20">
