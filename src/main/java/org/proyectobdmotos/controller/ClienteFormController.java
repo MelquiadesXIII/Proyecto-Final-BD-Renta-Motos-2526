@@ -31,7 +31,6 @@ public class ClienteFormController {
     @FXML private TextField campoNombre;
     @FXML private TextField campoPrimerApellido;
     @FXML private TextField campoSegundoApellido;
-    @FXML private TextField campoEdad;
     @FXML private ComboBox<String> comboSexo;
     @FXML private TextField campoTelefono;
     @FXML private ComboBox<Municipio> comboMunicipio;
@@ -186,8 +185,7 @@ public class ClienteFormController {
         campoCI.setText(cliente.getCiCliente());
         campoNombre.setText(cliente.getNombreCliente());
         campoPrimerApellido.setText(cliente.getPrimerApellido());
-        campoSegundoApellido.setText(cliente.getSegundoApellido());
-        campoEdad.setText(String.valueOf(cliente.getEdad()));
+        campoSegundoApellido.setText(cliente.getSegundoApellido() != null ? cliente.getSegundoApellido() : "");
         comboSexo.setValue(cliente.getSexo() == Sexo.MASCULINO ? "Masculino" : "Femenino");
         campoTelefono.setText(cliente.getNumeroContacto());
     }
@@ -249,18 +247,21 @@ public class ClienteFormController {
 
     /**
      * Valida los campos de usuario utilizando la clase Validator siempre que es posible.
-     * Acumula errores y devuelve true solo si todos son correctos.
+     * En modo creación también verifica que nombre de usuario y correo estén disponibles en la BD,
+     * de modo que ningún insert ocurra si la unicidad no está garantizada.
      * @param esAdmin indica si se está creando un administrador.
      * @return true si todos los campos de usuario son válidos.
      */
     private boolean validarCamposUsuario(boolean esAdmin) {
         String nombreUsuario = obtenerTexto(campoNombreUsuario);
         String gmail = obtenerTexto(campoGmail);
-        String password = obtenerTexto(campoPassword);
+        String password = checkVerPassword.isSelected()
+                ? obtenerTexto(campoPasswordVisible)
+                : obtenerTexto(campoPassword);
 
         boolean camposObligatorios = !nombreUsuario.isEmpty() && !gmail.isEmpty();
         if (!camposObligatorios) {
-            mostrarError("Los campos de la cuenta (usuario, gmail) son obligatorios.");
+            mostrarError("Los campos de la cuenta (usuario y gmail) son obligatorios.");
         }
 
         boolean passwordValida = modoEdicion || !password.isEmpty();
@@ -286,34 +287,64 @@ public class ClienteFormController {
             mostrarError("El correo electrónico no tiene un formato válido.");
         }
 
-        return camposObligatorios && passwordValida && longitudPassword && usuarioFormato && correoValido;
+        boolean unicidadValida = true;
+        if (!modoEdicion && camposObligatorios && usuarioFormato && correoValido) {
+            try {
+                usuarioService.verificarUnicidadRegistro(nombreUsuario, gmail);
+            } catch (ValidationException e) {
+                mostrarError(e.getMessage());
+                unicidadValida = false;
+            }
+        }
+
+        return camposObligatorios && passwordValida && longitudPassword
+                && usuarioFormato && correoValido && unicidadValida;
     }
 
     /**
-     * Valida todos los campos del cliente utilizando la clase Validator.
-     * Acumula los resultados en variables booleanas y devuelve un único valor al final.
+     * Valida todos los campos del cliente.
+     * <ul>
+     *   <li>CI: formato 11 dígitos, fecha válida, dígito de sexo coherente con el combo.</li>
+     *   <li>Edad: calculada desde el CI, debe ser ≥ 18 años.</li>
+     *   <li>Segundo apellido: opcional; si se rellena debe cumplir el formato de texto.</li>
+     *   <li>En modo creación, también verifica que el CI no esté ya registrado en la BD.</li>
+     * </ul>
      * @return true si todos los campos del cliente son válidos.
      */
     private boolean validarCamposCliente() {
         String ci = obtenerTexto(campoCI);
         String nombre = obtenerTexto(campoNombre);
         String primerApellido = obtenerTexto(campoPrimerApellido);
-        String edadTexto = obtenerTexto(campoEdad);
+        String segundoApellido = obtenerTexto(campoSegundoApellido);
         String telefono = obtenerTexto(campoTelefono);
 
         boolean camposLlenos = !ci.isEmpty() && !nombre.isEmpty() && !primerApellido.isEmpty()
-                && !edadTexto.isEmpty() && !telefono.isEmpty()
+                && !telefono.isEmpty()
                 && comboSexo.getValue() != null && comboMunicipio.getValue() != null;
         if (!camposLlenos) {
-            mostrarError("Todos los campos del cliente son obligatorios.");
+            mostrarError("Los campos CI, nombre, primer apellido, teléfono, sexo y municipio son obligatorios.");
         }
 
         boolean ciValido = false;
         try {
             Validator.validateCI(ci);
+            if (comboSexo.getValue() != null) {
+                Validator.validateCISexo(ci, comboSexo.getValue());
+            }
             ciValido = true;
         } catch (ValidationException e) {
             mostrarError(e.getMessage());
+        }
+
+        boolean edadValida = false;
+        if (ciValido) {
+            try {
+                int edadCalculada = Validator.calcularEdadDesdeCI(ci);
+                Validator.validateAge(edadCalculada);
+                edadValida = true;
+            } catch (ValidationException e) {
+                mostrarError("Edad calculada desde el CI: " + e.getMessage());
+            }
         }
 
         boolean nombreValido = false;
@@ -332,13 +363,14 @@ public class ClienteFormController {
             mostrarError("Primer apellido: " + e.getMessage());
         }
 
-        int edad = parsearEntero(edadTexto, -1);
-        boolean edadValida = false;
-        try {
-            Validator.validateAge(edad);
-            edadValida = true;
-        } catch (ValidationException e) {
-            mostrarError("Edad: " + e.getMessage());
+        boolean segundoApellidoValido = true;
+        if (!segundoApellido.isEmpty()) {
+            try {
+                Validator.validateText(segundoApellido);
+            } catch (ValidationException e) {
+                mostrarError("Segundo apellido: " + e.getMessage());
+                segundoApellidoValido = false;
+            }
         }
 
         boolean telefonoValido = false;
@@ -349,7 +381,18 @@ public class ClienteFormController {
             mostrarError(e.getMessage());
         }
 
-        return camposLlenos && ciValido && nombreValido && apellidoValido && edadValida && telefonoValido;
+        boolean ciUnico = true;
+        if (!modoEdicion && ciValido) {
+            try {
+                Validator.validateUniqueField("ci", ci);
+            } catch (ValidationException e) {
+                mostrarError(e.getMessage());
+                ciUnico = false;
+            }
+        }
+
+        return camposLlenos && ciValido && edadValida && nombreValido
+                && apellidoValido && segundoApellidoValido && telefonoValido && ciUnico;
     }
 
     // -------------------- Ejecución del guardado --------------------
@@ -387,11 +430,16 @@ public class ClienteFormController {
 
     /**
      * Crea un nuevo usuario y, si no es admin, un nuevo cliente asociado.
+     * La unicidad de usuario/correo y del CI ya fue verificada en la fase de validación
+     * del formulario, por lo que este método no debería fallar por duplicados.
      */
     private void crearNuevoUsuarioYCliente(boolean esAdmin) {
+        String password = checkVerPassword.isSelected()
+                ? obtenerTexto(campoPasswordVisible)
+                : obtenerTexto(campoPassword);
         Usuario nuevoUsuario = usuarioService.registrarUsuarioConRol(
                 obtenerTexto(campoNombreUsuario),
-                obtenerTexto(campoPassword),
+                password,
                 obtenerTexto(campoGmail),
                 esAdmin
         );
@@ -404,14 +452,17 @@ public class ClienteFormController {
 
     /**
      * Aplica los valores de los campos al cliente en edición y lo persiste.
+     * La edad se recalcula desde el CI para mantener coherencia.
      */
     private void actualizarClienteExistente() {
         if (clienteEditando != null) {
-            clienteEditando.setCiCliente(obtenerTexto(campoCI));
+            String ci = obtenerTexto(campoCI);
+            String segundoApellido = obtenerTexto(campoSegundoApellido);
+            clienteEditando.setCiCliente(ci);
             clienteEditando.setNombreCliente(obtenerTexto(campoNombre));
             clienteEditando.setPrimerApellido(obtenerTexto(campoPrimerApellido));
-            clienteEditando.setSegundoApellido(obtenerTexto(campoSegundoApellido));
-            clienteEditando.setEdad(parsearEntero(obtenerTexto(campoEdad), 0));
+            clienteEditando.setSegundoApellido(segundoApellido.isEmpty() ? null : segundoApellido);
+            clienteEditando.setEdad(Validator.calcularEdadDesdeCI(ci));
             clienteEditando.setSexo(comboSexo.getValue().equals("Masculino") ? Sexo.MASCULINO : Sexo.FEMENINO);
             clienteEditando.setNumeroContacto(obtenerTexto(campoTelefono));
             clienteEditando.setIdMunicipio(comboMunicipio.getValue().getIdMunicipio());
@@ -431,7 +482,9 @@ public class ClienteFormController {
                 usuarioEditando.setGmail(obtenerTexto(campoGmail));
                 usuarioEditando.setEsAdmin(checkEsAdmin.isSelected());
 
-                String nuevaPassword = obtenerTexto(campoPassword);
+                String nuevaPassword = checkVerPassword.isSelected()
+                        ? obtenerTexto(campoPasswordVisible)
+                        : obtenerTexto(campoPassword);
                 if (!nuevaPassword.isEmpty()) {
                     usuarioEditando.setPassword(nuevaPassword);
                 }
@@ -450,15 +503,18 @@ public class ClienteFormController {
     /**
      * Construye un objeto Cliente a partir de los campos del formulario.
      * Las validaciones de formato ya se realizaron antes de llamar a este método.
+     * La edad se calcula desde el CI. El segundo apellido se pasa como null si está vacío.
      * @return el nuevo cliente listo para persistir.
      */
     private Cliente construirClienteDesdeCampos() {
+        String ci = obtenerTexto(campoCI);
+        String segundoApellido = obtenerTexto(campoSegundoApellido);
         Cliente nuevo = new Cliente();
-        nuevo.setCiCliente(obtenerTexto(campoCI));
+        nuevo.setCiCliente(ci);
         nuevo.setNombreCliente(obtenerTexto(campoNombre));
         nuevo.setPrimerApellido(obtenerTexto(campoPrimerApellido));
-        nuevo.setSegundoApellido(obtenerTexto(campoSegundoApellido));
-        nuevo.setEdad(parsearEntero(obtenerTexto(campoEdad), 18));
+        nuevo.setSegundoApellido(segundoApellido.isEmpty() ? null : segundoApellido);
+        nuevo.setEdad(Validator.calcularEdadDesdeCI(ci));
         nuevo.setSexo(comboSexo.getValue().equals("Masculino") ? Sexo.MASCULINO : Sexo.FEMENINO);
         nuevo.setNumeroContacto(obtenerTexto(campoTelefono));
         nuevo.setIdMunicipio(comboMunicipio.getValue().getIdMunicipio());

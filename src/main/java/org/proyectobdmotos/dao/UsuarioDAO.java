@@ -4,7 +4,10 @@ import org.proyectobdmotos.database.DatabaseConnection;
 import org.proyectobdmotos.models.Usuario;
 import org.proyectobdmotos.utils.Logger;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class UsuarioDAO implements IUsuarioDAO {
 
@@ -23,8 +26,7 @@ public class UsuarioDAO implements IUsuarioDAO {
      */
     public Usuario insert(Usuario usuario) throws SQLException {
         String sql = "INSERT INTO usuario (nombre_usuario, password, gmail, es_admin) VALUES (?, ?, ?, ?) RETURNING id_usuario";
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setString(1, usuario.getNombreUsuario());
             ps.setString(2, usuario.getPassword());
             ps.setString(3, usuario.getGmail());
@@ -46,8 +48,7 @@ public class UsuarioDAO implements IUsuarioDAO {
     public Usuario findByUsername(String nombreUsuario) throws SQLException {
         String sql = "SELECT id_usuario, nombre_usuario, password, gmail, es_admin FROM usuario WHERE nombre_usuario = ?";
         Usuario usuario = null;
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setString(1, nombreUsuario);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -66,8 +67,7 @@ public class UsuarioDAO implements IUsuarioDAO {
     public Usuario findByEmail(String gmail) throws SQLException {
         String sql = "SELECT id_usuario, nombre_usuario, password, gmail, es_admin FROM usuario WHERE gmail = ?";
         Usuario usuario = null;
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setString(1, gmail);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -100,8 +100,7 @@ public class UsuarioDAO implements IUsuarioDAO {
     public Usuario findById(int idUsuario) throws SQLException {
         String sql = "SELECT id_usuario, nombre_usuario, password, gmail, es_admin FROM usuario WHERE id_usuario = ?";
         Usuario usuario = null;
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, idUsuario);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -118,8 +117,7 @@ public class UsuarioDAO implements IUsuarioDAO {
      */
     public void update(Usuario usuario) throws SQLException {
         String sql = "UPDATE usuario SET nombre_usuario = ?, password = ?, gmail = ?, es_admin = ? WHERE id_usuario = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setString(1, usuario.getNombreUsuario());
             ps.setString(2, usuario.getPassword());
             ps.setString(3, usuario.getGmail());

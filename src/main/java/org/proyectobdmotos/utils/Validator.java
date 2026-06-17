@@ -4,8 +4,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import org.proyectobdmotos.database.DatabaseConnection;
 import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.time.Period;
 
 import org.proyectobdmotos.services.exceptions.BusinessErrorCode;
 import org.proyectobdmotos.services.exceptions.ValidationException;
@@ -117,7 +119,6 @@ public abstract class Validator {
         int month         = Integer.parseInt(ci.substring(2, 4));
         int day           = Integer.parseInt(ci.substring(4, 6));
         int centuryDigit  = Integer.parseInt(ci.substring(6, 7));
-        int controlDigit  = Integer.parseInt(ci.substring(10, 11));
 
         // Siglo
         int fullYear;
@@ -125,14 +126,15 @@ public abstract class Validator {
             fullYear = 1800 + year2digits;
         } else if (centuryDigit <= 5) {      // 0-5 → 1900s
             fullYear = 1900 + year2digits;
-        } else if (centuryDigit <= 8) {      // 6-8 → 2000s
+        } else {                             // 6-8 → 2000s
             fullYear = 2000 + year2digits;
-        } else {
-            throw new ValidationException(
-                BusinessErrorCode.FORMATO_INVALIDO,
-                "Carnet de identidad inválido: dígito de siglo inválido ("
-                + centuryDigit + "). Recibido: \"" + ci + "\""
-            );
+        }
+
+        // Si el año calculado supera el año actual es imposible (nadie nace en el futuro).
+        // Ocurre cuando los dos primeros dígitos son grandes (ej. 96) y el dígito de siglo
+        // apunta al siglo siguiente. Se retrocede 100 años para obtener el año correcto.
+        if (fullYear > LocalDate.now().getYear()) {
+            fullYear -= 100;
         }
 
         // Fecha
@@ -151,6 +153,52 @@ public abstract class Validator {
         return true;
     }
 
+    /**
+     * Valida que el dígito de sexo del CI (posición 10, índice 9) coincida con el sexo seleccionado.
+     * Dígito par → Masculino; dígito impar → Femenino.
+     * Debe llamarse solo con un CI que ya pasó {@link #validateCI(String)}.
+     */
+    public static void validateCISexo(String ci, String sexoSeleccionado) {
+        int sexDigit = Integer.parseInt(ci.substring(9, 10));
+        boolean ciEsMasculino = sexDigit % 2 == 0;
+        boolean seleccionadoEsMasculino = "Masculino".equalsIgnoreCase(sexoSeleccionado);
+        if (ciEsMasculino != seleccionadoEsMasculino) {
+            String sexoCi = ciEsMasculino ? "Masculino" : "Femenino";
+            throw new ValidationException(
+                BusinessErrorCode.FORMATO_INVALIDO,
+                "El dígito de sexo del carnet (posición 10: " + sexDigit + ") indica \""
+                + sexoCi + "\", pero se seleccionó \"" + sexoSeleccionado + "\"."
+            );
+        }
+    }
+
+    /**
+     * Calcula la edad en años a partir de un CI cubano válido.
+     * Debe llamarse solo con un CI que ya pasó {@link #validateCI(String)}.
+     */
+    public static int calcularEdadDesdeCI(String ci) {
+        int year2digits  = Integer.parseInt(ci.substring(0, 2));
+        int month        = Integer.parseInt(ci.substring(2, 4));
+        int day          = Integer.parseInt(ci.substring(4, 6));
+        int centuryDigit = Integer.parseInt(ci.substring(6, 7));
+
+        int fullYear;
+        if (centuryDigit == 9) {
+            fullYear = 1800 + year2digits;
+        } else if (centuryDigit <= 5) {
+            fullYear = 1900 + year2digits;
+        } else {
+            fullYear = 2000 + year2digits;
+        }
+
+        // Misma corrección que en validateCI: si el año es futuro, retroceder 100 años.
+        if (fullYear > LocalDate.now().getYear()) {
+            fullYear -= 100;
+        }
+
+        LocalDate fechaNacimiento = LocalDate.of(fullYear, month, day);
+        return Period.between(fechaNacimiento, LocalDate.now()).getYears();
+    }
 
     /**
      * Valida que el objeto LocalDate pasado no sea nulo.
@@ -215,6 +263,16 @@ public abstract class Validator {
      */
     public static boolean validateUniqueField(String field, String value) {
         boolean isUnique = true;
+
+        try {
+            if (connection == null || connection.isClosed()) {
+                connection = DatabaseConnection.getInstance();
+            }
+        } catch (SQLException e) {
+            throw new ValidationException(
+                BusinessErrorCode.SIN_CONEXION_BD,
+                "Validator: no se pudo obtener una conexión a la base de datos: " + e.getMessage(), e);
+        }
 
         if (connection == null) {
             throw new ValidationException(
