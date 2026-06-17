@@ -108,7 +108,7 @@ public class ClienteController {
         labelCargando.setVisible(false);
         if (lista != null) {
             clientesTable.getItems().setAll(lista);
-            ajustarColumnas(clientesTable, colIdCliente, colIdUsuario, colCi, colNombre,
+            ajustarColumnasPorCaracteres(clientesTable, colIdCliente, colIdUsuario, colCi, colNombre,
                     colTelefono, colMunicipio, colUsuario, colGmail, colContratos);
             Logger.logInfo("Clientes cargados: " + lista.size());
         }
@@ -209,44 +209,40 @@ public class ClienteController {
     }
 
     // ---------------------------
-    // Autoajuste
+    // Autoajuste por caracteres
     // ---------------------------
-    private double medirAnchoTexto(String texto, boolean bold) {
-        Font font = bold ? Font.font("System", FontWeight.BOLD, 14) : Font.font("System", 14);
-        Text text = new Text(texto);
-        text.setFont(font);
-        return text.getLayoutBounds().getWidth() + 25;
-    }
+    private void ajustarColumnasPorCaracteres(TableView<?> tabla, TableColumn<?, ?>... columnas) {
+        final double pixelsPorCaracter = 10.0;  // aprox. 12px por carácter en fuente 14
+        final double margen = 15.0;            // espacio para padding y cabecera
 
-    @SafeVarargs
-    private void ajustarColumnas(TableView<?> tabla, TableColumn<?, ?>... columnas) {
         for (TableColumn<?, ?> col : columnas) {
-            double max = medirAnchoTexto(col.getText(), true);
+            double maxChars = col.getText().length();
             for (Object item : tabla.getItems()) {
                 Object valor = null;
                 try {
                     valor = ((TableColumn) col).getCellData(item);
-                } catch (Exception ignored) {
+                } catch (Exception e) {
                     try {
                         javafx.beans.value.ObservableValue<?> obs = ((TableColumn) col).getCellObservableValue(item);
                         if (obs != null) valor = obs.getValue();
-                    } catch (Exception ignored2) {}
+                    } catch (Exception ignored) {}
                 }
                 if (valor != null) {
-                    double w = medirAnchoTexto(valor.toString(), false);
-                    if (w > max) max = w;
+                    int len = valor.toString().length();
+                    if (len > maxChars) maxChars = len;
                 }
             }
-            col.setPrefWidth(max);
-            col.setMinWidth(max);
-            col.setMaxWidth(max);
+            double ancho = maxChars * pixelsPorCaracter + margen;
+            col.setPrefWidth(ancho);
+            col.setMinWidth(ancho);
+            col.setMaxWidth(ancho);
         }
-        Platform.runLater(() -> {
-            double total = 0;
-            for (TableColumn<?, ?> c : tabla.getColumns()) total += c.getPrefWidth();
-            tabla.setPrefWidth(total + 10);
-            tabla.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
-        });
+
+        // Política para que no se encojan las columnas
+        tabla.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+        double total = 0;
+        for (TableColumn<?, ?> c : tabla.getColumns()) total += c.getPrefWidth();
+        tabla.setPrefWidth(total + 10);
     }
 
     private void fijarColumnas(TableView<?> tabla) {
