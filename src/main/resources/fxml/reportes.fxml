@@ -7,7 +7,7 @@
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="org.proyectobdmotos.controller.ReportesController"
            fx:id="rootPane"
-           stylesheets="@/styles/reportes.css,@/styles/tablas-estilos.css">
+           stylesheets="@/styles/listas-comunes.css,@/styles/tablas-estilos.css">
 
     <VBox spacing="10" styleClass="root-vbox">
         <Label text="Reportes" styleClass="table-title" />
