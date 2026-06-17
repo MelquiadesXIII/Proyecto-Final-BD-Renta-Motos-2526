@@ -3,6 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
+<?import org.proyectobdmotos.utils.AutoSizeTableView?>
 
 <StackPane xmlns="http://javafx.com/javafx/19"
            xmlns:fx="http://javafx.com/fxml/1"
@@ -13,27 +14,27 @@
     <ScrollPane fitToWidth="true" styleClass="transparent-scroll">
         <VBox alignment="CENTER" spacing="10" style="-fx-padding: 20;">
             <Label text="Motos disponibles" styleClass="section-title" />
-            <TableView fx:id="tablaMotos" VBox.vgrow="ALWAYS" editable="false">
+            <AutoSizeTableView fx:id="tablaMotos" VBox.vgrow="ALWAYS" editable="false">
                 <columns>
-                    <TableColumn text="Matrícula" fx:id="colMatricula" resizable="false" editable="false" />
-                    <TableColumn text="Marca" fx:id="colMarca" resizable="false" editable="false" />
-                    <TableColumn text="Modelo" fx:id="colModelo" resizable="false" editable="false" />
-                    <TableColumn text="Color" fx:id="colColor" resizable="false" editable="false" />
-                    <TableColumn text="Km" fx:id="colKm" resizable="false" editable="false" />
+                    <TableColumn text="Matrícula" fx:id="colMatricula" editable="false" />
+                    <TableColumn text="Marca" fx:id="colMarca" editable="false" />
+                    <TableColumn text="Modelo" fx:id="colModelo" editable="false" />
+                    <TableColumn text="Color" fx:id="colColor" editable="false" />
+                    <TableColumn text="Km" fx:id="colKm" editable="false" />
                 </columns>
-            </TableView>
+            </AutoSizeTableView>
 
             <Label text="Mis Contratos" styleClass="section-title" />
             <Label fx:id="labelSinContratos" text="Sin Ningún Contrato" styleClass="sin-contratos-label" />
-            <TableView fx:id="tablaContratos" VBox.vgrow="ALWAYS" editable="false">
+            <AutoSizeTableView fx:id="tablaContratos" VBox.vgrow="ALWAYS" editable="false">
                 <columns>
-                    <TableColumn text="Moto" fx:id="colContratoMoto" resizable="false" editable="false" />
-                    <TableColumn text="Inicio" fx:id="colFechaInicio" resizable="false" editable="false" />
-                    <TableColumn text="Fin" fx:id="colFechaFin" resizable="false" editable="false" />
-                    <TableColumn text="Costo" fx:id="colCosto" resizable="false" editable="false" />
-                    <TableColumn text="Entrega" fx:id="colFechaEntrega" resizable="false" editable="false" />
+                    <TableColumn text="Moto" fx:id="colContratoMoto" editable="false" />
+                    <TableColumn text="Inicio" fx:id="colFechaInicio" editable="false" />
+                    <TableColumn text="Fin" fx:id="colFechaFin" editable="false" />
+                    <TableColumn text="Costo" fx:id="colCosto" editable="false" />
+                    <TableColumn text="Entrega" fx:id="colFechaEntrega" editable="false" />
                 </columns>
-            </TableView>
+            </AutoSizeTableView>
 
             <HBox spacing="20" alignment="CENTER">
                 <Button text="Crear Nuevo Contrato" onAction="#onCrearNuevoContrato" styleClass="btn-primary" />

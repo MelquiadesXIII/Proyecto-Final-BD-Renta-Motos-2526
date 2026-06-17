@@ -2,6 +2,7 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import org.proyectobdmotos.utils.AutoSizeTableView?>
 
 <StackPane xmlns="http://javafx.com/javafx/19"
            xmlns:fx="http://javafx.com/fxml/1"
@@ -11,13 +12,13 @@
 
     <VBox spacing="10" styleClass="root-vbox">
         <Label text="Inventario" styleClass="table-title" />
-        <TableView fx:id="tablaInventario" VBox.vgrow="ALWAYS" editable="false">
+        <AutoSizeTableView fx:id="tablaInventario" VBox.vgrow="ALWAYS" editable="false">
             <columns>
-                <TableColumn text="Matrícula" fx:id="colMatriculaInv" prefWidth="100" resizable="false"/>
-                <TableColumn text="Marca" fx:id="colMarcaInv" prefWidth="120" resizable="false"/>
-                <TableColumn text="Situación" fx:id="colSituacionInv" prefWidth="100" resizable="false"/>
-                <TableColumn text="Fin Contrato" fx:id="colFechaFinInv" prefWidth="120" resizable="false"/>
+                <TableColumn text="Matrícula" fx:id="colMatriculaInv"/>
+                <TableColumn text="Marca" fx:id="colMarcaInv"/>
+                <TableColumn text="Situación" fx:id="colSituacionInv"/>
+                <TableColumn text="Fin Contrato" fx:id="colFechaFinInv"/>
             </columns>
-        </TableView>
+        </AutoSizeTableView>
     </VBox>
 </StackPane>

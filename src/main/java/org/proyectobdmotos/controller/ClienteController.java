@@ -108,8 +108,6 @@ public class ClienteController {
         labelCargando.setVisible(false);
         if (lista != null) {
             clientesTable.getItems().setAll(lista);
-            ajustarColumnasPorCaracteres(clientesTable, colIdCliente, colIdUsuario, colCi, colNombre,
-                    colTelefono, colMunicipio, colUsuario, colGmail, colContratos);
             Logger.logInfo("Clientes cargados: " + lista.size());
         }
     }
@@ -208,50 +206,14 @@ public class ClienteController {
         AlertUtils.mostrarError(mensaje);
     }
 
-    // ---------------------------
-    // Autoajuste por caracteres
-    // ---------------------------
-    private void ajustarColumnasPorCaracteres(TableView<?> tabla, TableColumn<?, ?>... columnas) {
-        final double pixelsPorCaracter = 10.0;  // aprox. 12px por carácter en fuente 14
-        final double margen = 15.0;            // espacio para padding y cabecera
-
-        for (TableColumn<?, ?> col : columnas) {
-            double maxChars = col.getText().length();
-            for (Object item : tabla.getItems()) {
-                Object valor = null;
-                try {
-                    valor = ((TableColumn) col).getCellData(item);
-                } catch (Exception e) {
-                    try {
-                        javafx.beans.value.ObservableValue<?> obs = ((TableColumn) col).getCellObservableValue(item);
-                        if (obs != null) valor = obs.getValue();
-                    } catch (Exception ignored) {}
-                }
-                if (valor != null) {
-                    int len = valor.toString().length();
-                    if (len > maxChars) maxChars = len;
-                }
-            }
-            double ancho = maxChars * pixelsPorCaracter + margen;
-            col.setPrefWidth(ancho);
-            col.setMinWidth(ancho);
-            col.setMaxWidth(ancho);
-        }
-
-        // Política para que no se encojan las columnas
-        tabla.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
-        double total = 0;
-        for (TableColumn<?, ?> c : tabla.getColumns()) total += c.getPrefWidth();
-        tabla.setPrefWidth(total + 10);
-    }
-
     private void fijarColumnas(TableView<?> tabla) {
-        int i = 0;
-        while (i < tabla.getColumns().size()) {
-            TableColumn<?, ?> columna = tabla.getColumns().get(i);
-            columna.setResizable(false);
+        for (TableColumn<?, ?> columna : tabla.getColumns()) {
             columna.setReorderable(false);
-            i++;
         }
+        tabla.skinProperty().addListener((obs, oldSkin, newSkin) -> {
+            if (newSkin != null) {
+                Platform.runLater(() -> tabla.getColumns().forEach(c -> c.setResizable(false)));
+            }
+        });
     }
 }

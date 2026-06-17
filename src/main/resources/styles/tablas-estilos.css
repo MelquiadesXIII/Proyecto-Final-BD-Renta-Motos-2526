@@ -24,7 +24,8 @@
     -fx-text-fill: #f0e6d2;                /* dorado suave */
     -fx-font-weight: bold;
     -fx-font-size: 14px;
-    -fx-padding: 8 0 8 0;
+    -fx-padding: 8 0 8 12;
+    -fx-alignment: CENTER_LEFT;
 }
 
 /* Filas de datos: fondo oscuro sólido y uniforme */

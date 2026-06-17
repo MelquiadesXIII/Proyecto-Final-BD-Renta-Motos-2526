@@ -2,19 +2,16 @@ package org.proyectobdmotos.controller;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import javafx.application.Platform;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
 
 import org.proyectobdmotos.dto.MisContratosDTO;
 import org.proyectobdmotos.models.Contrato;
@@ -77,14 +74,13 @@ public class MisContratosController {
 
         configurarColumnasMotos();
         configurarColumnasContratos();
+        fijarColumnas(tablaMotos);
+        fijarColumnas(tablaContratos);
         cargarMotos();
         cargarContratos();
         btnFinalizarContrato.setDisable(true);
         tablaContratos.getSelectionModel().selectedItemProperty().addListener((obs, old, newVal) ->
                 btnFinalizarContrato.setDisable(newVal == null));
-
-        fijarColumnas(tablaMotos);
-        fijarColumnas(tablaContratos);
     }
 
     // -----------------------------------------------------------------
@@ -214,123 +210,26 @@ public class MisContratosController {
     // -----------------------------------------------------------------
 
     private void cargarMotos() {
-        List<Moto> motos = motoService.listarTodos();
-        tablaMotos.getItems().setAll(motos);
-        ajustarAnchoColumnasMotos();
+        try {
+            List<Moto> motos = motoService.listarTodos();
+            tablaMotos.getItems().setAll(motos);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void cargarContratos() {
-        int idCliente = agenciaStore.getClienteActual().getIdCliente();
-        List<MisContratosDTO> contratos = contratoService.listarMisContratos(idCliente);
-        tablaContratos.getItems().setAll(contratos);
-        boolean sinContratos = contratos.isEmpty();
-        labelSinContratos.setVisible(sinContratos);
-        labelSinContratos.setManaged(sinContratos);
-        ajustarAnchoColumnasContratos();
-    }
-
-    /**
-     * Calcula el ancho real del texto en píxeles, usando fuente 14,
-     * bold para cabeceras y normal para datos.
-     */
-    private double medirAnchoTexto(String texto, boolean bold) {
-        Font font = bold ? Font.font("System", FontWeight.BOLD, 14)
-                : Font.font("System", 14);
-        Text text = new Text(texto);
-        text.setFont(font);
-        return text.getLayoutBounds().getWidth() + 25;
-    }
-
-    private void ajustarAnchoColumnasMotos() {
-        ajustarColumnaMoto(colMatricula);
-        ajustarColumnaMoto(colMarca);
-        ajustarColumnaMoto(colModelo);
-        ajustarColumnaMoto(colColor);
-        ajustarColumnaKm();
-
-        Platform.runLater(() -> {
-            double total = 0;
-            for (TableColumn<Moto, ?> c : tablaMotos.getColumns()) {
-                total += c.getPrefWidth();
-            }
-            tablaMotos.setPrefWidth(total + 10);
-            tablaMotos.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
-        });
-    }
-
-    private void ajustarAnchoColumnasContratos() {
-        ajustarColumnaContrato(colContratoMoto);
-        ajustarColumnaContrato(colFechaInicio);
-        ajustarColumnaContrato(colFechaFin);
-        ajustarColumnaCosto();
-        ajustarColumnaContrato(colFechaEntrega);
-
-        Platform.runLater(() -> {
-            double total = 0;
-            for (TableColumn<MisContratosDTO, ?> c : tablaContratos.getColumns()) {
-                total += c.getPrefWidth();
-            }
-            tablaContratos.setPrefWidth(total + 10);
-            tablaContratos.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
-        });
-    }
-
-    private void ajustarColumnaMoto(TableColumn<Moto, String> col) {
-        double max = medirAnchoTexto(col.getText(), true);
-        for (Moto item : tablaMotos.getItems()) {
-            String valor = col.getCellData(item);
-            if (valor != null) {
-                double w = medirAnchoTexto(valor, false);
-                if (w > max) max = w;
-            }
+        if (agenciaStore.getClienteActual() == null) return;
+        try {
+            int idCliente = agenciaStore.getClienteActual().getIdCliente();
+            List<MisContratosDTO> contratos = contratoService.listarMisContratos(idCliente);
+            tablaContratos.getItems().setAll(contratos);
+            boolean sinContratos = contratos.isEmpty();
+            labelSinContratos.setVisible(sinContratos);
+            labelSinContratos.setManaged(sinContratos);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        col.setPrefWidth(max);
-        col.setMinWidth(max);
-        col.setMaxWidth(max);
-    }
-
-    private void ajustarColumnaKm() {
-        double max = medirAnchoTexto(colKm.getText(), true);
-        for (Moto item : tablaMotos.getItems()) {
-            Double valor = colKm.getCellData(item);
-            if (valor != null) {
-                String texto = String.format("%.1f km", valor);
-                double w = medirAnchoTexto(texto, false);
-                if (w > max) max = w;
-            }
-        }
-        colKm.setPrefWidth(max);
-        colKm.setMinWidth(max);
-        colKm.setMaxWidth(max);
-    }
-
-    private void ajustarColumnaContrato(TableColumn<MisContratosDTO, String> col) {
-        double max = medirAnchoTexto(col.getText(), true);
-        for (MisContratosDTO item : tablaContratos.getItems()) {
-            String valor = col.getCellData(item);
-            if (valor != null) {
-                double w = medirAnchoTexto(valor, false);
-                if (w > max) max = w;
-            }
-        }
-        col.setPrefWidth(max);
-        col.setMinWidth(max);
-        col.setMaxWidth(max);
-    }
-
-    private void ajustarColumnaCosto() {
-        double max = medirAnchoTexto(colCosto.getText(), true);
-        for (MisContratosDTO item : tablaContratos.getItems()) {
-            Double valor = colCosto.getCellData(item);
-            if (valor != null) {
-                String texto = String.format("$%.2f", valor);
-                double w = medirAnchoTexto(texto, false);
-                if (w > max) max = w;
-            }
-        }
-        colCosto.setPrefWidth(max);
-        colCosto.setMinWidth(max);
-        colCosto.setMaxWidth(max);
     }
 
     // -----------------------------------------------------------------
@@ -449,12 +348,13 @@ public class MisContratosController {
     }
 
     private void fijarColumnas(TableView<?> tabla) {
-        int i = 0;
-        while (i < tabla.getColumns().size()) {
-            TableColumn<?, ?> columna = tabla.getColumns().get(i);
-            columna.setResizable(false);
+        for (TableColumn<?, ?> columna : tabla.getColumns()) {
             columna.setReorderable(false);
-            i++;
         }
+        tabla.skinProperty().addListener((obs, oldSkin, newSkin) -> {
+            if (newSkin != null) {
+                Platform.runLater(() -> tabla.getColumns().forEach(c -> c.setResizable(false)));
+            }
+        });
     }
 }

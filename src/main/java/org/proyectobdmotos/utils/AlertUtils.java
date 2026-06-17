@@ -62,7 +62,9 @@ public final class AlertUtils {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error de navegación");
         alert.setHeaderText("No se pudo abrir la vista de " + viewName);
-        alert.getDialogPane().setContent(crearContenido(exception.getMessage()));
+        Throwable causa = exception.getCause();
+        String mensaje = causa != null ? causa.toString() : exception.getMessage();
+        alert.getDialogPane().setContent(crearContenido(mensaje));
         alert.showAndWait();
     }
 
