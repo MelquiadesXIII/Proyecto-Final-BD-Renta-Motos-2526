@@ -5,7 +5,7 @@
 
 <VBox xmlns="http://javafx.com/javafx/19"
       xmlns:fx="http://javafx.com/fxml/1"
-      stylesheets="@/styles/cliente-form.css"
+      stylesheets="@/styles/formularios.css"
       fx:id="rootPane"
       spacing="15" alignment="CENTER" style="-fx-padding: 30; -fx-background-color: #f4f6f8;">
 
