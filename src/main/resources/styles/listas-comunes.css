@@ -1,0 +1,88 @@
+/* ============================================================
+   ESTILOS COMUNES PARA PANTALLAS DE LISTA
+   (clientes, motos, contratos, inventario, reportes, marcas-modelos)
+   ============================================================ */
+
+/* Contenedor raíz transparente para que se vea el fondo */
+.root-vbox {
+    -fx-padding: 15;
+    -fx-background-color: transparent;
+}
+
+/* Barra de botones inferior */
+.botonera {
+    -fx-background-color: rgba(0, 0, 0, 0.3);
+    -fx-padding: 10;
+    -fx-background-radius: 8;
+}
+
+/* Botón de acción estándar */
+.btn-accion {
+    -fx-background-color: #2980b9;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5;
+    -fx-padding: 10 25;
+    -fx-cursor: hand;
+}
+.btn-accion:hover {
+    -fx-background-color: #1c5980;
+}
+
+/* Todos los labels blancos por defecto */
+Label {
+    -fx-text-fill: white;
+}
+
+.btn-finalizar {
+    -fx-background-color: #2980b9;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5;
+    -fx-padding: 10 25;
+    -fx-cursor: hand;
+}
+.btn-finalizar:hover {
+    -fx-background-color: #1c5980;
+}
+
+.btn-eliminar {
+    -fx-background-color: #c0392b;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5;
+    -fx-padding: 10 25;
+    -fx-cursor: hand;
+}
+.btn-eliminar:hover {
+    -fx-background-color: #a93226;
+}
+
+.btn-primary {
+    -fx-background-color: #1f2a3a;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-padding: 10 25;
+    -fx-cursor: hand;
+}
+.btn-primary:hover {
+    -fx-background-color: #2e3e5a;
+}
+
+.btn-danger {
+    -fx-background-color: #c0392b;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-padding: 10 25;
+    -fx-cursor: hand;
+}
+.btn-danger:hover {
+    -fx-background-color: #a93226;
+}
