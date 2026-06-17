@@ -3,7 +3,7 @@
 <?import javafx.scene.layout.*?>
 <StackPane xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="org.proyectobdmotos.controller.EliminarMarcaModeloController"
-           stylesheets="@/styles/marcas-modelos.css"
+           stylesheets="@/styles/formularios.css"
            alignment="CENTER"
            fx:id="rootPane">
     <GridPane hgap="0" vgap="0" alignment="CENTER">
@@ -11,10 +11,12 @@
             <ColumnConstraints percentWidth="25"/><ColumnConstraints percentWidth="50"/><ColumnConstraints percentWidth="25"/>
         </columnConstraints>
         <VBox spacing="15" styleClass="form-box" GridPane.columnIndex="1">
-            <Label text="Eliminar Marca o Modelo" styleClass="form-title"/>
-            <Label text="Seleccione uno (no ambos)"/>
-            <ComboBox fx:id="comboModelo" promptText="Modelo"/>
-            <ComboBox fx:id="comboMarca" promptText="Marca"/>
+            <Label text="Eliminar Marca o Modelo" styleClass="form-title" alignment="CENTER"/>
+            <Label text="Seleccione uno (no ambos)" styleClass="form-label" />
+            <Label text="Modelo:" styleClass="form-label" />
+            <ComboBox fx:id="comboModelo" promptText="Modelo" maxWidth="Infinity"/>
+            <Label text="Marca:" styleClass="form-label" />
+            <ComboBox fx:id="comboMarca" promptText="Marca" maxWidth="Infinity"/>
             <HBox spacing="20" alignment="CENTER">
                 <Button text="Eliminar" onAction="#onEliminar" styleClass="btn-cancelar"/>
                 <Button text="Cancelar" onAction="#onCancelar" styleClass="btn-accion"/>
