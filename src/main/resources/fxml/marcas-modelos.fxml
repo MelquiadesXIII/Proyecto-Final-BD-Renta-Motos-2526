@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import org.proyectobdmotos.utils.AutoSizeTableView?>
 <StackPane xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="org.proyectobdmotos.controller.MarcasModelosController"
            stylesheets="@/styles/listas-comunes.css,@/styles/tablas-estilos.css"
@@ -12,14 +13,14 @@
             <ColumnConstraints percentWidth="60"/>
             <ColumnConstraints percentWidth="20"/>
         </columnConstraints>
-        <VBox spacing="15" styleClass="form-box" GridPane.columnIndex="1">
+        <VBox spacing="15" styleClass="form-box" GridPane.columnIndex="1" maxWidth="Infinity">
             <Label text="Marcas y Modelos" styleClass="form-title"/>
-            <TableView fx:id="tabla" VBox.vgrow="ALWAYS" editable="false">
+            <AutoSizeTableView fx:id="tabla" VBox.vgrow="ALWAYS" editable="false">
                 <columns>
-                    <TableColumn text="Modelo" fx:id="colModelo" resizable="false" editable="false"/>
-                    <TableColumn text="Marca" fx:id="colMarca" resizable="false" editable="false"/>
+                    <TableColumn text="Modelo" fx:id="colModelo" editable="false"/>
+                    <TableColumn text="Marca" fx:id="colMarca" editable="false"/>
                 </columns>
-            </TableView>
+            </AutoSizeTableView>
             <HBox alignment="CENTER" spacing="15">
                 <Button text="Crear Modelo o Marca" onAction="#onNuevo" styleClass="btn-guardar"/>
                 <Button text="Editar" onAction="#onEditar" styleClass="btn-accion"/>

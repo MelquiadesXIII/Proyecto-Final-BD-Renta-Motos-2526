@@ -136,7 +136,10 @@ public class UserMainController {
                 viewRoot = screenLoader.load(fxmlPath);
                 cargaExitosa = true;
             } catch (IOException e) {
-                Logger.logError("Error cargando vista " + viewName + ": " + e.getMessage());
+                Throwable causa = e.getCause();
+                Logger.logError("Error cargando vista " + viewName + ": " +
+                        (causa != null ? causa.toString() : e.getMessage()));
+                e.printStackTrace();
                 showLoadError(viewName, e);
             }
 
@@ -163,7 +166,10 @@ public class UserMainController {
                 viewRoot = screenLoader.load(fxmlPath);
                 cargaExitosa = true;
             } catch (IOException e) {
-                Logger.logError("Error cargando vista " + viewName + ": " + e.getMessage());
+                Throwable causa = e.getCause();
+                Logger.logError("Error cargando vista " + viewName + ": " +
+                        (causa != null ? causa.toString() : e.getMessage()));
+                e.printStackTrace();
                 showLoadError(viewName, e);
             }
 

@@ -1,6 +1,7 @@
 package org.proyectobdmotos.controller;
 
 import java.util.List;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -34,14 +35,13 @@ public class MarcasModelosController {
         }
         colModelo.setCellValueFactory(new PropertyValueFactory<>("nombreModelo"));
         colMarca.setCellValueFactory(new PropertyValueFactory<>("nombreMarca"));
-        cargarTabla();
         fijarColumnas(tabla);
+        cargarTabla();
     }
 
     private void cargarTabla() {
         List<ModeloConMarcaDTO> lista = modeloService.listarModelosConMarca();
         tabla.getItems().setAll(lista);
-        ajustarColumnasPorCaracteres(tabla, colModelo, colMarca);
     }
 
     @FXML
@@ -65,48 +65,14 @@ public class MarcasModelosController {
         MainController.getInstance().cargarVista("/fxml/eliminar-marca-modelo.fxml", "Eliminar Marca/Modelo");
     }
 
-    // ---------------------------
-    // Autoajuste (nuevo método)
-    // ---------------------------
-    private void ajustarColumnasPorCaracteres(TableView<?> tabla, TableColumn<?, ?>... columnas) {
-        final double pixelsPorCaracter = 12.0;
-        final double margen = 30.0;
-
-        for (TableColumn<?, ?> col : columnas) {
-            double maxChars = col.getText().length();
-            for (Object item : tabla.getItems()) {
-                Object valor = null;
-                try {
-                    valor = ((TableColumn) col).getCellData(item);
-                } catch (Exception e) {
-                    try {
-                        javafx.beans.value.ObservableValue<?> obs = ((TableColumn) col).getCellObservableValue(item);
-                        if (obs != null) valor = obs.getValue();
-                    } catch (Exception ignored) {}
-                }
-                if (valor != null) {
-                    int len = valor.toString().length();
-                    if (len > maxChars) maxChars = len;
-                }
-            }
-            double ancho = maxChars * pixelsPorCaracter + margen;
-            col.setPrefWidth(ancho);
-            col.setMinWidth(ancho);
-            col.setMaxWidth(ancho);
-        }
-        tabla.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
-        double total = 0;
-        for (TableColumn<?, ?> c : tabla.getColumns()) total += c.getPrefWidth();
-        tabla.setPrefWidth(total + 10);
-    }
-
     private void fijarColumnas(TableView<?> tabla) {
-        int i = 0;
-        while (i < tabla.getColumns().size()) {
-            TableColumn<?, ?> columna = tabla.getColumns().get(i);
-            columna.setResizable(false);
+        for (TableColumn<?, ?> columna : tabla.getColumns()) {
             columna.setReorderable(false);
-            i++;
         }
+        tabla.skinProperty().addListener((obs, oldSkin, newSkin) -> {
+            if (newSkin != null) {
+                Platform.runLater(() -> tabla.getColumns().forEach(c -> c.setResizable(false)));
+            }
+        });
     }
 }
