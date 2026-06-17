@@ -1,79 +1,296 @@
 /* ============================================================
-   ESTILOS GENERALES DE TABLAS
+   ESTILOS GENERALES DE TABLAS (modo noche estrellado)
    ============================================================ */
+
 .table-view {
-    -fx-background-color: white;
-    -fx-table-cell-border-color: #dddddd;
+    -fx-background-color: rgba(20, 25, 40, 0.85);   /* azul noche semitransparente */
+    -fx-table-cell-border-color: #2e3b4e;
     -fx-background-radius: 8;
     -fx-border-radius: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 10, 0, 0, 4);
 }
 
+/* Cabecera con degradado azul profundo y letras doradas */
 .table-view .column-header-background {
-    -fx-background-color: #34495e;
+    -fx-background-color: linear-gradient(to bottom, #1b2538, #24304d);
     -fx-background-radius: 8 8 0 0;
 }
 
 .table-view .column-header {
-    -fx-background-color: #34495e;
+    -fx-background-color: transparent;
 }
 
 .table-view .column-header .label {
-    -fx-text-fill: white;
+    -fx-text-fill: #f0e6d2;                /* dorado suave */
     -fx-font-weight: bold;
     -fx-font-size: 14px;
+    -fx-padding: 8 0 8 0;
 }
 
-/* Filas alternadas */
-.table-row-cell:odd {
-    -fx-background-color: #f9f9f9;
+/* Filas de datos: fondo oscuro sólido y uniforme */
+.table-row-cell {
+    -fx-background-color: #1f2a3a;         /* azul noche sólido */
+    -fx-cell-size: 42px;
+    -fx-font-size: 14px;
 }
+.table-row-cell:odd,
 .table-row-cell:even {
-    -fx-background-color: white;
+    -fx-background-color: #1f2a3a;         /* mismo color para todas */
 }
 
-/* Selección */
+/* Texto blanco en todas las celdas */
+.table-row-cell .text {
+    -fx-fill: white;
+}
+
+/* Selección con azul eléctrico */
 .table-row-cell:selected {
-    -fx-background-color: #3498db;
+    -fx-background-color: #3b6fd4;
 }
 .table-row-cell:selected .text {
     -fx-fill: white;
 }
 
-/* Al pasar el ratón sobre una fila seleccionada, mantenemos el azul */
 .table-row-cell:selected:hover {
-    -fx-background-color: #3498db;
+    -fx-background-color: #3b6fd4;
 }
 .table-row-cell:selected:hover .text {
     -fx-fill: white;
 }
 
-/* Efecto hover suave para filas NO seleccionadas */
+/* Hover sobre fila no seleccionada */
 .table-row-cell:hover {
-    -fx-background-color: #eaecee;   /* gris muy claro */
+    -fx-background-color: #2e3e5a;
     -fx-cursor: hand;
 }
 
-/* Tamaño de filas y espacio interior de celdas */
-.table-row-cell {
-    -fx-cell-size: 40px;
-    -fx-font-size: 14px;
-}
+/* Espaciado interior de celdas */
 .table-cell {
-    -fx-padding: 6 10 6 10;
+    -fx-padding: 8 12 8 12;
 }
 
-/* Títulos de sección (por si se usan dentro de reportes) */
+/* Títulos de sección (dorados) */
 .table-title {
-    -fx-font-size: 20px;
+    -fx-font-size: 22px;
     -fx-font-weight: bold;
-    -fx-text-fill: white;
+    -fx-text-fill: #f0e6d2;
     -fx-alignment: CENTER;
-    -fx-padding: 0 0 10 0;
+    -fx-padding: 0 0 12 0;
 }
 
 .report-description {
     -fx-font-size: 15px;
     -fx-font-weight: bold;
+    -fx-text-fill: #b0c4de;
+    -fx-padding: 5 0 8 0;
+}
+
+/* ============================================================
+   RELLENO (filler) – el espacio sobrante a la derecha
+   ============================================================ */
+.table-view .filler,
+.table-view .column-header-background .filler {
+    -fx-background-color: #1f2a3a;         /* mismo azul que las filas */
+}
+
+/* ============================================================
+   SCROLL PANEL genérico (oscuro, un poquito más oscuro que la tabla)
+   ============================================================ */
+.scroll-pane,
+.scroll-pane > .viewport {
+    -fx-background-color: #161e2b;
+}
+
+.scroll-pane .scroll-bar:vertical .track,
+.scroll-pane .scroll-bar:horizontal .track {
+    -fx-background-color: #161e2b;
+    -fx-border-color: #2e3b4e;
+}
+
+.scroll-pane .scroll-bar:vertical .thumb,
+.scroll-pane .scroll-bar:horizontal .thumb {
+    -fx-background-color: #3e5068;
+    -fx-background-radius: 4;
+}
+
+.scroll-pane .scroll-bar:vertical .thumb:hover,
+.scroll-pane .scroll-bar:horizontal .thumb:hover {
+    -fx-background-color: #4f6580;
+}
+
+/* ============================================================
+   SCROLL PANEL interno del TableView (idéntico tono, más específico)
+   ============================================================ */
+.table-view .virtual-flow .viewport {
+    -fx-background-color: #161e2b;
+}
+
+.table-view .scroll-bar:horizontal,
+.table-view .scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+.table-view .scroll-bar:horizontal .track,
+.table-view .scroll-bar:vertical .track {
+    -fx-background-color: #161e2b;
+    -fx-border-color: #2e3b4e;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+}
+
+.table-view .scroll-bar:horizontal .thumb,
+.table-view .scroll-bar:vertical .thumb {
+    -fx-background-color: #3e5068;
+    -fx-background-radius: 4;
+}
+
+.table-view .scroll-bar:horizontal .thumb:hover,
+.table-view .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #4f6580;
+}
+
+.table-view .scroll-bar:horizontal .increment-button,
+.table-view .scroll-bar:horizontal .decrement-button,
+.table-view .scroll-bar:vertical .increment-button,
+.table-view .scroll-bar:vertical .decrement-button {
+    -fx-background-color: #161e2b;
+    -fx-padding: 0;
+}
+
+/* ============================================================
+   PESTAÑAS DE REPORTES (TabPane / Tab)
+   ============================================================ */
+TabPane {
+    -fx-background-color: transparent;
+    -fx-border-color: #2e3b4e;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+}
+
+TabPane .tab-header-area {
+    -fx-background-color: #1b2333;
+    -fx-padding: 2 0 0 0;
+}
+
+TabPane .tab-header-background {
+    -fx-background-color: #1b2333;
+}
+
+.tab-pane .tab-header-area .tab {
+    -fx-focus-color: #2e3b4e;
+    -fx-faint-focus-color: transparent;
+    -fx-background-color: #1f2a3a;
+    -fx-border-color: #1f2a3a;
+    -fx-background-radius: 6 6 0 0;
+    -fx-padding: 4 12 4 12;
+}
+
+.tab-pane .tab-header-area .tab:selected {
+    -fx-focus-color: #2e3b4e;
+    -fx-faint-focus-color: transparent;
+    -fx-background-color: #3b6fd4;
+}
+
+.tab-pane .tab-header-area .tab:hover {
+    -fx-background-color: #2e3e5a;
+}
+
+.tab-pane .tab-header-area .tab .tab-label {
+    -fx-text-fill: #f0e6d2;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+TabPane .tab-content-area {
+    -fx-background-color: transparent;
+}
+
+/* ============================================================
+   BOTONES OSCUROS (reportes, acciones)
+   ============================================================ */
+.btn-accion {
+    -fx-background-color: #1f2a3a;
     -fx-text-fill: white;
-    -fx-padding: 5 0 5 0;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-padding: 8 20;
+    -fx-cursor: hand;
+    -fx-border-color: #2e3b4e;
+}
+.btn-accion:hover {
+    -fx-background-color: #2e3e5a;
+}
+.btn-accion:pressed {
+    -fx-background-color: #3b6fd4;
+}
+
+/* Por si usas botones genéricos dentro de reportes */
+TabPane .button {
+    -fx-background-color: #1f2a3a;
+    -fx-text-fill: #f0e6d2;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5;
+    -fx-padding: 8 16;
+    -fx-cursor: hand;
+    -fx-border-color: #2e3b4e;
+    -fx-border-radius: 5;
+}
+TabPane .button:hover {
+    -fx-background-color: #2e3e5a;
+}
+TabPane .button:pressed {
+    -fx-background-color: #3b6fd4;
+}
+
+.tab-pane .tab-header-area .tab {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-background-color: #1f2a3a;
+    -fx-border-color: #1f2a3a;
+    -fx-background-radius: 6 6 0 0;
+    -fx-padding: 4 12 4 12;
+}
+
+.tab-pane .tab-header-area .tab:selected {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-background-color: #3b6fd4;
+}
+
+/* ============================================================
+   ESTILOS UNIFICADOS DE BOTONES (modo noche estrellado)
+   ============================================================ */
+.btn-guardar,
+.btn-cancelar,
+.btn-finalizar,
+.btn-eliminar,
+.btn-accion {
+    -fx-background-color: #1f2a3a;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-padding: 8 20;
+    -fx-cursor: hand;
+    -fx-border-color: #2e3b4e;
+    -fx-border-radius: 6;
+}
+.btn-guardar:hover,
+.btn-cancelar:hover,
+.btn-finalizar:hover,
+.btn-eliminar:hover,
+.btn-accion:hover {
+    -fx-background-color: #2e3e5a;
+}
+.btn-guardar:pressed,
+.btn-cancelar:pressed,
+.btn-finalizar:pressed,
+.btn-eliminar:pressed,
+.btn-accion:pressed {
+    -fx-background-color: #3b6fd4;
+}
+.stack-pane {
+    -fx-background-color: transparent;
 }
