@@ -7,7 +7,7 @@
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="org.proyectobdmotos.controller.MotoController"
            fx:id="rootPane"
-           stylesheets="@/styles/moto-lista.css,@/styles/tablas-estilos.css">
+           stylesheets="@/styles/listas-comunes.css,@/styles/tablas-estilos.css">
 
     <VBox spacing="10" styleClass="root-vbox">
         <Label text="Tabla de Motos" styleClass="table-title" />
