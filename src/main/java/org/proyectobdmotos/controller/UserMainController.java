@@ -1,6 +1,9 @@
 package org.proyectobdmotos.controller;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.Stack;
 
 import javafx.application.Platform;
@@ -12,6 +15,7 @@ import org.proyectobdmotos.utils.Logger;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
@@ -23,6 +27,7 @@ public class UserMainController {
     private static UserMainController instance;
 
     @FXML private StackPane contentContainer;
+    @FXML private Label labelFecha;
 
     public UserMainController(ScreenLoader screenLoader) {
         this.screenLoader = screenLoader;
@@ -43,6 +48,8 @@ public class UserMainController {
         Logger.log("Inicializando UserMainController...");
         contentContainer.setMaxWidth(Double.MAX_VALUE);
         contentContainer.setMaxHeight(Double.MAX_VALUE);
+        labelFecha.setText("Hoy " + LocalDate.now().format(
+                DateTimeFormatter.ofPattern("d 'de' MMMM 'de' yyyy", new Locale("es"))));
         showInitialView();
         setupKeyboardShortcut();
     }

@@ -11,18 +11,25 @@
             stylesheets="@/styles/app.css">
 
     <top>
-        <HBox styleClass="top-bar" spacing="10" alignment="CENTER_LEFT">
-            <Button onAction="#onGoBack" styleClass="back-button">
-                <graphic>
-                    <ImageView fitWidth="24" fitHeight="24">
-                        <image>
-                            <Image url="@../Utiles/flecha.jpg" />
-                        </image>
-                    </ImageView>
-                </graphic>
-            </Button>
-            <Label text="Renta Motos - Usuario" styleClass="top-title" />
-        </HBox>
+        <BorderPane styleClass="top-bar">
+            <left>
+                <Button onAction="#onGoBack" styleClass="back-button" BorderPane.alignment="CENTER">
+                    <graphic>
+                        <ImageView fitWidth="24" fitHeight="24">
+                            <image>
+                                <Image url="@../Utiles/flecha.jpg" />
+                            </image>
+                        </ImageView>
+                    </graphic>
+                </Button>
+            </left>
+            <center>
+                <VBox alignment="CENTER" spacing="2" BorderPane.alignment="CENTER">
+                    <Label text="Renta Motos - Usuario" styleClass="top-title" />
+                    <Label fx:id="labelFecha" styleClass="top-date" />
+                </VBox>
+            </center>
+        </BorderPane>
     </top>
 
     <left>

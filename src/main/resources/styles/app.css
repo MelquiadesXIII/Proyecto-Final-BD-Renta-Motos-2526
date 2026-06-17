@@ -8,6 +8,11 @@
     -fx-font-size: 18px;
 }
 
+.top-date {
+    -fx-text-fill: rgba(255, 255, 255, 0.70);
+    -fx-font-size: 12px;
+}
+
 .sidebar {
     -fx-background-color: #34495e;
     -fx-padding: 15;
