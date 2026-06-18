@@ -245,7 +245,13 @@ public class MisContratosController {
     private void onFinalizarContrato() {
         MisContratosDTO seleccionado = tablaContratos.getSelectionModel().getSelectedItem();
         if (seleccionado != null) {
-            Optional<DatosFinalizacion> datos = mostrarDialogoFinalizacion();
+            LocalDate fechaInicioContrato = LocalDate.parse(seleccionado.getFechaInicio());
+            if (fechaInicioContrato.isAfter(LocalDate.now())) {
+                mostrarAlerta("No puede finalizar un contrato que aún no ha comenzado. "
+                        + "La fecha de inicio es " + seleccionado.getFechaInicio() + ".");
+                return;
+            }
+            Optional<DatosFinalizacion> datos = mostrarDialogoFinalizacion(fechaInicioContrato);
             if (datos.isPresent()) {
                 DatosFinalizacion d = datos.get();
                 if (d.kmLlegada < 0 || d.fechaEntrega == null) {
@@ -257,7 +263,7 @@ public class MisContratosController {
         }
     }
 
-    private Optional<DatosFinalizacion> mostrarDialogoFinalizacion() {
+    private Optional<DatosFinalizacion> mostrarDialogoFinalizacion(LocalDate fechaInicioContrato) {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Finalizar contrato");
         dialog.setHeaderText("Ingrese los datos de entrega:");
@@ -269,7 +275,7 @@ public class MisContratosController {
             @Override
             public void updateItem(LocalDate date, boolean empty) {
                 super.updateItem(date, empty);
-                if (date.isAfter(LocalDate.now())) {
+                if (date.isAfter(LocalDate.now()) || date.isBefore(fechaInicioContrato)) {
                     setDisable(true);
                 }
             }
@@ -306,12 +312,16 @@ public class MisContratosController {
         } else {
             Contrato contrato = optContrato.get();
             boolean kmValido = kmLlegada >= contrato.getCantKmSalida();
-            boolean fechaValida = !fechaEntrega.isAfter(LocalDate.now());
+            boolean fechaNoFutura = !fechaEntrega.isAfter(LocalDate.now());
+            boolean fechaNoAntesDeSalida = !fechaEntrega.isBefore(contrato.getFechaInicio());
             if (!kmValido) {
-                mostrarAlerta("Los kilómetros de llegada no pueden ser menores que los de salida "
+                mostrarAlerta("Los kilómetros de llegada no pueden ser menores que los de salida ("
                         + contrato.getCantKmSalida() + " km).");
-            } else if (!fechaValida) {
+            } else if (!fechaNoFutura) {
                 mostrarAlerta("La fecha de entrega no puede ser posterior a hoy.");
+            } else if (!fechaNoAntesDeSalida) {
+                mostrarAlerta("La fecha de entrega no puede ser anterior a la fecha de inicio del contrato ("
+                        + contrato.getFechaInicio() + ").");
             } else {
                 contrato.setCantKmLlegada(kmLlegada);
                 contrato.setFechaEntrega(fechaEntrega);
