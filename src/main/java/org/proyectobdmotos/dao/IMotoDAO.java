@@ -37,5 +37,7 @@ public interface IMotoDAO extends GenericDAO<Moto, Integer> {
 
     void actualizarKilometros(int idMoto, double km);
 
+    boolean tieneContratos(int idMoto);
+
     List<Moto> listarTodos();
 }

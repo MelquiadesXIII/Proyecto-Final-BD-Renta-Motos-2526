@@ -57,7 +57,15 @@ public class MotoService {
                     "No se puede eliminar la moto: no existe"
             );
         }
-        motoDAO.eliminar(encontrada.get().getIdMoto());
+        Moto moto = encontrada.get();
+        if (motoDAO.tieneContratos(moto.getIdMoto())) {
+            Logger.logError("No se puede eliminar moto con contratos: " + matricula);
+            throw new ValidationException(
+                    BusinessErrorCode.MOTO_TIENE_CONTRATOS,
+                    "No se puede eliminar la moto: tiene contratos asociados"
+            );
+        }
+        motoDAO.eliminar(moto.getIdMoto());
     }
 
     // -----------------------------------------------------------------

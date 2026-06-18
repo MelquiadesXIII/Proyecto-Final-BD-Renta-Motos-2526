@@ -254,5 +254,10 @@ public class MotoServiceContractTest extends TestCase {
         public boolean existeSolapamiento(int idMoto, LocalDate inicio, LocalDate fin) {
             return false;
         }
+
+        @Override
+        public boolean tieneContratos(int idMoto) {
+            return false;
+        }
     }
 }

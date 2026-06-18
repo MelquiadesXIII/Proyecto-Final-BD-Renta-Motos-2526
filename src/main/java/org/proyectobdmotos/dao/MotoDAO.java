@@ -596,6 +596,23 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
         }
     }
 
+    @Override
+    public boolean tieneContratos(int idMoto) {
+        String sql = "SELECT COUNT(*) FROM contrato WHERE id_moto = ?";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setInt(1, idMoto);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            Logger.logError("Error al verificar contratos de moto: " + e.getMessage());
+            throw new RuntimeException("Error al verificar contratos de moto", e);
+        }
+        return false;
+    }
+
     public List<Moto> listarTodos() {
         String sql = "SELECT * FROM listar_motos_completas()";
         List<Moto> lista = new ArrayList<>();
