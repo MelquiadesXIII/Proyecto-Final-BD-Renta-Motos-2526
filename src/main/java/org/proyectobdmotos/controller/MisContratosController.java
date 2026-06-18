@@ -37,7 +37,7 @@ public class MisContratosController {
     @FXML private TableColumn<MisContratosDTO, String> colFechaEntrega;
 
     @FXML private Label labelSinContratos;
-    @FXML private Button btnFinalizarContrato;
+    @FXML private Button btnCancelarContrato;
 
     private final MotoService motoService;
     private final ContratoService contratoService;
@@ -78,9 +78,12 @@ public class MisContratosController {
         fijarColumnas(tablaContratos);
         cargarMotos();
         cargarContratos();
-        btnFinalizarContrato.setDisable(true);
-        tablaContratos.getSelectionModel().selectedItemProperty().addListener((obs, old, newVal) ->
-                btnFinalizarContrato.setDisable(newVal == null));
+        btnCancelarContrato.setDisable(true);
+        tablaContratos.getSelectionModel().selectedItemProperty().addListener((obs, old, newVal) -> {
+            boolean sinSeleccion = newVal == null;
+            boolean yaFinalizado = newVal != null && !"Sin entregar".equals(newVal.getFechaEntrega());
+            btnCancelarContrato.setDisable(sinSeleccion || yaFinalizado);
+        });
     }
 
     // -----------------------------------------------------------------
@@ -242,16 +245,32 @@ public class MisContratosController {
     }
 
     @FXML
-    private void onFinalizarContrato() {
+    private void onCancelarContrato() {
         MisContratosDTO seleccionado = tablaContratos.getSelectionModel().getSelectedItem();
-        if (seleccionado != null) {
-            LocalDate fechaInicioContrato = LocalDate.parse(seleccionado.getFechaInicio());
-            if (fechaInicioContrato.isAfter(LocalDate.now())) {
-                mostrarAlerta("No puede finalizar un contrato que aún no ha comenzado. "
-                        + "La fecha de inicio es " + seleccionado.getFechaInicio() + ".");
-                return;
+        if (seleccionado == null) return;
+
+        LocalDate fechaInicioContrato = LocalDate.parse(seleccionado.getFechaInicio());
+
+        if (fechaInicioContrato.isAfter(LocalDate.now())) {
+            // Contrato que aún no ha comenzado: cancelar sin necesidad de KM ni fecha de entrega
+            Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmacion.setTitle("Cancelar contrato");
+            confirmacion.setHeaderText("¿Cancelar el contrato con " + seleccionado.getMotoInfo() + "?");
+            confirmacion.setContentText("El contrato no ha comenzado (inicio: "
+                    + seleccionado.getFechaInicio() + "). Se eliminará y la moto quedará disponible.");
+            Optional<ButtonType> resultado = confirmacion.showAndWait();
+            if (resultado.isPresent() && resultado.get() == ButtonType.OK) {
+                try {
+                    contratoService.eliminarContrato(seleccionado.getIdContrato());
+                    cargarContratos();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    mostrarAlerta("Error al cancelar el contrato: " + e.getMessage());
+                }
             }
-            Optional<DatosFinalizacion> datos = mostrarDialogoFinalizacion(fechaInicioContrato);
+        } else {
+            // Contrato ya iniciado: devolución anticipada (requiere KM y fecha)
+            Optional<DatosFinalizacion> datos = mostrarDialogoDevolucion(fechaInicioContrato);
             if (datos.isPresent()) {
                 DatosFinalizacion d = datos.get();
                 if (d.kmLlegada < 0 || d.fechaEntrega == null) {
@@ -263,10 +282,10 @@ public class MisContratosController {
         }
     }
 
-    private Optional<DatosFinalizacion> mostrarDialogoFinalizacion(LocalDate fechaInicioContrato) {
+    private Optional<DatosFinalizacion> mostrarDialogoDevolucion(LocalDate fechaInicioContrato) {
         Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle("Finalizar contrato");
-        dialog.setHeaderText("Ingrese los datos de entrega:");
+        dialog.setTitle("Devolución anticipada");
+        dialog.setHeaderText("Ingrese los datos de devolución:");
 
         TextField kmField = new TextField();
         kmField.setPromptText("Kilometraje actual");
