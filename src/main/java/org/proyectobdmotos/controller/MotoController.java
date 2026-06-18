@@ -159,6 +159,9 @@ public class MotoController {
         } catch (ValidationException e) {
             e.printStackTrace();
             mostrarAlerta("Error al eliminar: " + e.getMessage());
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            mostrarAlerta("Error al eliminar: " + e.getMessage());
         }
     }
 

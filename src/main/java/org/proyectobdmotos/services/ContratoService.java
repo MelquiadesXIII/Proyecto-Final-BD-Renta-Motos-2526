@@ -92,6 +92,7 @@ public class ContratoService {
         if (puedeCrear) {
             Logger.log("Creando contrato para cliente id=" + idCliente + " con moto id=" + idMoto);
             contratoDAO.insertar(contrato);
+            motoDAO.cambiarEstado(idMoto, Situacion.ALQUILADA);
         }
 
         if (!puedeCrear) {
