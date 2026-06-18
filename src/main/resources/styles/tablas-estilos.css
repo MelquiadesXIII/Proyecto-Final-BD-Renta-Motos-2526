@@ -295,3 +295,13 @@ TabPane .button:pressed {
 .stack-pane {
     -fx-background-color: transparent;
 }
+
+.ingreso-total-label {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #f0e6d2;
+    -fx-padding: 10 14;
+    -fx-background-color: rgba(20, 25, 40, 0.85);
+    -fx-background-radius: 8;
+    -fx-alignment: CENTER_RIGHT;
+}

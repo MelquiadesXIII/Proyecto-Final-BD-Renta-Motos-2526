@@ -48,8 +48,9 @@ public class ReportesController {
     @FXML private TableColumn<ResMunDTO, Double> colDiasAlqResMun, colDiasProrrogaResMun, colEfectivoResMun, colTotalResMun;
 
     @FXML private TableView<IngAnualDTO> tablaIngresosAnuales;
-    @FXML private TableColumn<IngAnualDTO, String> colFechaAnual, colMesAnual;
-    @FXML private TableColumn<IngAnualDTO, Double> colTotalAnual, colIngresoMensual;
+    @FXML private TableColumn<IngAnualDTO, String> colMesAnual;
+    @FXML private TableColumn<IngAnualDTO, Double> colIngresoMensual;
+    @FXML private Label labelIngresoTotalAnual;
     @FXML private StackPane rootPane;
 
     public ReportesController(ClienteService clienteService, MotoService motoService, ContratoService contratoService) {
@@ -164,10 +165,15 @@ public class ReportesController {
     }
 
     private void configurarColumnasIngresosAnuales() {
-        colFechaAnual.setCellValueFactory(new PropertyValueFactory<>("fecha"));
-        colTotalAnual.setCellValueFactory(new PropertyValueFactory<>("ingresoTotalAnual"));
         colMesAnual.setCellValueFactory(new PropertyValueFactory<>("mes"));
         colIngresoMensual.setCellValueFactory(new PropertyValueFactory<>("ingresoMensual"));
+        colIngresoMensual.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : String.format("$%.2f", item));
+            }
+        });
     }
 
     private void cargarDatos() {
@@ -255,6 +261,8 @@ public class ReportesController {
         try {
             List<IngAnualDTO> lista = contratoService.ingresosAnuales();
             tablaIngresosAnuales.getItems().setAll(lista);
+            double total = lista.isEmpty() ? 0.0 : lista.get(0).getIngresoTotalAnual();
+            labelIngresoTotalAnual.setText(String.format("Ingreso total anual:  $%.2f", total));
         } catch (Exception e) {
             e.printStackTrace();
             Logger.logError("Error ingresos anuales: " + e.getMessage());

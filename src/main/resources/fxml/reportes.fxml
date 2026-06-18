@@ -134,15 +134,14 @@
 
             <Tab text="Ingresos Anuales" closable="false">
                 <VBox spacing="10">
-                    <Label text="Ingreso total del año y desglose mensual." styleClass="report-description" />
+                    <Label text="Desglose de ingresos por mes del año en curso." styleClass="report-description" />
                     <AutoSizeTableView fx:id="tablaIngresosAnuales" editable="false" VBox.vgrow="ALWAYS">
                         <columns>
-                            <TableColumn text="Fecha" fx:id="colFechaAnual"/>
-                            <TableColumn text="Total anual" fx:id="colTotalAnual"/>
                             <TableColumn text="Mes" fx:id="colMesAnual"/>
                             <TableColumn text="Ingreso mensual" fx:id="colIngresoMensual"/>
                         </columns>
                     </AutoSizeTableView>
+                    <Label fx:id="labelIngresoTotalAnual" styleClass="ingreso-total-label" />
                 </VBox>
             </Tab>
         </TabPane>
