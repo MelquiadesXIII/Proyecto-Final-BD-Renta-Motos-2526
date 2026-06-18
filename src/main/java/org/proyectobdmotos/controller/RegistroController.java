@@ -14,10 +14,7 @@ import org.proyectobdmotos.stores.ReferenceDataStore;
 import org.proyectobdmotos.ui.navigation.NavigationHistory;
 import org.proyectobdmotos.ui.navigation.ScreenLoader;
 import org.proyectobdmotos.utils.*;
-import org.proyectobdmotos.utils.Logger;
 import org.proyectobdmotos.services.exceptions.ValidationException;
-import org.proyectobdmotos.utils.ScreenUtils;
-import org.proyectobdmotos.utils.TermsWindow;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -26,7 +23,7 @@ import java.util.Map;
 public class RegistroController {
 
     @FXML private TextField campoNombreUsuario, campoGmail, campoCI, campoNombreCliente,
-            campoPrimerApellido, campoSegundoApellido, campoEdad, campoTelefono;
+            campoPrimerApellido, campoSegundoApellido, campoTelefono;
     @FXML private PasswordField campoPassword, campoConfirmarPassword;
     @FXML private ComboBox<String> comboSexo;
     @FXML private ComboBox<String> comboMunicipio;
@@ -39,7 +36,6 @@ public class RegistroController {
     private final ReferenceDataStore referenceDataStore;
     private final AgenciaStore agenciaStore;
 
-    // Mapa estático que asocia el nombre del municipio con su ID en la base de datos
     private static final Map<String, Integer> municipiosMap = new HashMap<>();
     static {
         municipiosMap.put("Playa", 1);
@@ -75,10 +71,6 @@ public class RegistroController {
     // Inicialización
     // -----------------------------------------------------------------
 
-    /**
-     * Configura los combos de sexo y municipio, y ajusta la imagen de fondo
-     * al tamaño del contenedor padre al abrir la pantalla.
-     */
     @FXML
     private void initialize() {
         comboSexo.getItems().addAll("Masculino", "Femenino");
@@ -95,14 +87,9 @@ public class RegistroController {
     }
 
     // -----------------------------------------------------------------
-    // Registro de nuevo usuario
+    // Registro
     // -----------------------------------------------------------------
 
-    /**
-     * Orquesta el proceso de registro: valida los campos obligatorios,
-     * las contraseñas y los términos. Si todo es correcto, crea el usuario
-     * y el cliente asociado de forma atómica.
-     */
     @FXML
     private void registrar() {
         if (!validarCamposObligatorios()) {
@@ -116,10 +103,6 @@ public class RegistroController {
         }
     }
 
-    /**
-     * Verifica que todos los campos marcados como obligatorios tengan algún valor.
-     * @return true si todos los campos obligatorios están llenos, false si alguno está vacío.
-     */
     private boolean validarCamposObligatorios() {
         boolean nombreUsuarioVacio = campoNombreUsuario.getText().trim().isEmpty();
         boolean gmailVacio = campoGmail.getText().trim().isEmpty();
@@ -127,22 +110,152 @@ public class RegistroController {
         boolean ciVacio = campoCI.getText().trim().isEmpty();
         boolean nombreClienteVacio = campoNombreCliente.getText().trim().isEmpty();
         boolean primerApellidoVacio = campoPrimerApellido.getText().trim().isEmpty();
-        boolean edadVacio = campoEdad.getText().trim().isEmpty();
         boolean telefonoVacio = campoTelefono.getText().trim().isEmpty();
         boolean sexoNulo = comboSexo.getValue() == null;
         boolean municipioNulo = comboMunicipio.getValue() == null;
 
         return !nombreUsuarioVacio && !gmailVacio && !passwordVacio && !ciVacio
-                && !nombreClienteVacio && !primerApellidoVacio && !edadVacio
+                && !nombreClienteVacio && !primerApellidoVacio
                 && !telefonoVacio && !sexoNulo && !municipioNulo;
     }
 
-    /**
-     * Ejecuta la creación del usuario y del cliente en la base de datos.
-     * Si la creación del cliente falla, se elimina el usuario recién creado
-     * para mantener la consistencia (operación atómica simulada).
-     */
+    // -----------------------------------------------------------------
+    // Validaciones detalladas (usan exactamente los métodos de Validator)
+    // -----------------------------------------------------------------
+
+    private boolean validarClienteCompleto() {
+        String ci = campoCI.getText().trim();
+        String nombre = campoNombreCliente.getText().trim();
+        String primerApellido = campoPrimerApellido.getText().trim();
+        String segundoApellido = campoSegundoApellido.getText().trim();
+        String telefono = campoTelefono.getText().trim();
+
+        boolean ciValido = false;
+        try {
+            Validator.validateCI(ci);
+            if (comboSexo.getValue() != null) {
+                Validator.validateCISexo(ci, comboSexo.getValue());
+            }
+            ciValido = true;
+        } catch (ValidationException e) {
+            mostrarError(e.getMessage());
+        }
+
+        boolean edadValida = false;
+        if (ciValido) {
+            try {
+                int edadCalculada = Validator.calcularEdadDesdeCI(ci);
+                Validator.validateAge(edadCalculada);
+                edadValida = true;
+            } catch (ValidationException e) {
+                mostrarError("Edad calculada desde el CI: " + e.getMessage());
+            }
+        }
+
+        boolean nombreValido = false;
+        try {
+            Validator.validateText(nombre);
+            nombreValido = true;
+        } catch (ValidationException e) {
+            mostrarError("Nombre: " + e.getMessage());
+        }
+
+        boolean apellidoValido = false;
+        try {
+            Validator.validateText(primerApellido);
+            apellidoValido = true;
+        } catch (ValidationException e) {
+            mostrarError("Primer apellido: " + e.getMessage());
+        }
+
+        boolean segundoApellidoValido = true;
+        if (!segundoApellido.isEmpty()) {
+            try {
+                Validator.validateText(segundoApellido);
+            } catch (ValidationException e) {
+                mostrarError("Segundo apellido: " + e.getMessage());
+                segundoApellidoValido = false;
+            }
+        }
+
+        boolean telefonoValido = false;
+        try {
+            Validator.validateTelephoneNumber(telefono);
+            telefonoValido = true;
+        } catch (ValidationException e) {
+            mostrarError(e.getMessage());
+        }
+
+        boolean ciUnico = true;
+        if (ciValido) {
+            try {
+                Validator.validateUniqueField("ci", ci);
+            } catch (ValidationException e) {
+                mostrarError(e.getMessage());
+                ciUnico = false;
+            }
+        }
+
+        return ciValido && edadValida && nombreValido && apellidoValido
+                && segundoApellidoValido && telefonoValido && ciUnico;
+    }
+
+    private boolean validarUsuario() {
+        String nombreUsuario = campoNombreUsuario.getText().trim();
+        String gmail = campoGmail.getText().trim();
+        String password = campoPassword.getText().trim();
+
+        boolean camposObligatorios = !nombreUsuario.isEmpty() && !gmail.isEmpty();
+        if (!camposObligatorios) {
+            mostrarError("Los campos de la cuenta (usuario y gmail) son obligatorios.");
+        }
+
+        boolean passwordValida = !password.isEmpty();
+        if (!passwordValida) {
+            mostrarError("La contraseña es obligatoria.");
+        }
+
+        boolean longitudPassword = password.length() >= 4;
+        if (!longitudPassword) {
+            mostrarError("La contraseña debe tener al menos 4 caracteres.");
+        }
+
+        boolean usuarioFormato = false;
+        try {
+            Validator.validateTextWithNumbers(nombreUsuario);
+            usuarioFormato = true;
+        } catch (ValidationException e) {
+            mostrarError("Nombre de usuario: " + e.getMessage());
+        }
+
+        boolean correoValido = gmail.matches("^[\\w.+-]+@[\\w-]+\\.[\\w.]+$");
+        if (!correoValido) {
+            mostrarError("El correo electrónico no tiene un formato válido.");
+        }
+
+        boolean unicidadValida = true;
+        if (camposObligatorios && usuarioFormato && correoValido) {
+            try {
+                usuarioService.verificarUnicidadRegistro(nombreUsuario, gmail);
+            } catch (ValidationException e) {
+                mostrarError(e.getMessage());
+                unicidadValida = false;
+            }
+        }
+
+        return camposObligatorios && passwordValida && longitudPassword
+                && usuarioFormato && correoValido && unicidadValida;
+    }
+
+    // -----------------------------------------------------------------
+    // Ejecución del registro
+    // -----------------------------------------------------------------
+
     private void ejecutarRegistro() {
+        if (!validarUsuario() || !validarClienteCompleto()) {
+            return;
+        }
+
         try {
             Usuario nuevoUsuario = usuarioService.registrarUsuario(
                     campoNombreUsuario.getText().trim(),
@@ -163,9 +276,6 @@ public class RegistroController {
         } catch (ValidationException e) {
             e.printStackTrace();
             mostrarError(e.getMessage());
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-            mostrarError("La edad debe ser un número válido.");
         } catch (Exception e) {
             e.printStackTrace();
             Logger.logError("Error en registro: " + e.getMessage());
@@ -173,40 +283,30 @@ public class RegistroController {
         }
     }
 
-    /**
-     * Construye un objeto Cliente a partir de los campos del formulario.
-     * @return un nuevo Cliente con los datos ingresados.
-     */
     private Cliente construirClienteDesdeCampos() {
-        return new Cliente(
-                null,
-                campoCI.getText().trim(),
-                campoNombreCliente.getText().trim(),
-                campoPrimerApellido.getText().trim(),
-                campoSegundoApellido.getText().trim(),
-                Integer.parseInt(campoEdad.getText().trim()),
-                comboSexo.getValue().equals("Masculino") ? Sexo.MASCULINO : Sexo.FEMENINO,
-                campoTelefono.getText().trim(),
-                municipiosMap.getOrDefault(comboMunicipio.getValue(), -1)
-        );
+        String ci = campoCI.getText().trim();
+        String segundoApellido = campoSegundoApellido.getText().trim();
+        Cliente nuevo = new Cliente();
+        nuevo.setCiCliente(ci);
+        nuevo.setNombreCliente(campoNombreCliente.getText().trim());
+        nuevo.setPrimerApellido(campoPrimerApellido.getText().trim());
+        nuevo.setSegundoApellido(segundoApellido.isEmpty() ? null : segundoApellido);
+        nuevo.setEdad(Validator.calcularEdadDesdeCI(ci));
+        nuevo.setSexo(comboSexo.getValue().equals("Masculino") ? Sexo.MASCULINO : Sexo.FEMENINO);
+        nuevo.setNumeroContacto(campoTelefono.getText().trim());
+        nuevo.setIdMunicipio(municipiosMap.getOrDefault(comboMunicipio.getValue(), -1));
+        return nuevo;
     }
 
     // -----------------------------------------------------------------
     // Navegación
     // -----------------------------------------------------------------
 
-    /**
-     * Muestra la ventana con los términos y condiciones.
-     */
     @FXML
     private void mostrarTerminos() {
         TermsWindow.show((Stage) campoNombreUsuario.getScene().getWindow());
     }
 
-    /**
-     * Regresa a la pantalla de login. Si no hay historial de navegación,
-     * simplemente registra un mensaje informativo.
-     */
     @FXML
     private void volverAlLogin() {
         Parent anterior = NavigationHistory.goBack(screenLoader);
@@ -218,10 +318,6 @@ public class RegistroController {
         }
     }
 
-    /**
-     * Abre la pantalla principal del usuario después de un registro exitoso.
-     * Guarda el usuario en el store y configura la escena.
-     */
     private void irAPantallaUsuario(Usuario usuario) {
         try {
             Parent userMainRoot = screenLoader.load("/fxml/user-main.fxml");
@@ -242,20 +338,10 @@ public class RegistroController {
     }
 
     // -----------------------------------------------------------------
-    // Utilidades de alertas
+    // Alertas
     // -----------------------------------------------------------------
 
-    /**
-     * Muestra un mensaje de error en un cuadro de diálogo.
-     */
     private void mostrarError(String mensaje) {
         AlertUtils.mostrarError(mensaje);
-    }
-
-    /**
-     * Muestra un mensaje informativo con un título y contenido descriptivo.
-     */
-    private void mostrarInfo(String titulo, String mensaje) {
-        AlertUtils.mostrarInfoCabecera(titulo,mensaje);
     }
 }
