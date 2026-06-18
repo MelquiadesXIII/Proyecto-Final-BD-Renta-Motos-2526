@@ -38,7 +38,7 @@
 
             <HBox spacing="20" alignment="CENTER">
                 <Button text="Crear Nuevo Contrato" onAction="#onCrearNuevoContrato" styleClass="btn-primary" />
-                <Button text="Finalizar Contrato" onAction="#onFinalizarContrato" fx:id="btnFinalizarContrato" styleClass="btn-danger" />
+                <Button text="Cancelar Contrato" onAction="#onCancelarContrato" fx:id="btnCancelarContrato" styleClass="btn-danger" />
             </HBox>
         </VBox>
     </ScrollPane>
