@@ -78,13 +78,13 @@ public class MisContratosController {
         fijarColumnas(tablaContratos);
         cargarMotos();
         cargarContratos();
+        fix/fixes
         btnCancelarContrato.setDisable(true);
         tablaContratos.getSelectionModel().selectedItemProperty().addListener((obs, old, newVal) -> {
             boolean sinSeleccion = newVal == null;
             boolean yaFinalizado = newVal != null && !"Sin entregar".equals(newVal.getFechaEntrega());
             btnCancelarContrato.setDisable(sinSeleccion || yaFinalizado);
         });
-    }
 
     // -----------------------------------------------------------------
     // Configuración de columnas
