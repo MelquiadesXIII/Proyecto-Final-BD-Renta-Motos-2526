@@ -37,7 +37,7 @@ public class MisContratosController {
     @FXML private TableColumn<MisContratosDTO, String> colFechaEntrega;
 
     @FXML private Label labelSinContratos;
-    @FXML private Button btnFinalizarContrato;
+    @FXML private Button btnCancelarContrato;
 
     private final MotoService motoService;
     private final ContratoService contratoService;
@@ -78,10 +78,13 @@ public class MisContratosController {
         fijarColumnas(tablaContratos);
         cargarMotos();
         cargarContratos();
-        btnFinalizarContrato.setDisable(true);
-        tablaContratos.getSelectionModel().selectedItemProperty().addListener((obs, old, newVal) ->
-                btnFinalizarContrato.setDisable(newVal == null));
-    }
+        fix/fixes
+        btnCancelarContrato.setDisable(true);
+        tablaContratos.getSelectionModel().selectedItemProperty().addListener((obs, old, newVal) -> {
+            boolean sinSeleccion = newVal == null;
+            boolean yaFinalizado = newVal != null && !"Sin entregar".equals(newVal.getFechaEntrega());
+            btnCancelarContrato.setDisable(sinSeleccion || yaFinalizado);
+        });
 
     // -----------------------------------------------------------------
     // Configuración de columnas
@@ -242,10 +245,32 @@ public class MisContratosController {
     }
 
     @FXML
-    private void onFinalizarContrato() {
+    private void onCancelarContrato() {
         MisContratosDTO seleccionado = tablaContratos.getSelectionModel().getSelectedItem();
-        if (seleccionado != null) {
-            Optional<DatosFinalizacion> datos = mostrarDialogoFinalizacion();
+        if (seleccionado == null) return;
+
+        LocalDate fechaInicioContrato = LocalDate.parse(seleccionado.getFechaInicio());
+
+        if (fechaInicioContrato.isAfter(LocalDate.now())) {
+            // Contrato que aún no ha comenzado: cancelar sin necesidad de KM ni fecha de entrega
+            Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmacion.setTitle("Cancelar contrato");
+            confirmacion.setHeaderText("¿Cancelar el contrato con " + seleccionado.getMotoInfo() + "?");
+            confirmacion.setContentText("El contrato no ha comenzado (inicio: "
+                    + seleccionado.getFechaInicio() + "). Se eliminará y la moto quedará disponible.");
+            Optional<ButtonType> resultado = confirmacion.showAndWait();
+            if (resultado.isPresent() && resultado.get() == ButtonType.OK) {
+                try {
+                    contratoService.eliminarContrato(seleccionado.getIdContrato());
+                    cargarContratos();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    mostrarAlerta("Error al cancelar el contrato: " + e.getMessage());
+                }
+            }
+        } else {
+            // Contrato ya iniciado: devolución anticipada (requiere KM y fecha)
+            Optional<DatosFinalizacion> datos = mostrarDialogoDevolucion(fechaInicioContrato);
             if (datos.isPresent()) {
                 DatosFinalizacion d = datos.get();
                 if (d.kmLlegada < 0 || d.fechaEntrega == null) {
@@ -257,10 +282,10 @@ public class MisContratosController {
         }
     }
 
-    private Optional<DatosFinalizacion> mostrarDialogoFinalizacion() {
+    private Optional<DatosFinalizacion> mostrarDialogoDevolucion(LocalDate fechaInicioContrato) {
         Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle("Finalizar contrato");
-        dialog.setHeaderText("Ingrese los datos de entrega:");
+        dialog.setTitle("Devolución anticipada");
+        dialog.setHeaderText("Ingrese los datos de devolución:");
 
         TextField kmField = new TextField();
         kmField.setPromptText("Kilometraje actual");
@@ -269,7 +294,7 @@ public class MisContratosController {
             @Override
             public void updateItem(LocalDate date, boolean empty) {
                 super.updateItem(date, empty);
-                if (date.isAfter(LocalDate.now())) {
+                if (date.isAfter(LocalDate.now()) || date.isBefore(fechaInicioContrato)) {
                     setDisable(true);
                 }
             }
@@ -306,12 +331,16 @@ public class MisContratosController {
         } else {
             Contrato contrato = optContrato.get();
             boolean kmValido = kmLlegada >= contrato.getCantKmSalida();
-            boolean fechaValida = !fechaEntrega.isAfter(LocalDate.now());
+            boolean fechaNoFutura = !fechaEntrega.isAfter(LocalDate.now());
+            boolean fechaNoAntesDeSalida = !fechaEntrega.isBefore(contrato.getFechaInicio());
             if (!kmValido) {
-                mostrarAlerta("Los kilómetros de llegada no pueden ser menores que los de salida "
+                mostrarAlerta("Los kilómetros de llegada no pueden ser menores que los de salida ("
                         + contrato.getCantKmSalida() + " km).");
-            } else if (!fechaValida) {
+            } else if (!fechaNoFutura) {
                 mostrarAlerta("La fecha de entrega no puede ser posterior a hoy.");
+            } else if (!fechaNoAntesDeSalida) {
+                mostrarAlerta("La fecha de entrega no puede ser anterior a la fecha de inicio del contrato ("
+                        + contrato.getFechaInicio() + ").");
             } else {
                 contrato.setCantKmLlegada(kmLlegada);
                 contrato.setFechaEntrega(fechaEntrega);
