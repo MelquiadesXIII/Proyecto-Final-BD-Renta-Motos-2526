@@ -40,9 +40,10 @@ public class ClienteService {
     }
 
     /**
-     * Elimina un cliente a partir de su CI.
+     * Elimina un cliente a partir de su CI junto con su usuario asociado.
+     * La eliminación del usuario la ejecuta automáticamente el trigger
+     * trg_eliminar_usuario_al_borrar_cliente (V30) en la base de datos.
      * Si el cliente no existe, se lanza una excepción de validación.
-     * En caso de existir, se elimina y se registra en el log.
      */
     public void eliminarCliente(String ci) {
         Logger.log("Eliminando cliente por CI: " + ci);
@@ -58,8 +59,10 @@ public class ClienteService {
     }
 
     /**
-     * Elimina un cliente y todos sus registros asociados en cascada.
-     * Si el cliente no existe, lanza una excepción; si existe, ejecuta la eliminación en cascada.
+     * Elimina un cliente, sus contratos y su usuario asociado.
+     * Los contratos se borran explícitamente antes que el cliente; el usuario
+     * se borra por el trigger trg_eliminar_usuario_al_borrar_cliente (V30).
+     * Si el cliente no existe, lanza una excepción de validación.
      */
     public void eliminarClienteConCascada(String ci) {
         Logger.log("Eliminando cliente con cascada por CI: " + ci);
