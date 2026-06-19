@@ -71,14 +71,16 @@ public class ContratoService {
         }
 
         if (clienteExiste && motoExiste) {
-            boolean haySolapamiento = motoDAO.existeSolapamiento(idMoto,
-                    contrato.getFechaInicio(), contrato.getFechaFin());
-            if (haySolapamiento) {
-                Logger.logError("Moto con solapamiento: id=" + idMoto +
-                        " periodo [" + contrato.getFechaInicio() + " – " + contrato.getFechaFin() + "]");
+            // Regla de negocio: solo se puede alquilar una moto cuyo estado
+            // sea DISPONIBLE. La base de datos también lo refuerza mediante el
+            // trigger trg_check_disponible (V34); esta comprobación previa
+            // permite mostrar un mensaje claro en la interfaz.
+            boolean disponible = motoDAO.estaDisponible(idMoto);
+            if (!disponible) {
+                Logger.logError("Moto no disponible para alquilar: id=" + idMoto);
                 validationException = new ValidationException(
                         BusinessErrorCode.MOTO_NO_DISPONIBLE,
-                        "No se puede crear el contrato: la moto ya está alquilada en ese período"
+                        "No se puede crear el contrato: la moto no está disponible"
                 );
             } else {
                 motoDisponible = true;

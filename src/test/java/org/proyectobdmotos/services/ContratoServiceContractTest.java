@@ -55,7 +55,7 @@ public class ContratoServiceContractTest extends TestCase {
         FakeMotoDAO motoDAO = new FakeMotoDAO();
         clienteDAO.cliente = Optional.of(new Cliente(1, "99123112351", "Ana", "Perez", "Lopez", 30, Sexo.FEMENINO, "65512345", 1));
         motoDAO.moto = Optional.of(crearMoto(1, "MO0001"));
-        motoDAO.solapamiento = true;   // simula que la moto no está disponible (solapamiento de fechas)
+        motoDAO.disponible = false;   // la moto no está en estado DISPONIBLE
         ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
         Contrato contrato = crearContrato(1, 1);
 
@@ -77,7 +77,7 @@ public class ContratoServiceContractTest extends TestCase {
         FakeMotoDAO motoDAO = new FakeMotoDAO();
         clienteDAO.cliente = Optional.of(new Cliente(1, "99123112351", "Ana", "Perez", "Lopez", 30, Sexo.FEMENINO, "65512345", 1));
         motoDAO.moto = Optional.of(crearMoto(1, "MO0001"));
-        motoDAO.solapamiento = false;
+        motoDAO.disponible = true;   // la moto está en estado DISPONIBLE
         ContratoService contratoService = new ContratoService(contratoDAO, clienteDAO, motoDAO);
         Contrato contrato = crearContrato(1, 1);
 
@@ -592,6 +592,7 @@ public class ContratoServiceContractTest extends TestCase {
 
     private static final class FakeMotoDAO implements IMotoDAO {
         private boolean solapamiento = false;
+        private boolean disponible = false;
         private int buscarPorIdCount;
         private int cambiarEstadoCount;
         private Optional<Moto> moto = Optional.empty();
@@ -646,7 +647,7 @@ public class ContratoServiceContractTest extends TestCase {
 
         @Override
         public boolean estaDisponible(Integer idMoto) {
-            return false;
+            return disponible;
         }
 
         @Override
