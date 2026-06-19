@@ -274,8 +274,6 @@ public class ContratoDAO extends AbstractGenericDAO<Contrato, Integer> implement
             boolean hayFila = rs.next();
             while (hayFila) {
                 lista.add(new IngAnualDTO(
-                        rs.getDate("Fecha") != null ? rs.getDate("Fecha").toLocalDate() : null,
-                        rs.getDouble("Ingreso total anual"),
                         rs.getString("Mes"),
                         rs.getDouble("Ingreso mensual")
                 ));

@@ -261,7 +261,14 @@ public class ReportesController {
         try {
             List<IngAnualDTO> lista = contratoService.ingresosAnuales();
             tablaIngresosAnuales.getItems().setAll(lista);
-            double total = lista.isEmpty() ? 0.0 : lista.get(0).getIngresoTotalAnual();
+            double total = 0.0;
+            boolean procesando = true;
+            int i = 0;
+            while (procesando && i < lista.size()) {
+                total += lista.get(i).getIngresoMensual();
+                i++;
+                procesando = i < lista.size();
+            }
             labelIngresoTotalAnual.setText(String.format("Ingreso total anual:  $%.2f", total));
         } catch (Exception e) {
             e.printStackTrace();
