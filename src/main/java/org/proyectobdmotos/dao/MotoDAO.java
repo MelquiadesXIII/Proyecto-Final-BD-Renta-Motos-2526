@@ -563,7 +563,7 @@ public class MotoDAO extends AbstractGenericDAO<Moto, Integer> implements IMotoD
      * @return true si existe solapamiento, false en caso contrario.
      */
     public boolean existeSolapamiento(int idMoto, LocalDate inicio, LocalDate fin) {
-        String sql = "SELECT COUNT(*) FROM contrato WHERE id_moto = ? AND (fecha_inicio, fecha_fin) OVERLAPS (?, ?)";
+        String sql = "SELECT COUNT(*) FROM contrato WHERE id_moto = ? AND fecha_entrega IS NULL AND (fecha_inicio, fecha_fin) OVERLAPS (?, ?)";
         boolean solapamiento = false;
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setInt(1, idMoto);
