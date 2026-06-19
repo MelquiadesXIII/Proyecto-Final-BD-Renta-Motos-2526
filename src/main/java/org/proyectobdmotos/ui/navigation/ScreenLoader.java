@@ -196,10 +196,6 @@ public final class ScreenLoader {
                 return new MarcasModelosController(compositionRoot.getModeloService());
             }
 
-            if (controllerClass == InventarioController.class) {
-                return new InventarioController(compositionRoot.getMotoService());
-            }
-
 
             throw new IllegalStateException(
                     "Controller desconocido: " + controllerClass.getName() +

@@ -40,7 +40,6 @@
             <Button text="Motos" onAction="#onShowMotos" styleClass="sidebar-button" maxWidth="Infinity" />
             <Button text="Contratos" onAction="#onShowContratos" styleClass="sidebar-button" maxWidth="Infinity" />
             <Button text="Marcas y Modelos" onAction="#onShowMarcasModelos" styleClass="sidebar-button" maxWidth="Infinity" />
-            <Button text="Inventario" onAction="#onShowInventario" styleClass="sidebar-button" maxWidth="Infinity" />
             <Button text="Reportes" onAction="#onShowReportes" styleClass="sidebar-button" maxWidth="Infinity" />
             <Button text="Ayuda" onAction="#onShowAyuda" styleClass="sidebar-button" maxWidth="Infinity" />
             <Button text="Salir" onAction="#onSalir" styleClass="sidebar-button" maxWidth="Infinity" />

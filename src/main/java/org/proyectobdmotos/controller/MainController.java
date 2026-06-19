@@ -74,11 +74,6 @@ public class MainController {
     }
 
     @FXML
-    private void onShowInventario() {
-        loadView("/fxml/inventario.fxml", "Inventario");
-    }
-
-    @FXML
     private void onShowReportes() {
         loadView("/fxml/reportes.fxml", "Reportes");
     }
