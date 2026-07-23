@@ -234,12 +234,6 @@ public class ClienteDAO extends AbstractGenericDAO<Cliente, Integer> implements 
             Connection conn = getConnection();
             conn.setAutoCommit(false);
 
-            String deleteContratos = "DELETE FROM contrato WHERE id_cliente = ?";
-            try (PreparedStatement ps = conn.prepareStatement(deleteContratos)) {
-                ps.setInt(1, idCliente);
-                ps.executeUpdate();
-            }
-
             String deleteCliente = "DELETE FROM cliente WHERE id_cliente = ?";
             try (PreparedStatement ps = conn.prepareStatement(deleteCliente)) {
                 ps.setInt(1, idCliente);
